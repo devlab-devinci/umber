@@ -1,5 +1,4 @@
 # Umber
-<<<<<<< HEAD
   Application for selling items.
   
 
@@ -43,12 +42,5 @@ __**Required**__
       $ php bin/console doctrine:generate:entities ( check your entities version / sync entities methods )
       $ php bin/console server:run (http://127.0.0.1:8000/ default)
       
-      
-=======
-
-=============
-
-
-
+     
 [![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://github.com/sylvainSUPINTERNET)
->>>>>>> aca22908acafdbba386074c6403a8ecb10d336d4
