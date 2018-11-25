@@ -1,13 +1,14 @@
 <template>
     <Page>
         <ActionBar title="Welcome to NativeScript-Vue!" android:flat="true"/>
+
         <TabView android:tabBackgroundColor="#53ba82"
                  android:tabTextColor="#c4ffdf"
                  android:selectedTabTextColor="#ffffff"
                  androidSelectedTabHighlightColor="#ffffff">
             <TabViewItem title="Tab 1">
                 <GridLayout columns="*" rows="*">
-                    <Label class="message" :text="msg" col="0" row="0"/>
+                    <Label class="message" :text="store_firstname" col="0" row="0"/>
                 </GridLayout>
             </TabViewItem>
             <TabViewItem title="Tab 2">
@@ -25,10 +26,13 @@
 </template>
 
 <script>
+
   export default {
     data() {
       return {
-        msg: 'Hello World!'
+        msg: 'Hello World!',
+        store_firstname: this.$store.state.firstname,
+        store_lastname: this.$store.state.lastname
       }
     }
   }
