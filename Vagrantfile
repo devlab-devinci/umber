@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
-  config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8082, host: 8082, host_ip: "127.0.0.1"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -85,14 +85,17 @@ Vagrant.configure("2") do |config|
 
    echo "############################################################################################"
    echo "Adding package Node and Npm"
+   apt-get install -y build-essential libssl-dev npm
 
-   apt-get install -y nodejs npm
-   n latest
-   ln -s /usr/bin/nodejs /usr/bin/node
-   npm cache clean -f
-   npm install -g n
-   n stable
-
+   # npm cache clean -f
+   cd /home
+   curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh -o install_nvm.sh
+   bash install_nvm.sh
+   nvm install 9.7.1
+   nvm use 9
+   npm install -g npm@6.1.0
+   npm install nativescript -g --unsafe-perm
+   npm install -g @vue/cli @vue/cli-init
 
    echo "Start the installation of android tools"
    echo "Updating system..."
@@ -111,22 +114,20 @@ Vagrant.configure("2") do |config|
    export JAVA_HOME=$(update-alternatives --query javac | sed -n -e 's/Best: *\(.*\)\/bin\/javac/\1/p')
 
 
-    echo "############################################################################################"
-    echo "Download Android SDK"
+   echo "############################################################################################"
+   echo "Download Android SDK"
+   ANDROID_SDK_FILENAME=sdk-tools-linux-4333796.zip
+   ANDROID_SDK=http://dl.google.com/android/repository/$ANDROID_SDK_FILENAME
+   curl -O $ANDROID_SDK
+   unzip $ANDROID_SDK_FILENAME
+   mkdir android-sdk-linux
+   mv tools android-sdk-linux
+   chown -R vagrant android-sdk-linux/
+   rm $ANDROID_SDK_FILENAME
 
-    ANDROID_SDK_FILENAME=sdk-tools-linux-4333796.zip
-    ANDROID_SDK=http://dl.google.com/android/repository/$ANDROID_SDK_FILENAME
-
-    curl -O $ANDROID_SDK
-    unzip $ANDROID_SDK_FILENAME
-    mkdir android-sdk-linux
-    mv tools android-sdk-linux
-    chown -R vagrant android-sdk-linux/
-    rm $ANDROID_SDK_FILENAME
-    echo "ANDROID_HOME=~/android-sdk-linux" >> /home/vagrant/.bashrc
-
-    echo "PATH=\$PATH:~/android-sdk-linux/tools:~/android-sdk-linux/platform-tools" >> /home/vagrant/.bashrc
-    sudo -H gedit admin:///etc/environment
+   echo "ANDROID_HOME=~/android-sdk-linux" >> /home/vagrant/.bashrc
+   echo "PATH=\$PATH:~/android-sdk-linux/tools:~/android-sdk-linux/platform-tools" >> /home/vagrant/.bashrc
+   sudo -H gedit admin:///etc/environment
 
 
    echo "############################################################################################"
@@ -144,13 +145,9 @@ Vagrant.configure("2") do |config|
    android-sdk-linux/tools/bin/ list
 
 
-   echo "############################################################################################"
-   echo "Project unmber"
-
-
-   cd /var/wwww
-   npm install
-   npm install nativescript -g --unsafe-perm
-   npm install -g @vue/cli @vue/cli-init
+  echo "############################################################################################"
+  echo "Adding package Node and Npm"
+  cd /var/www
+  npm install
   SHELL
 end
