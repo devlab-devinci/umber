@@ -45,7 +45,7 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "./", "/var/www"
+  config.vm.synced_folder "./", "/var/www", create: true
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -66,20 +66,27 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and uuse.
   config.vm.provision "shell", inline: <<-SHELL
-   sudo apt-get update
-   sudo apt-get upgrade -y
-   sudo apt-get install -y task-gnome-desktop
-   sudo add-apt-repository ppa:webupd8team/java
-   sudo add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main"
-   sudo apt-get update
-   sudo apt-get upgrade -y
-   sudo apt-get autoremove -y
+   sudo su
+   apt-get update
+   apt-get upgrade -y
+
+   echo "############################################################################################"
+   echo "Install gnome-desktop"
+   apt-get install -y task-gnome-desktop
+   add-apt-repository ppa:webupd8team/java
+   add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main"
+
+   echo "############################################################################################"
+   echo "apt update upgrade autoremove"
+   apt-get update
+   apt-get upgrade -y
+   apt-get autoremove -y
 
 
    echo "############################################################################################"
    echo "Adding package Node and Npm"
 
-   sudo apt-get install -y nodejs npm
+   apt-get install -y nodejs npm
    n latest
    ln -s /usr/bin/nodejs /usr/bin/node
    npm cache clean -f
@@ -94,7 +101,7 @@ Vagrant.configure("2") do |config|
    echo "Adding package Java"
 
    dpkg --add-architecture i386
-   sudo apt-get install -y lib32z1 lib32ncurses5 libstdc++6:i386 g++
+   apt-get install -y lib32z1 lib32ncurses5 libstdc++6:i386 g++
 
 
    echo "############################################################################################"
@@ -114,7 +121,7 @@ Vagrant.configure("2") do |config|
     unzip $ANDROID_SDK_FILENAME
     mkdir android-sdk-linux
     mv tools android-sdk-linux
-    sudo chown -R vagrant android-sdk-linux/
+    chown -R vagrant android-sdk-linux/
     rm $ANDROID_SDK_FILENAME
     echo "ANDROID_HOME=~/android-sdk-linux" >> /home/vagrant/.bashrc
 
@@ -142,8 +149,8 @@ Vagrant.configure("2") do |config|
 
 
    cd /var/wwww
-   sudo npm install
-   sudo npm install nativescript -g --unsafe-perm
-   sudo npm install -g @vue/cli @vue/cli-init
+   npm install
+   npm install nativescript -g --unsafe-perm
+   npm install -g @vue/cli @vue/cli-init
   SHELL
 end
