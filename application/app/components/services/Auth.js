@@ -22,8 +22,8 @@ import {
 function configureOAuthProviderFacebook() {
     const facebookProviderOptions = {
       openIdSupport: "oid-none",
-      clientId: "2018393531588331",
-      clientSecret: "c1253a6ceb1431ad2278e4abf069f754",
+      clientId: "334703143750899",
+      clientSecret: "3caf594b2d3724da7a52a3a798c9c40f",
       redirectUri: "https://www.facebook.com/connect/login_success.html",
       scopes: ["email"]
     };
@@ -34,30 +34,14 @@ function configureOAuthProviderFacebook() {
   export function tnsOauthLogin(providerType) {
     client = new TnsOAuthClient(providerType);
 
-    let response = {error:true, data:"", token: ""}; // default
-  
-    client.loginWithCompletion((access_token, error) => {
-      if (error) {
-        //console.error("back to main page with error: ");
-        //console.error(error);
-        response = {
-          error: true,
-          data: error,
-          token: "Error is occured"
+    return new Promise(function(resolve, reject) {
+      client.loginWithCompletion((access_token, error) => {
+        if (error) {
+          reject("error");
+        } else {
+          resolve(access_token);
         }
-        console.log("ERROR LOGIN", response)
-        return response;
-      } else {
-        //console.log("back to main page with access token: ");
-        //console.log(token);
-        response = {
-          error: false,
-          data: "",
-          token: access_token
-        }
-        console.log("SUCCESS LOGIN", response)
-        return response;
-      }
+      });
     });
   }
   

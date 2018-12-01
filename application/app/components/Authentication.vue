@@ -10,7 +10,7 @@
             <TabViewItem title="Login">
                 <!-- user columns=*rows =* pour du responsive peut aussi servir pour faire les offset -->
                 <GridLayout columns="*" rows="*" backgroundColor="#FFF">
-                    <Button text="Login with fb" @tap="onButtonTap" />
+                    <Button text="Login with fb" @tap="login" />
                 </GridLayout>
             </TabViewItem>
 
@@ -25,26 +25,38 @@
 
 <script>
 import { tnsOauthLogin, tnsOauthLogout } from "./services/Auth";
-    
+
 export default {
     
 component: {
-            //my component
+            //my component here
     },
     data() {
       return {
-        msg: 'Hello World!',
-        store_firstname: this.$store.state.firstname,
-        store_lastname: this.$store.state.lastname
       }
     },
     methods: {
-            onButtonTap(event) {
-                console.log("TAPPED");
-                tnsOauthLogin('facebook'); // TODO -> dans la fonction loggin si success on envoi un event au store 
-                //todo dans le store on aura le token et ajouter une method pour decodé le token access 
-                  //todo regarder pour la gestion du refresh access_token
-                //todo dispatch la state access_token avec le token recuperer     
+            login(event) {
+                let self = this;
+                tnsOauthLogin('facebook')
+                .then(function(response){
+                    self.$store.commit('setAccessToken', response.accessToken) //commit == mutation (update)
+
+                    self.$store
+                    .dispatch('findFbUser', response.accessToken) //dispatch == action  (return promise)
+                    .then(function(userData){
+                        self.$store
+                        .commit('setFbUser', userData) // update user we get 
+
+                        console.log("LOGGED USER ->", self.$store.getters.getFbUser.email)
+                    })
+
+                    //TODO -> return modal here
+                    .catch(err => {console.log("LOGIN FAILED",err)})
+
+                }) 
+                .catch(err => console.log(err))
+                //TODO -> return error  with modal (voir tuto)
             }
     }
   }
