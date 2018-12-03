@@ -1,5 +1,7 @@
 module.exports = {
+  version: '/v1',
   app: {
+    host: 'https://localhost',
     port: 3000
   },
   server: {
@@ -10,5 +12,10 @@ module.exports = {
         useNewUrlParser: true
       }
     }
-  }
+  },
+  userTypes: [
+    { value: 'seller', name: 'Vendeur' },
+    { value: 'buyer', name: 'Acheteur' }
+  ],
+  seedDB: true
 };

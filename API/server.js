@@ -3,10 +3,12 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const config = require('./config.js');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const product = require('./routes/products');
+const taxonomy = require('./routes/taxonomies');
 
 var app = express();
 
@@ -23,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/products', product);
+app.use('/taxonomies', taxonomy);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -39,5 +42,10 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+if (config.seedDB) {
+  console.log('To seed');
+  require('./seed');
+}
 
 module.exports = app;
