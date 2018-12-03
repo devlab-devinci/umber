@@ -8,16 +8,20 @@ let ProductSchema = new Schema({
     type: String,
     index: true
   },
-  /*cover: {
+  cover: {
     type: Schema.Types.ObjectId,
     ref: 'Document'
-  },*/
+  },
   images: [],
   address: {},
   loc: {
     type: [Number], // {lng, lat}
     index: '2dsphere'
   },
+  categories: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Taxonomy'
+  }],
   price: {
     type: Number,
     required: true
@@ -29,10 +33,10 @@ let ProductSchema = new Schema({
     default: Date.now
   },
   publishedAt: Date,
-  /*owner: {
+  owner: {
     type: Schema.Types.ObjectId,
     ref: 'User'
-  },*/
+  },
   updatedAt: {
     type: Date,
     required: true,

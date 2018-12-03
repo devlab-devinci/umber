@@ -2,7 +2,6 @@ const Product = require('../models/product.model');
 const error = require('../components/errors');
 const _ = require('lodash');
 
-//Simple version, without validation or sanitation
 exports.index = function (req, res) {
   let promise = [];
   let limit = req.query && req.query.limit || 0;
