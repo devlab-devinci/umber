@@ -3,21 +3,19 @@ const router = express.Router();
 
 const productController = require('../controllers/product.controller');
 
-router.get('/test', productController.test);
-
 /* GET products listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a ll');
-});
+router.get('/', productController.index);
 
-/* PUT product. */
-router.put('/', function(req, res, next) {
-  res.send('respond with a ll');
-});
+/* GET products id listing. */
+router.get('/:id', productController.show);
 
 /* POST product. */
-router.post('/', function(req, res, next) {
-  res.send('respond with a ll');
-});
+router.post('/', productController.create);
+
+/* PUT product. */
+router.put('/:id', productController.update);
+
+/* Delete product. */
+router.delete('/:id', productController.destroy);
 
 module.exports = router;
