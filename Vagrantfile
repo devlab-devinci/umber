@@ -110,7 +110,8 @@ Vagrant.configure("2") do |config|
    echo "############################################################################################"
    echo "Install Java SDK 8"
 
-   sudo apt-get install -y python-software-properties software-properties-common oracle-java8-installer
+   apt-get install -y python-software-properties software-properties-common oracle-java8-installer qemu-kv
+   chown vagrant /dev/kvm
    export JAVA_HOME=$(update-alternatives --query javac | sed -n -e 's/Best: *\(.*\)\/bin\/javac/\1/p')
 
 
@@ -124,7 +125,7 @@ Vagrant.configure("2") do |config|
    mv tools android-sdk-linux
    chown -R vagrant android-sdk-linux/
    rm $ANDROID_SDK_FILENAME
-
+   export ANDROID_HOME=~/android-sdk-linux
    echo "ANDROID_HOME=~/android-sdk-linux" >> /home/vagrant/.bashrc
    echo "PATH=\$PATH:~/android-sdk-linux/tools:~/android-sdk-linux/platform-tools" >> /home/vagrant/.bashrc
    sudo -H gedit admin:///etc/environment
@@ -135,13 +136,13 @@ Vagrant.configure("2") do |config|
 
    $ANDROID_HOME/tools/bin/sdkmanager "tools" "emulator" "platform-tools" "platforms;android-28" "build-tools;28.0.3" "extras;android;m2repository" "extras;google;m2repository"
    cd $ANDROID_HOME/tools/bin
-   ./sdkmanager "system-images;android-25;google_apis;x86"
+   ./sdkmanager "system-images;android-28;google_apis;x86"
    ./sdkmanager --licenses
-   # android-sdk-linux/tools/bin/ create avd -n name -k "sdk_id" [-c {path|size}] [-f] [-p path]
-   # android-sdk-linux/tools/bin/ create avd -n test -k "system-images;android-25;google_apis;x86"
-   # android-sdk-linux/tools/bin/ list
+   android-sdk-linux/tools/bin/ create avd -n name -k "sdk_id" [-c {path|size}] [-f] [-p path]
+   android-sdk-linux/tools/bin/ create avd -n test -k "system-images;android-28;google_apis;x86"
+   android-sdk-linux/tools/bin/ list
    android create avd -n name -k "sdk_id" [-c {path|size}] [-f] [-p path]
-   android create avd -n test -k "system-images;android-25;google_apis;x86"
+   android create avd -n test -k "system-images;android-28;google_apis;x86"
    android-sdk-linux/tools/bin/ list
 
 
