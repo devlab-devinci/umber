@@ -4,14 +4,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let ProductSchema = new Schema({
-  title: {
+  name: {
     type: String,
     index: true
   },
-  cover: {
+  /*cover: {
     type: Schema.Types.ObjectId,
     ref: 'Document'
-  },
+  },*/
   images: [],
   address: {},
   loc: {
@@ -29,10 +29,10 @@ let ProductSchema = new Schema({
     default: Date.now
   },
   publishedAt: Date,
-  owner: {
+  /*owner: {
     type: Schema.Types.ObjectId,
     ref: 'User'
-  },
+  },*/
   updatedAt: {
     type: Date,
     required: true,
