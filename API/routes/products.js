@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-// Require the controllers WHICH WE DID NOT CREATE YET!!
 const productController = require('../controllers/product.controller');
 
 router.get('/test', productController.test);

@@ -1,8 +1,14 @@
 module.exports = {
-
-  database: 'mongodb://localhost/umber',
-  token:	'',
-  hostname:	'localhost',
-  port:		'9000'
-
+  app: {
+    port: 3000
+  },
+  server: {
+    port: 9000,
+    mongo: {
+      uri: 'mongodb://localhost/umber',
+      options: {
+        useNewUrlParser: true
+      }
+    }
+  }
 };
