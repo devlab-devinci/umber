@@ -25,10 +25,6 @@ Vue.use(Vuex);
 const state = {
   access_token: "",
   fbUser: {}, // infos from FB via access_token
-
-
-
-  test: ""
 }
 
 const getters = {

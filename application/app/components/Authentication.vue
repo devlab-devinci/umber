@@ -10,10 +10,10 @@
             <TabViewItem title="Login">
                 <!-- user columns=*rows =* pour du responsive peut aussi servir pour faire les offset -->
                 <GridLayout columns="*" rows="*" backgroundColor="#FFF">
-                    <Button text="Login with fb" @tap="login" />
+                    <Button text="Connectez-vous avec Facebook" textWrap=true @tap="login" />
                 </GridLayout>
             </TabViewItem>
-
+        
             <TabViewItem title="Register">
                 <GridLayout columns="*" rows="*">
                 </GridLayout>
@@ -24,7 +24,12 @@
 </template>
 
 <script>
+
+import Router from "./services/Router"
+
 import { tnsOauthLogin, tnsOauthLogout } from "./services/Auth";
+
+
 
 export default {
     
@@ -49,6 +54,10 @@ component: {
                         .commit('setFbUser', userData) // update user we get 
 
                         console.log("LOGGED USER ->", self.$store.getters.getFbUser.email)
+
+                        self.$navigateTo(Router.home,{
+                            userName: self.$store.getters.getFbUser.name
+                        });
                     })
 
                     //TODO -> return modal here
