@@ -3,6 +3,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// Defined object product
+// name, cover, adress,
 let ProductSchema = new Schema({
   name: {
     type: String,
@@ -19,6 +21,7 @@ let ProductSchema = new Schema({
     index: '2dsphere'
   },
   categories: [{
+    // join categories with Taxo
     type: Schema.Types.ObjectId,
     ref: 'Taxonomy'
   }],
@@ -51,4 +54,5 @@ ProductSchema.pre('save', function () {
   that.updatedAt = new Date();
 });
 
+// create model in the mongodb
 module.exports = mongoose.model('Product', ProductSchema);
