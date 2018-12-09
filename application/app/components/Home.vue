@@ -2,7 +2,8 @@
     <Page>
         <ActionBar title="Home" android:flat="true"/>
         <StackLayout>
-            <TextField :text="this.$store.getters.getFbUser.name" hint="Enter text..."/>
+            <Label :text="this.$store.getters.getFbUser.name"/>
+            <Image :src="this.$store.getters.getFbUser.picture.data.url" stretch="none" />
 
             <TextField :text="this.$store.getters.getCurrentLocation.longitude" hint="Enter text..."/>
             <TextField :text="this.$store.getters.getCurrentLocation.latitude" hint="Enter text..."/>
@@ -37,6 +38,7 @@
         },
         mounted() {
             let self = this;
+            console.log("PICTURE", this.$store.getters.getFbUser.picture.data.url);
 
             GeolocationService.enablePermission() //call to init permission
             //https://www.thepolyglotdeveloper.com/2017/03/device-geolocation-nativescript-angular-application/

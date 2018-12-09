@@ -9,7 +9,8 @@
 
             <TabViewItem title="Login">
                 <!-- user columns=*rows =* pour du responsive peut aussi servir pour faire les offset -->
-                <GridLayout columns="*" rows="*" backgroundColor="#FFF">
+                <GridLayout columns="115, 115" rows="115, 115" backgroundColor="red">
+                    <Image src="~/logo.png" stretch="none" />
                     <Button text="Connectez-vous avec Facebook" textWrap=true @tap="login" />
                 </GridLayout>
             </TabViewItem>
@@ -60,10 +61,10 @@ component: {
                         .commit('setFbUser', userData); // update user we get
 
                         console.log("LOGGED USER ->", self.$store.getters.getFbUser.email)
+                        console.log("lOGGGEEED", self.$store.getters.getFbUser.picture.data.url)
+                        console.log("lOGGGEEED", response.accessToken);
 
-                        self.$navigateTo(Router.home,{
-                            userName: self.$store.getters.getFbUser.name
-                        });
+                        self.$navigateTo(Router.home);
                     })
 
                     //TODO -> return modal here
