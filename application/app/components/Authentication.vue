@@ -15,8 +15,16 @@
             </TabViewItem>
         
             <TabViewItem title="Register">
-                <GridLayout columns="*" rows="*">
-                </GridLayout>
+                <StackLayout class="form">
+                    <StackLayout class="input-field">
+                        <TextField class="input"></TextField>
+                    </StackLayout>
+
+                    <StackLayout class="input-field">
+                        <TextField class="input"></TextField>
+                    </StackLayout>
+                <Button text="Log In" class="btn btn-primary"></Button>
+                </StackLayout>
             </TabViewItem>
 
         </TabView>
@@ -30,9 +38,7 @@ import Router from "./services/Router"
 import { tnsOauthLogin, tnsOauthLogout } from "./services/Auth";
 
 
-
 export default {
-    
 component: {
             //my component here
     },
@@ -51,7 +57,7 @@ component: {
                     .dispatch('findFbUser', response.accessToken) //dispatch == action  (return promise)
                     .then(function(userData){
                         self.$store
-                        .commit('setFbUser', userData) // update user we get 
+                        .commit('setFbUser', userData); // update user we get
 
                         console.log("LOGGED USER ->", self.$store.getters.getFbUser.email)
 
