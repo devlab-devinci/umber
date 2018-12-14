@@ -14,12 +14,6 @@ let ProductSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Document'
   },
-  images: [],
-  address: {},
-  loc: {
-    type: [Number], // {lng, lat}
-    index: '2dsphere'
-  },
   categories: [{
     // join categories with Taxo
     type: Schema.Types.ObjectId,
