@@ -21,10 +21,6 @@ var UserSchema = new Schema({
     required: true,
     index: true
   },
-  avatar: {
-    type: Schema.Types.ObjectId,
-    ref: 'Document'
-  },
   username: String,
   companyName: String,
   role: {
