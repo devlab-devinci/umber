@@ -125,9 +125,9 @@ Vagrant.configure("2") do |config|
    mv tools android-sdk-linux
    chown -R vagrant android-sdk-linux/
    rm $ANDROID_SDK_FILENAME
-   export ANDROID_HOME=~/android-sdk-linux
-   echo "ANDROID_HOME=~/android-sdk-linux" >> /home/vagrant/.bashrc
-   echo "PATH=\$PATH:~/android-sdk-linux/tools:~/android-sdk-linux/platform-tools" >> /home/vagrant/.bashrc
+   export ANDROID_HOME=/home/vagrant/android-sdk-linux
+   echo "ANDROID_HOME=~/home/vagrant/android-sdk-linux" >> /home/vagrant/.bashrc
+   echo "PATH=\$PATH:~/home/vagrant/android-sdk-linux/tools:/home/vagrant/android-sdk-linux/platform-tools" >> /home/vagrant/.bashrc
    sudo -H gedit admin:///etc/environment
 
 
