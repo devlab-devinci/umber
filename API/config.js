@@ -17,5 +17,9 @@ module.exports = {
     { value: 'seller', name: 'Vendeur' },
     { value: 'buyer', name: 'Acheteur' }
   ],
-  seedDB: true
+  seedDB: true,
+  stripe: {
+    publishedKey: 'pk_test_6ZpKQpaVmIRGuROtwHcAPa8Q',
+    secretedKey: 'sk_test_qKcwgoTlLMcE72AFDfVcWNve'
+  }
 };

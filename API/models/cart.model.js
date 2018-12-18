@@ -9,7 +9,7 @@ let CartSchema = new Schema({
     enum: ['draft', 'active', 'cancelled', 'obsolete'],
     default: 'draft'
   },
-  products: [{
+  cartEntries: [{
     product: {
       type: Schema.Types.ObjectId,
       ref: 'Product'
@@ -25,7 +25,17 @@ let CartSchema = new Schema({
     ref: 'User',
     index: true
   },
+  order: {
+    type: Schema.Types.ObjectId,
+    ref: 'Order'
+  },
+  payedAt: Date,
   createdAt: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     required: true,
     default: Date.now

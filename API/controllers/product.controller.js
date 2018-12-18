@@ -5,33 +5,33 @@ const _ = require('lodash');
 
 // ADD controller for route index (show list products)
 exports.index = function (req, res) {
-  let promise = [];
-  let limit = req.query && req.query.limit || 0;
-  let page = req.query && req.query.page || 0;
 
-  // add promise find product
-  promise.push(Product.find({})
-    .populate('owner, cover, category')
-    .lean());
-
-  // when promises resolve
-  Promise.all(promise)
-    //if not errors send json data
-    .then(function (data) {
-      let result = {};
-      result.total = data[0];
-      result.limit = parseInt(limit);
-      result.page = parseInt(page);
-      result.count = data[0].length;
-
-      res.status(200).json(result);
-    })
-    // else send error
-    .catch(function (err) {
-      return error.handleError(res, err);
-    });
 };
+let promise = [];
+let limit = req.query && req.query.limit || 0;
+let page = req.query && req.query.page || 0;
 
+// add promise find product
+promise.push(Product.find({})
+  .populate('owner, cover, category')
+  .lean());
+
+// when promises resolve
+Promise.all(promise)
+//if not errors send json data
+  .then(function (data) {
+    let result = {};
+    result.total = data[0];
+    result.limit = parseInt(limit);
+    result.page = parseInt(page);
+    result.count = data[0].length;
+
+    res.status(200).json(result);
+  })
+  // else send error
+  .catch(function (err) {
+    return error.handleError(res, err);
+  });
 // ADD controller show one product id
 exports.show = function (req, res) {
   // Promise find product id db
