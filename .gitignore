@@ -129,9 +129,18 @@ typings/
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
 # auto-import.
-# .idea/modules.xml
-# .idea/*.iml
-# .idea/modules
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
+.idea/inspectionProfiles/Project_Default.xml
+.idea/jsLinters/jshint.xml
+
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/umber.iml
+.idea/vcs.xml
+.idea/workspace.xml
 
 # CMake
 cmake-build-*/
