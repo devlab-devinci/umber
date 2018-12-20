@@ -13,6 +13,9 @@ module.exports = {
       }
     }
   },
+  upload: {
+    path: '/public/upload'
+  },
   userTypes: [
     { value: 'seller', name: 'Vendeur' },
     { value: 'buyer', name: 'Acheteur' }

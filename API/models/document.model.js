@@ -6,12 +6,9 @@ const Schema = mongoose.Schema;
 let DocumentSchema = new Schema({
   name: String,
   type: String,
-  path: {
-    type: String
-  },
-  url: {
-    type: String
-  },
+  path: String,
+  url: String,
+  caption: String,
   owner: {
     type: Schema.Types.ObjectId,
     ref: 'User',
