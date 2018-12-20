@@ -19,7 +19,7 @@ exports.index = function (req, res) {
       name: nameRegExp
     };
   }
-
+fffffffffffffff
   if (req.query.type) {
     criteria.type = req.query.type;
   }
@@ -27,6 +27,11 @@ exports.index = function (req, res) {
   if (req.query.skip) skip = req.query.skip;
   else if (req.query.page) skip = req.query.page * limit;
   else skip = 0;
+
+  var sort = 'order';
+  if (req.query.sort) {
+    sort = (req.query.order ? req.query.order : '') + (req.query.sort);
+  }
 
   promise.push(Taxonomy.count(criteria));
   promise.push(Taxonomy
