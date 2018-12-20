@@ -19,7 +19,6 @@ exports.index = function (req, res) {
       name: nameRegExp
     };
   }
-fffffffffffffff
   if (req.query.type) {
     criteria.type = req.query.type;
   }
