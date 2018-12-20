@@ -6,37 +6,38 @@ const _ = require('lodash');
 // ADD controller for route index (show list products)
 exports.index = function (req, res) {
 
-};
-let promise = [];
-let limit = req.query && req.query.limit || 0;
-let page = req.query && req.query.page || 0;
+  let promise = [];
+  let limit = req.query && req.query.limit || 0;
+  let page = req.query && req.query.page || 0;
 
 // add promise find product
-promise.push(Product.find({})
-  .populate('owner, cover, category')
-  .lean());
+  promise.push(Product.find({})
+    .populate('owner, cover, category')
+    .lean());
 
 // when promises resolve
-Promise.all(promise)
-//if not errors send json data
-  .then(function (data) {
-    let result = {};
-    result.total = data[0];
-    result.limit = parseInt(limit);
-    result.page = parseInt(page);
-    result.count = data[0].length;
+  Promise.all(promise)
+  //if not errors send json data
+    .then(function (data) {
+      let result = {};
+      result.total = data[0];
+      result.limit = parseInt(limit);
+      result.page = parseInt(page);
+      result.count = data[0].length;
 
-    res.status(200).json(result);
-  })
-  // else send error
-  .catch(function (err) {
-    return error.handleError(res, err);
-  });
+      res.status(200).json(result);
+    })
+    // else send error
+    .catch(function (err) {
+      return error.handleError(res, err);
+    });
+};
+
 // ADD controller show one product id
 exports.show = function (req, res) {
   // Promise find product id db
   Product.findById(req.params.id)
-    // join owner with model defined in the model Product
+  // join owner with model defined in the model Product
     .populate('owner, cover, category')
     //if not errors send json data
     .then(function (data) {
@@ -54,7 +55,7 @@ exports.create = function (req, res) {
 
   // Promise new product
   newProduct
-    //save product
+  //save product
     .save()
     //if promise not errors send json data
     .then(function (product) {
@@ -90,7 +91,7 @@ exports.update = function (req, res) {
 
   // Promise find id product db
   Product.findById(req.params.id)
-    // join owner cover
+  // join owner cover
     .populate('owner, category')
     // if none error req findById product
     // execute code
