@@ -28,6 +28,11 @@ exports.index = function (req, res) {
   else if (req.query.page) skip = req.query.page * limit;
   else skip = 0;
 
+  var sort = 'order';
+  if (req.query.sort) {
+    sort = (req.query.order ? req.query.order : '') + (req.query.sort);
+  }
+
   promise.push(Taxonomy.count(criteria));
   promise.push(Taxonomy
     .find(criteria)

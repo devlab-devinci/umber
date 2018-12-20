@@ -35,7 +35,7 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 if (action === 'serve') {
-  watch('../API', {recursive: true}, _.debounce(function () {
+  watch('../', {recursive: true}, _.debounce(function () {
     console.log('Config changed, restarting');
   }, 1000));
 }
