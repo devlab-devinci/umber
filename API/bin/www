@@ -11,7 +11,7 @@ const argv = require('yargs').argv;
 const watch = require('node-watch');
 const action = argv.action || 'serve';
 var app = require('../server');
-var debug = require('debug')('umber:server');
+var debug = require('debug')(config.project + ':server');
 var http = require('http');
 /**
  * Get port from environment and store in Express.
@@ -111,4 +111,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log('Server listening on ' + addr.port);
 }

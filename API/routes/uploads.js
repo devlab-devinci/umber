@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const controller = require('../controllers/upload.controller');
+const Uploader = require('../components/uploads');
 
-router.post('/upload', controller.upload);
+const uploader = new Uploader();
+
+router.post('/', uploader.startUpload);
 
 module.exports = router;

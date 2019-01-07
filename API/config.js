@@ -1,5 +1,6 @@
 module.exports = {
   version: '/v1',
+  project: 'umber',
   app: {
     host: 'https://localhost',
     port: 3000
@@ -14,7 +15,7 @@ module.exports = {
     }
   },
   upload: {
-    path: '/public/upload'
+    path: './upload'
   },
   userTypes: [
     { value: 'seller', name: 'Vendeur' },
