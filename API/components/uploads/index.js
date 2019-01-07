@@ -55,14 +55,18 @@ class Uploader {
       return error.handleError(res, err);
     }
 
-    var fullPath = config.upload.path + '/' +req.file.filename;
+    let fullPath;
 
-    var document = {
+    if (req.files[0].length <= 1) {
+      fullPath = config.upload.path + '/' + req.files[0].filename;
+    }
+
+    let document = {
       path:     fullPath,
       caption:   req.body.caption
     };
 
-    var file = new Document(document);
+    let file = new Document(document);
     file
       .save()
       //if promise not errors send json data
