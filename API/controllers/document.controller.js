@@ -1,3 +1,5 @@
+'use strict';
+
 const Document = require('../models/document.model');
 const error = require('../components/errors');
 const config = require('../config');

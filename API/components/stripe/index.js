@@ -1,3 +1,5 @@
+'use strict';
+
 // Create a new customer and then a new charge for that customer:
 stripe.customers.create({
   email: 'foo-customer@example.com'

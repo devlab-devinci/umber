@@ -1,3 +1,5 @@
+'use strict';
+
 const Product = require('../models/product.model');
 const error = require('../components/errors');
 const _ = require('lodash');
