@@ -32,9 +32,6 @@ mongoose.connect(`mongodb://${config.server.mongo.hostname}/${config.server.mong
   console.log("Conntection to database failed.");
 });
 
-// PRODUCTION only
-//mongoose.connect(`mongodb://${db_conf.production.hostname}/${db_conf.production.db_name}`);
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -42,8 +39,8 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(methodOverride('_method'));
 
 app.use('/', indexRouter);
@@ -54,20 +51,20 @@ app.use('/documents', document);
 app.use('/upload', upload);
 app.use('/auth', authRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
 app.use(function(err, req, res, next) {
+
+  res.setHeader('Content-Type', 'text/plain')
+  res.write('you posted:\n')
+  res.end(JSON.stringify(req.body, null, 2))
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
   // render the error page
   res.status(err.status || 500);
+
   res.render('error');
+// error handler
+  next(createError(404));
 });
 
 if (config.seedDB) {
