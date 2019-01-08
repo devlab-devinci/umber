@@ -5,7 +5,7 @@
 
 'use strict';
 
-const User = require('../../API/models/user.model');
+const User = require('../../API/models/Users');
 const Taxonomy = require('../../API/models/taxonomy.model');
 const _ = require('lodash');
 
@@ -17,6 +17,8 @@ User
        return User.create({
          role: 'admin',
          username: 'umber',
+         fullname: 'umber',
+         picture: 'https://ichef.bbci.co.uk/images/ic/720x405/p0517py6.jpg',
          email: 'dev@umber.fr',
          password: 'umber' + new Date().getFullYear()
        });

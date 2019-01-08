@@ -1,3 +1,16 @@
+/**
+ * Vuex Store / Entry point of Application / loading Library etc ...
+ *
+ * PLEASE READ . . .
+ *
+ * This file contains the store (vuex)
+ * To interact with the state in every screens of this application
+ *      ***************************************************
+ *  ******* INTERACT WITH STATE ONLY VIA THIS VUEX STORE ! *******
+ *      ***************************************************
+ */
+
+
 import Vue from 'nativescript-vue'
 import VueDevtools from 'nativescript-vue-devtools'
 import Authentication from './components/Authentication'
@@ -11,6 +24,16 @@ if (TNS_ENV !== 'production') {
 }
 // Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production');
+Vue.registerElement('CardView', () => require('nativescript-cardview').CardView);
+
+import {TNSFontIcon, fonticon} from 'nativescript-fonticon';
+TNSFontIcon.debug = true;
+TNSFontIcon.paths = {
+    'fa': './assets/font-awesome.css'
+};
+TNSFontIcon.loadCss();
+Vue.filter('fonticon', fonticon);
+
 
 /**
  * Vuex STORE declared
@@ -23,23 +46,66 @@ Vue.use(Vuex);
 // -> https://blog.ippon.fr/2017/05/29/vue-js-2-0-petit-tutoriel-volume-4/
 
 const state = {
-    //AUTH
+    /**
+     * AUTH
+     * ____________
+     * contains :
+     *
+     * access_token
+     * fbUser (contains fb fields called from actions via fb api graph)
+     */
     access_token: "",
     fbUser: {}, // infos from FB via access_token,
 
-    // LOCATION
+    /**
+     * LOCATION
+     * ____________
+     * contains :
+     *
+     * current_location (lt / ld / timestamp only)
+     * current_location_infos ( infos from the current_location given -> https://nominatim.openstreetmap.org/reverse?format=json&lon=-122.406417&lat=37.785834 )
+     */
     current_location:{},
+    current_location_infos: {}
 }
 
 const getters = {
+
+    /**
+     * Provide the current access token from facebook (USE IT FOR FB GRAPH API !!!)
+     * @param state
+     * @returns {string|*}
+     */
     getAccessToken: state => {
         return state.access_token
     },
+
+    /**
+     * Get user logged in via Facebook (data fields are related to the API call made via fb api graph) to understand, please check in action the method : findFbUser
+     * @param state
+     * @returns {state.fbUser|{}|*}
+     */
     getFbUser: state => {
         return state.fbUser
     },
+
+    /**
+     * Return current location (lt / ld / timestamp only)
+     * @param state
+     * @returns {state.current_location|{}|*}
+     */
     getCurrentLocation: state => {
         return state.current_location;
+    },
+
+    /**
+     * Return current location infos (details like city name / address / country etc -> please check the following example to know more about it
+     * https://nominatim.openstreetmap.org/reverse?format=json&lon=-122.406417&lat=37.785834)
+     * @param state
+     * @returns {state.current_location_infos|{}}
+     */
+    getCurrentLocationInfos: state => {
+        return state.current_location_infos;
     }
 };
 
@@ -54,18 +120,35 @@ const mutations = {
      * @param {*} accessToken
      */
     setAccessToken(state, accessToken) {
-        state.access_token = accessToken
+        state.access_token = accessToken;
     },
 
+    /**
+     * Set user data from his facebook account he logged in
+     * @param state
+     * @param fbUserData
+     */
     setFbUser(state, fbUserData) {
-        state.fbUser = fbUserData
+        state.fbUser = fbUserData;
     },
 
-    //location
+    /**
+     * Set Location from device (lg / lt / timestamp)
+     * @param state
+     * @param currentLocation
+     */
     setCurrentLocation(state, currentLocation) {
-        state.current_location = currentLocation
-    }
+        state.current_location = currentLocation;
+    },
 
+    /**
+     * Set Location details from device via current location data from the device like lt, ld , timestamp
+     * @param state
+     * @param currentLocationInfos
+     */
+    setCurrentLocationInfos(state, currentLocationInfos){
+        state.current_location_infos = currentLocationInfos;
+    }
 
 };
 
@@ -83,7 +166,7 @@ const actions = {
     findFbUser(state, accessToken) {
         return new Promise((resolve, reject) => {
             let graphApiURL = FbConfig.graph_api_url; // graph url from conf (default version used TLS)
-            let self = this
+            let self = this;
             // step 1
             http
                 .getJSON(`${graphApiURL}me?access_token=${accessToken}`)

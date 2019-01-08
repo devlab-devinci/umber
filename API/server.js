@@ -3,7 +3,8 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const config = require('./config.js');
+const mongoose = require('mongoose');
+const config = require('./config');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 
@@ -13,8 +14,26 @@ const document = require('./routes/documents');
 const product = require('./routes/products');
 const taxonomy = require('./routes/taxonomies');
 const upload = require('./routes/uploads');
+const authRouter = require('./routes/authentication');
 
-var app = express();
+const app = express();
+
+/**
+ * Connect mongodb with mongoose.
+ */
+
+//default DEV
+mongoose.connect(`mongodb://${config.server.mongo.hostname}/${config.server.mongo.name}`, config.server.mongo.options).then(
+  (res) => {
+    console.log("Connected to Database Successfully.")
+  }
+).catch((err) => {
+  console.error(err);
+  console.log("Conntection to database failed.");
+});
+
+// PRODUCTION only
+//mongoose.connect(`mongodb://${db_conf.production.hostname}/${db_conf.production.db_name}`);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -33,6 +52,7 @@ app.use('/products', product);
 app.use('/taxonomies', taxonomy);
 app.use('/documents', document);
 app.use('/upload', upload);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

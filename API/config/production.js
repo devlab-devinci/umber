@@ -4,13 +4,14 @@ module.exports = {
   version: '/v1',
   project: 'umber',
   app: {
-    host: 'https://localhost',
-    port: 3000
+    host: '',
+    port: ''
   },
   server: {
-    port: 9000,
+    port: '',
     mongo: {
-      uri: 'mongodb://localhost/umber',
+      name: '',
+      hostname: '',
       options: {
         useCreateIndex: true,
         useNewUrlParser: true
@@ -24,9 +25,8 @@ module.exports = {
     { value: 'seller', name: 'Vendeur' },
     { value: 'buyer', name: 'Acheteur' }
   ],
-  seedDB: true,
   stripe: {
-    publishedKey: 'pk_test_6ZpKQpaVmIRGuROtwHcAPa8Q',
-    secretedKey: 'sk_test_qKcwgoTlLMcE72AFDfVcWNve'
+    publishedKey: '',
+    secretedKey: ''
   }
 };

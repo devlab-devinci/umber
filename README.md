@@ -36,3 +36,9 @@ passwd vagrant
 
 > - https://developer.android.com/studio/
 > - https://docs.nativescript.org/start/ns-setup-linux
+
+
+### API
+run api 
+
+        nodemon bin/www

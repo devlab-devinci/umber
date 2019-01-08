@@ -4,11 +4,13 @@
  * Module dependencies.
  */
 
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
 const config = require('../config');
-const mongoose = require('mongoose');
-var app = require('../server');
-var debug = require('debug')(config.project + ':server');
-var http = require('http');
+const app = require('../server');
+const debug = require('debug')(config.project + ':server');
+const http = require('http');
+
 /**
  * Get port from environment and store in Express.
  */
@@ -29,19 +31,6 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
-/**
- * Connect mongodb with mongoose.
- */
-
-mongoose.connect(config.server.mongo.uri, config.server.mongo.options).then(
-  (res) => {
-    console.log("Connected to Database Successfully.")
-  }
-).catch((err) => {
-  console.error(err);
-  console.log("Conntection to database failed.");
-});
 
 /**
  * Normalize a port into a number, string, or false.
@@ -101,5 +90,6 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+
   console.log('Server listening on ' + addr.port);
 }
