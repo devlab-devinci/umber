@@ -6,7 +6,11 @@ const Schema = mongoose.Schema;
 let DocumentSchema = new Schema({
   name: String,
   type: String,
-  path: {type: String, unique: true},
+  path: {
+    type: String,
+    unique: true
+  },
+  originalName: String,
   active: Boolean,
   owner: {
     type: Schema.Types.ObjectId,

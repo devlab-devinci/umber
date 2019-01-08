@@ -10,6 +10,7 @@ module.exports = {
     mongo: {
       uri: 'mongodb://localhost/umber',
       options: {
+        useCreateIndex: true,
         useNewUrlParser: true
       }
     }
