@@ -1,5 +1,8 @@
+'use strict';
+
 module.exports = {
   version: '/v1',
+  project: 'umber',
   app: {
     host: 'https://localhost',
     port: 3000
@@ -9,16 +12,21 @@ module.exports = {
     mongo: {
       uri: 'mongodb://localhost/umber',
       options: {
+        useCreateIndex: true,
         useNewUrlParser: true
       }
     }
   },
   upload: {
-    path: '/public/upload'
+    path: './upload'
   },
   userTypes: [
     { value: 'seller', name: 'Vendeur' },
     { value: 'buyer', name: 'Acheteur' }
   ],
-  seedDB: true
+  seedDB: true,
+  stripe: {
+    publishedKey: 'pk_test_6ZpKQpaVmIRGuROtwHcAPa8Q',
+    secretedKey: 'sk_test_qKcwgoTlLMcE72AFDfVcWNve'
+  }
 };

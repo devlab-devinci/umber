@@ -6,9 +6,12 @@ const Schema = mongoose.Schema;
 let DocumentSchema = new Schema({
   name: String,
   type: String,
-  path: String,
-  url: String,
-  caption: String,
+  path: {
+    type: String,
+    unique: true
+  },
+  originalName: String,
+  active: Boolean,
   owner: {
     type: Schema.Types.ObjectId,
     ref: 'User',
@@ -19,6 +22,13 @@ let DocumentSchema = new Schema({
     required: true,
     default: Date.now
   }
+});
+
+DocumentSchema.pre('save', function () {
+  let that = this;
+
+  that.wasNew = that.isNew;
+  that.updatedAt = new Date();
 });
 
 module.exports = mongoose.model('Document', DocumentSchema);

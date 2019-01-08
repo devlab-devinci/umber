@@ -7,5 +7,16 @@
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
+    <div class="container">
+      <h1>File Upload</h1>
+      <%= typeof msg != 'undefined' ? msg : '' %>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="avatar" />
+            <button type="submit" class="btn">Submit</button>
+        </form>
+      </form>
+      <br>
+      <img src="<%= typeof file != 'undefined' ? file : '' %>" class="responsive-img">
+    </div>
   </body>
 </html>

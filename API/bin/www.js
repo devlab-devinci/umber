@@ -1,17 +1,13 @@
-#!/usr/bin/env node
+'use strict';
 
 /**
  * Module dependencies.
  */
 
-const _ = require('lodash');
 const config = require('../config');
 const mongoose = require('mongoose');
-const argv = require('yargs').argv;
-const watch = require('node-watch');
-const action = argv.action || 'serve';
 var app = require('../server');
-var debug = require('debug')('umber:server');
+var debug = require('debug')(config.project + ':server');
 var http = require('http');
 /**
  * Get port from environment and store in Express.
@@ -33,12 +29,6 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
-if (action === 'serve') {
-  watch('../', {recursive: true}, _.debounce(function () {
-    console.log('Config changed, restarting');
-  }, 1000));
-}
 
 /**
  * Connect mongodb with mongoose.
@@ -111,4 +101,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log('Server listening on ' + addr.port);
 }
