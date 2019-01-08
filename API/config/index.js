@@ -1,8 +1,8 @@
 'use strict';
 
-var path = require('path');
-var fs = require('fs');
-var _ = require('lodash');
+const path = require('path');
+const fs = require('fs');
+const _ = require('lodash');
 
 function requiredProcessEnv(name) {
   if (!process.env[name]) {
