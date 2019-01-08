@@ -8,7 +8,8 @@ const Schema = mongoose.Schema;
 let ProductSchema = new Schema({
   name: {
     type: String,
-    index: true
+    index: true,
+    required: true
   },
   cover: {
     type: Schema.Types.ObjectId,

@@ -53,6 +53,7 @@ exports.show = function (req, res) {
 
 //controller create product
 exports.create = function (req, res) {
+
   let newProduct = new Product(req.body);
 
   // Promise new product
@@ -60,9 +61,16 @@ exports.create = function (req, res) {
   //save product
     .save()
     //if promise not errors send json data
+    .then(function (req) {
+      return Product.create(req.body);
+    })
     .then(function (product) {
-      res.status(201);
-      res.json(product);
+
+      return Product.populate(product, ['cover', 'categories', 'owner']);
+    })
+
+    .then(function (product) {
+      return res.status(200).json(product);
     })
     // else send error and not save
     .catch(function (err) {
