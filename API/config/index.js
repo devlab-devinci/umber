@@ -51,8 +51,11 @@ var all = {
   },
 
 };
+
 all.uploadExpressPath = '/upload';
-all.uploadDir = path.join(all.root, 'uploads');
+all.credentialsDir = path.join(all.root, '.credentials');
+all.uploadDir = path.join(all.root, 'upload');
+all.tempUploadDir = path.join(all.root, '.tmp-uploads');
 all.componentsDir = path.join(all.root, 'API/components/');
 
 
@@ -61,7 +64,7 @@ all.componentsDir = path.join(all.root, 'API/components/');
 module.exports = _.merge(
   all,
   require('./' + process.env.NODE_ENV + '.js') || {});
-console.log(process.env.NODE_ENV);
 
 // create upload directories or do nothing if they already exists
 fs.mkdir(module.exports.uploadDir, function () {});
+fs.mkdir(module.exports.tempUploadDir, function () {});

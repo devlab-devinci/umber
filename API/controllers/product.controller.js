@@ -1,8 +1,11 @@
 'use strict';
 
 const Product = require('../models/product.model');
+const Document = require('../models/document.model');
 const error = require('../components/errors');
 const _ = require('lodash');
+const config = require('../config');
+const upload = require('../components/uploads');
 
 
 // ADD controller for route index (show list products)
@@ -53,30 +56,41 @@ exports.show = function (req, res) {
 
 //controller create product
 exports.create = function (req, res) {
+  upload.any()(req, res, (err) => {
+    if (err) {
+      return res.end('error request file');
+    }
 
-  let newProduct = new Product(req.body);
+    let fullPath = config.upload.path + '/' + req.files[0].filename;
 
-  // Promise new product
-  newProduct
-  //save product
-    .save()
-    //if promise not errors send json data
-    .then(function (req) {
-      return Product.create(req.body);
-    })
-    .then(function (product) {
-
-      return Product.populate(product, ['cover', 'categories', 'owner']);
-    })
-
-    .then(function (product) {
-      return res.status(200).json(product);
-    })
-    // else send error and not save
-    .catch(function (err) {
-      err.code = 422;
-      return error.handleError(res, err);
+    let newDocument = new Document ({
+      path: fullPath,
+      name: req.files[0].originalname,
+      type: req.files[0].mimetype
     });
+
+    newDocument
+      .save()
+      .then(function () {
+        let newProduct = new Product(req.body);
+        newProduct.cover = newDocument;
+        newProduct
+          .save()
+          .then(function (product) {
+            return res.status(201).json(product);
+          })
+          // else send error and not save
+          .catch(function (err) {
+            err.code = 422;
+            return error.handleError(res, err);
+          });
+      })
+      // else send error and not save
+      .catch(function (err) {
+        err.code = 422;
+        return error.handleError(res, err);
+      });
+  });
 };
 
 //controller update product

@@ -1,3 +1,5 @@
+'use strict';
+
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -7,6 +9,7 @@ const mongoose = require('mongoose');
 const config = require('./config');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
+const errorHandler = require('errorhandler');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -37,10 +40,15 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
+app.use(errorHandler());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride('_method'));
 
 app.use('/', indexRouter);
@@ -52,10 +60,6 @@ app.use('/upload', upload);
 app.use('/auth', authRouter);
 
 app.use(function(err, req, res, next) {
-
-  res.setHeader('Content-Type', 'text/plain')
-  res.write('you posted:\n')
-  res.end(JSON.stringify(req.body, null, 2))
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -66,6 +70,8 @@ app.use(function(err, req, res, next) {
 // error handler
   next(createError(404));
 });
+
+app.use(config.uploadExpressPath, express.static(config.uploadDir));
 
 if (config.seedDB) {
   console.log('To seed');

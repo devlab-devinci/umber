@@ -14,7 +14,7 @@ const storageEngine = multer.diskStorage({
   }
 });
 
-const upload =  multer({
+const upload = multer({
   storage: storageEngine,
   limits: { fileSize:200000 },
   fileFilter: function(req, file, res){
