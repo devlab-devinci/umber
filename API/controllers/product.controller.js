@@ -25,7 +25,7 @@ exports.index = function (req, res) {
   //if not errors send json data
     .then(function (data) {
       let result = {};
-      result.total = data[0];
+      result.data = data[0];
       result.limit = parseInt(limit);
       result.page = parseInt(page);
       result.count = data[0].length;
