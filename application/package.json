@@ -14,7 +14,6 @@
     }
   },
   "dependencies": {
-    "@vue/devtools": "5.0.0-beta.3",
     "axios": "^0.18.0",
     "bootstrap-social": "^5.1.1",
     "i": "^0.3.6",
@@ -30,7 +29,7 @@
     "nativescript-theme-core": "^1.0.4",
     "nativescript-toast": "^1.4.6",
     "nativescript-vue": "^2.0.0",
-    "nativescript-vue-devtools": "^1.0.0",
+    "net": "^1.0.2",
     "npm": "^6.5.0",
     "tns-core-modules": "^5.0.2",
     "vuex": "^3.0.1"
@@ -38,6 +37,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
+    "@vue/devtools": "^5.0.0-beta.3",
     "babel-loader": "^8.0.2",
     "babel-traverse": "6.26.0",
     "babel-types": "6.26.0",
@@ -47,6 +47,7 @@
     "css-loader": "^1.0.0",
     "lazy": "1.0.11",
     "nativescript-dev-webpack": "next",
+    "nativescript-vue-devtools": "^1.1.0",
     "nativescript-vue-template-compiler": "^2.0.0",
     "nativescript-worker-loader": "~0.9.0",
     "node-sass": "^4.9.2",
