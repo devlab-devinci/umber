@@ -4,6 +4,7 @@ const Document = require('../models/document.model');
 const error = require('../components/errors');
 const config = require('../config');
 const upload = require('../components/uploads');
+const fs = require('fs');
 
 /* GET docs page. */
 exports.index = function (req, res) {
@@ -35,10 +36,10 @@ exports.create = function (req, res) {
     newDocument
       .save()
       .then(function (document) {
-      res.status(201);
-      res.json(document);
-    })
-    // else send error and not save
+        res.status(201);
+        res.json(document);
+      })
+      // else send error and not save
       .catch(function (err) {
         err.code = 422;
         return error.handleError(res, err);
@@ -47,15 +48,16 @@ exports.create = function (req, res) {
 };
 
 exports.show = function (req, res) {
-  var id = req.params.id
-  Document.findById(id)
-    .then(function (data) {
-    res.status(200).json(data);
-  })
-  // else send error
-    .catch(function (err) {
-      return error.handleError(res, err);
+  let path = process.cwd() + '/upload/' + req.params.name;
+  if (fs.existsSync(path)) {
+    res.sendFile(path);
+  }
+  else{
+    throw error.generateError({
+      code: 404,
+      message: 'ERROR_DOCUMENT_NOT_FOUND'
     });
+  }
 };
 
 exports.destroy = function (req, res) {

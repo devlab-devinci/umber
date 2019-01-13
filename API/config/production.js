@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = {
-  version: '/v1',
   project: 'umber',
   app: {
     host: '',

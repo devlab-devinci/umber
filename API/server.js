@@ -29,6 +29,7 @@ const app = express();
 mongoose.connect(`mongodb://${config.server.mongo.hostname}/${config.server.mongo.name}`, config.server.mongo.options).then(
   (res) => {
     console.log("Connected to Database Successfully.")
+    console.log('Mongo DB listening on ' + config.server.port);
   }
 ).catch((err) => {
   console.error(err);
