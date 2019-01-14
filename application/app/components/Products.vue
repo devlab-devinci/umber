@@ -2,10 +2,13 @@
   <Page>
     <ActionBar class="action-bar" title="Produits"></ActionBar>
     <scroll-view class="green">
-      <ListView v-for="(item, key) in products">
+      <ListView v-for="item in products" @itemTap="">
         <v-template>
-          <Label :text="item.name" />
-          <Image v-if="item.cover && item.cover.name" :src="apiUrl + '/upload/' + item.cover.name"></Image>
+          <GridLayout rows="auto" columns="*,*">
+            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="apiUrl + '/upload/' + item.cover.name"></Image>
+            <Label :text="item.name" col="1" row="0"></Label>
+            <Label :text="item.price" col="1" row="1"/>
+          </GridLayout>
         </v-template>
       </ListView>
     </scroll-view>
