@@ -65,7 +65,8 @@ exports.create = function (req, res) {
 
     let newDocument = new Document ({
       path: fullPath,
-      name: req.files[0].originalname,
+      name: req.files[0].filename,
+      originalName: req.files[0].originalname,
       type: req.files[0].mimetype
     });
 

@@ -29,7 +29,8 @@ exports.create = function (req, res) {
 
     let newDocument = new Document({
       path: fullPath,
-      name: req.files[0].originalname,
+      name: req.files[0].filename,
+      originalName: req.files[0].originalname,
       type: req.files[0].mimetype
     });
 
@@ -48,16 +49,20 @@ exports.create = function (req, res) {
 };
 
 exports.show = function (req, res) {
+
   let path = process.cwd() + '/upload/' + req.params.name;
-  if (fs.existsSync(path)) {
-    res.sendFile(path);
-  }
-  else{
-    throw error.generateError({
-      code: 404,
-      message: 'ERROR_DOCUMENT_NOT_FOUND'
-    });
-  }
+
+  fs.exists(path, (exists) => {
+    if (exists) {
+      res.status(201);
+      res.sendFile(path);
+    } else {
+      return error.handleError(res, {
+        code: 422,
+        message: 'ERROR_HANDLING_REQUEST'
+      });
+    }
+  });
 };
 
 exports.destroy = function (req, res) {
