@@ -55,7 +55,10 @@
     import axios from 'axios';
 
 
+
     export default {
+        name: "Authentication",
+
         component: {
             //my component here
         },
@@ -100,7 +103,7 @@
                                         console.log("ROOT", API_url)
                                     })
 
-                                self.$navigateTo(Router.home);
+                                self.$navigateTo(Router.choice);
                             })
 
                             //TODO -> return modal here

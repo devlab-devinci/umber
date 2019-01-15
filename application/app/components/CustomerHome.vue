@@ -21,14 +21,14 @@
 
 
         <TabView selectedIndex="0" iosIconRenderingMode="alwaysOriginal">
-            <TabViewItem title="Mes offres">
-                <Label text="offre"></Label>
+            <TabViewItem title="Commerces">
+                <Label text="commerce"></Label>
             </TabViewItem>
-            <TabViewItem title="Commandes">
+            <TabViewItem title="Recherche">
                 <Label text="commandes"></Label>
             </TabViewItem>
-            <TabViewItem title="Statistiques">
-                <Label text="statistiques"></Label>
+            <TabViewItem title="Reçues">
+                <Label text="reçues"></Label>
             </TabViewItem>
             <TabViewItem title="Compte" iconSource="">
                 <StackLayout>
@@ -101,8 +101,7 @@
     import Router from "./services/Router";
 
     export default {
-        name: "Home",
-
+        name: "CustomerHome",
 //callback lifecyclme (vuejs)
         beforeCreate() {
             let feedback = new Feedback();

@@ -101,8 +101,7 @@
     import Router from "./services/Router";
 
     export default {
-        name: "Home",
-
+        name: "CustomerHome",
 //callback lifecyclme (vuejs)
         beforeCreate() {
             let feedback = new Feedback();
