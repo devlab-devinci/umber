@@ -13,6 +13,7 @@ const errorHandler = require('errorhandler');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const cart = require('./routes/carts');
 const document = require('./routes/documents');
 const product = require('./routes/products');
 const taxonomy = require('./routes/taxonomies');
@@ -55,6 +56,7 @@ app.use(methodOverride('_method'));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/products', product);
+app.use('/carts', cart);
 app.use('/taxonomies', taxonomy);
 app.use('/documents', document);
 app.use('/upload', upload);

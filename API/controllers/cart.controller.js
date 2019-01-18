@@ -10,10 +10,26 @@ exports.index = function (req, res) {
   let promise = [];
   let limit = req.query && req.query.limit || 0;
   let page = req.query && req.query.page || 0;
+  let regex;
+
+  if (req.query.search) {
+    let c = {};
+    regex = new RegExp(req.query.search, 'i');
+
+    c.$or = [
+      { 'persons.firstName': regex },
+      { 'persons.lastName': regex },
+      { 'persons.email': regex },
+      { 'persons.phone': regex },
+      { companyName: regex }
+    ]
+    User.find(c).select('_id').lean()
+  }
+
 
   // add promise find cart
   promise.push(Cart.find({})
-    .populate('owner, product')
+    .populate('owner product')
     .lean());
 
   // when promises resolve
@@ -36,15 +52,26 @@ exports.index = function (req, res) {
 
 // ADD controller show one cart id
 exports.show = function (req, res) {
-  // Promise find cart id db
-  Cart.findById(req.params.id)
-  // join owner with model defined in the model Cart
-    .populate('owner, product')
-    //if not errors send json data
-    .then(function (data) {
-      res.status(200).json(data);
+  let cartId = req.params.id;
+  Cart
+    .findById(cartId)
+    .populate('owner recipient.user', 'fullname')
+    .populate('documents.receipt documents.delivery documents.credit')
+    .populate('cartEntries.product')
+    .lean()
+    .then(function (cart) {
+      console.log(cartId);
+      if (!cart) {
+        throw error.generateError({
+          code: 404,
+          message: 'ERROR_CART_NOT_FOUND'
+        });
+      }
+
     })
-    // else send error
+    .then(function (cart) {
+      res.json(cart);
+    })
     .catch(function (err) {
       return error.handleError(res, err);
     });
@@ -52,20 +79,27 @@ exports.show = function (req, res) {
 
 //controller create cart
 exports.create = function (req, res) {
-  let newCart = new Cart(req.body);
+  console.log(req.user, req.currentUser);
+  /*if (req.user.role !== 'admin' || !req.body.owner) {
+    req.body.owner = req.user._id;
+  }*/
 
-  // Promise new cart
-  newCart
-  //save cart
-    .save()
-    //if promise not errors send json data
+  Cart.create(req.body)
     .then(function (cart) {
-      res.status(201);
-      res.json(cart);
+      return Cart.populate(cart, [
+        {path: 'owner', select: 'username companyName address'},
+        {path: 'recipient.user', select: 'username companyName address'},
+        {path: 'cartEntries.product'},
+        {path: 'documents.receipt'},
+        {path: 'documents.delivery'},
+        {path: 'documents.credit'}
+      ]);
     })
-    // else send error and not save
+    .then(function (cart) {
+      cart = cart.toObject();
+      return res.status(200).json(cart);
+    })
     .catch(function (err) {
-      err.code = 422;
       return error.handleError(res, err);
     });
 };
@@ -93,7 +127,7 @@ exports.update = function (req, res) {
   // Promise find id cart db
   Cart.findById(req.params.id)
   // join owner cover
-    .populate('owner, product')
+    .populate('owner product')
     // if none error req findById cart
     // execute code
     .then(function (cart) {
@@ -134,6 +168,84 @@ exports.update = function (req, res) {
     });
 };
 
+exports.update = function (req, res) {
+  if (req.body._id) {
+    delete req.body._id;
+  }
+  Cart
+    .findById(req.params.id)
+    .then(function (cart) {
+      if (!cart) {
+        throw error.generateError({
+          code: 404,
+          message: 'ERROR_CART_NOT_FOUND'
+        });
+      }
+
+      if ('admin' !== req.user.role && req.user._id.toString() !== cart.owner.toString()) {
+        throw error.generateError({
+          code: 403,
+          message: 'ERROR_USER_NOT_ALLOWED_TO_MODIFY_CART'
+        });
+      }
+
+      if (req.body.documents) {
+        if (req.user.role !== 'admin' && cart.status !== 'draft' && req.body.documents.receipt && req.body.documents.receipt.length === 0) {
+          throw error.generateError({
+            code: 403,
+            message: 'ERROR_CART_NO_RECEIPT'
+          });
+        }
+        cart.documents = _.extend(cart.documents, req.body.documents);
+        delete req.body.documents;
+      }
+      var updated = _.extend(cart, req.body);
+      return updated.save();
+    })
+    .then(function (cart) {
+      return Cart
+        .populate(cart, [
+          {path: 'owner', select: 'username companyName address'},
+          {path: 'recipient.user', select: 'username companyName address'},
+          {path: 'documents.receipt'},
+          {path: 'cartEntries.product'},
+          {path: 'documents.delivery'},
+          {path: 'documents.credit'}
+        ])
+    })
+    .then(function (cart) {
+      cart = cart.toObject();
+      return res.status(200).json(cart);
+    })
+    .catch(function (err) {
+      return error.handleError(res, err);
+    });
+};
+
+exports.bySha = function (req, res) {
+  Cart
+    .findOne({ sha: req.params.sha })
+    .select('-documents')
+    .populate('owner recipient.user', 'username companyName address')
+    .lean()
+    .then(function (cart) {
+      if (!cart) {
+        throw error.generateError({
+          code: 404,
+          message: 'ERROR_CART_NOT_FOUND'
+        });
+      }
+      res.json(cart);
+
+      if (!req.user || req.user._id.toString() !== cart.owner._id.toString()) {
+        Cart.update({ _id: cart._id }, { $inc: { views: 1 }}).exec();
+      }
+    })
+    .catch(function (err) {
+      return error.handleError(res, err);
+    });
+};
+
 // add controller destroy cart
 exports.destroy = function (req, res) {
   Cart
@@ -154,3 +266,38 @@ exports.destroy = function (req, res) {
       return error.handleError(res, err);
     });
 };
+
+/* exports.remind = function(req, res) {
+  Cart.findById(req.params.id)
+    .populate('recipient.user')
+    .populate('owner')
+    .then(function (c) {
+      let msgVars = {};
+
+      if (req.user.role !== 'admin' && c.owner._id.toString() !== req.user._id.toString()) {
+        throw error.generateError({
+          code: 403,
+          message: 'ERROR_FORBIDDEN'
+        });
+      }
+
+      msgVars.user = c.recipient.user;
+      msgVars.owner = c.owner;
+      msgVars.owner.firstName = c.owner.persons[0].firstName;
+      msgVars.owner.lastName = c.owner.persons[0].lastName;
+      msgVars.cart = c;
+
+      let params = c.recipient.user.mailRecipients();
+
+      params.mergeLanguage = 'handlebars';
+      params.subject = 'Rappel : Facture ' + c.computedPrice + '€ à régler pour ' + c.owner.companyName;
+
+      return mail.simple(msgVars, params, 'relance_paiement');
+    })
+    .then(function() {
+      return res.end();
+    })
+    .catch(function(err) {
+      return error.handleError(res, err);
+    })
+};*/

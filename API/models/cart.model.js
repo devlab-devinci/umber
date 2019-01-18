@@ -16,9 +16,43 @@ let CartSchema = new Schema({
     },
     quantity: Number
   }],
+  recipient: {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      index: true
+    },
+    email: String,
+    phone: String,
+    firstName: String,
+    lastName: String,
+    contact: String
+  },
   price: {
     devise: String,
     price: Number
+  },
+  documents: {
+    receipt: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Document'
+    }],
+    delivery: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Document'
+    }],
+    credit: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Document'
+    }]
+  },
+  remind: {
+    type: Number,
+    default: 0
+  },
+  wait3DS: {
+    type: Boolean,
+    default: false
   },
   owner: {
     type: Schema.Types.ObjectId,
