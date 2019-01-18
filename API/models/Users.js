@@ -28,6 +28,10 @@ const UserSchema = new Schema({
         enum: ['seller', 'buyer'],
         default: 'buyer'
     },
+    imageShop: {
+        type: Schema.Types.ObjectId,
+        ref: 'Document'
+    },
     picture: {
         type: String,
         required: true

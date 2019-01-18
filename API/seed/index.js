@@ -25,7 +25,7 @@ User
         password: 'umber' + new Date().getFullYear()
       });
 
-      for (let i = 0; 5 > 0; i++) {
+      for (let i = 0; 5 > i; i++) {
         let seller = new User({
           role: 'user',
           companyName: 'companyName' + i,
