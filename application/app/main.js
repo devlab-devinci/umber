@@ -27,6 +27,7 @@ Vue.config.silent = (TNS_ENV === 'production');
 Vue.registerElement('CardView', () => require('nativescript-cardview').CardView);
 
 import {TNSFontIcon, fonticon} from 'nativescript-fonticon';
+
 TNSFontIcon.debug = true;
 TNSFontIcon.paths = {
     'fa': './assets/font-awesome.css'
@@ -65,8 +66,14 @@ const state = {
      * current_location (lt / ld / timestamp only)
      * current_location_infos ( infos from the current_location given -> https://nominatim.openstreetmap.org/reverse?format=json&lon=-122.406417&lat=37.785834 )
      */
-    current_location:{},
-    current_location_infos: {}
+    current_location: {},
+    current_location_infos: {},
+
+    /**
+     * User Status (customer // vendor)
+     * ____________
+     */
+    user_status: ""
 }
 
 const getters = {
@@ -106,7 +113,17 @@ const getters = {
      */
     getCurrentLocationInfos: state => {
         return state.current_location_infos;
-    }
+    },
+
+
+    /**
+     * Return user status (customer OR vendor ?)
+     * @param state
+     * @returns {string}
+     */
+    getUserStatus: state => {
+        return state.user_status;
+    },
 };
 
 
@@ -146,9 +163,19 @@ const mutations = {
      * @param state
      * @param currentLocationInfos
      */
-    setCurrentLocationInfos(state, currentLocationInfos){
+    setCurrentLocationInfos(state, currentLocationInfos) {
         state.current_location_infos = currentLocationInfos;
-    }
+    },
+
+    /**
+     * Set status for user (customer // vendor)
+     * @param state
+     * @param userStatus
+     */
+    setUserStatus(state, userStatus) {
+        console.log("USER TO SET du store fdp",  userStatus)
+        state.user_status = userStatus;
+    },
 
 };
 
