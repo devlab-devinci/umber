@@ -13,17 +13,18 @@
 
 import Vue from 'nativescript-vue'
 import VueDevtools from 'nativescript-vue-devtools'
-
-// import Authentication from './components/Authentication'
-import Products from './components/Products'
+import axios from 'axios';
+import Router from './components/services/Router'
+import apiConfig from './config/api_config'
+import Authentication from './components/Authentication'
 
 import {configureOAuthProviders} from "./components/services/Auth";
 
 configureOAuthProviders();
 
 if (TNS_ENV !== 'production') {
-    // Vue.use(VueDevtools)
     let APIConfig = "../config/api_config";
+
     Vue.use(VueDevtools, { host: APIConfig.hostname });
 }
 // Prints Vue logs when --env.production is *NOT* set while building
@@ -37,6 +38,23 @@ TNSFontIcon.paths = {
 };
 TNSFontIcon.loadCss();
 Vue.filter('fonticon', fonticon);
+
+
+Vue.prototype.$router = Router;
+
+apiConfig.url = `${apiConfig.protocol}://${apiConfig.hostname}:${apiConfig.port}`;
+Vue.prototype.$config = apiConfig;
+
+Vue.prototype.$http = {
+  request: resource => axios.request(resource),
+  get: resource => axios.get(apiConfig.url + '/' + resource),
+  delete: resource => axios.put(apiConfig.url + '/' + resource),
+  head: resource => axios.head(apiConfig.url + '/' + resource),
+  // options: axios.options(apiConfig.url + '/' + resource),
+  path: (resource, data) => axios.patch(apiConfig.url + '/' + resource, data),
+  post: (resource, data) => axios.post(apiConfig.url + '/' + resource, data),
+  put: (resource, data) => axios.put(apiConfig.url + '/' + resource, data)
+};
 
 
 /**
@@ -70,7 +88,9 @@ const state = {
      * current_location_infos ( infos from the current_location given -> https://nominatim.openstreetmap.org/reverse?format=json&lon=-122.406417&lat=37.785834 )
      */
     current_location:{},
-    current_location_infos: {}
+    current_location_infos: {},
+
+    currentCart: null
 }
 
 const getters = {
@@ -110,6 +130,11 @@ const getters = {
      */
     getCurrentLocationInfos: state => {
         return state.current_location_infos;
+    },
+
+
+    getCurrentCart: state => {
+        return state.currentCart;
     }
 };
 
@@ -152,8 +177,19 @@ const mutations = {
      */
     setCurrentLocationInfos(state, currentLocationInfos){
         state.current_location_infos = currentLocationInfos;
-    }
+    },
 
+    setProductCart(state, product) {
+        if (!state.currentCart) {
+            state.currentCart = []
+        }
+        state.currentCart.push(product);
+    },
+
+    removeProductCart (state, {productIndex}) {
+        state.currentCart.splice(productIndex, 1);
+        return state.currentCart
+    },
 };
 
 
@@ -202,6 +238,5 @@ const store = new Vuex.Store({
 Vue.prototype.$store = store
 
 new Vue({
-    // render: h => h('frame', [h(Authentication)])
-    render: h => h('frame', [h(Products)])
+    render: h => h('frame', [h(Authentication)])
 }).$start()

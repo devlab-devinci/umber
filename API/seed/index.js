@@ -8,6 +8,7 @@
 const User = require('../../API/models/Users');
 const Taxonomy = require('../../API/models/taxonomy.model');
 const Cart = require('../../API/models/cart.model');
+const Product = require('../../API/models/product.model');
 const _ = require('lodash');
 
 

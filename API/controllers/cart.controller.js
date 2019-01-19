@@ -1,6 +1,7 @@
 'use strict';
 
 const Cart = require('../models/cart.model');
+const User = require('../models/Users');
 const error = require('../components/errors');
 const _ = require('lodash');
 
