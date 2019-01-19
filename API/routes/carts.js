@@ -7,17 +7,16 @@ const controller = require('../controllers/cart.controller');
 
 /* GET carts listing. */
 router.get('/', controller.index);
-
-/* GET carts id listing. */
+// router.get('/dashboard', controller.dashboard);
+router.get('/by-sha/:sha(*)', controller.bySha);
 router.get('/:id', controller.show);
 
 /* POST cart. */
+// router.post('/remind/:id', controller.remind);
 router.post('/', controller.create);
 
 /* PUT cart. */
 router.put('/:id', controller.update);
 
-/* Delete cart. */
-router.delete('/:id', controller.destroy);
 
 module.exports = router;

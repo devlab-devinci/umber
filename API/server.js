@@ -13,6 +13,7 @@ const errorHandler = require('errorhandler');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const cart = require('./routes/carts');
 const document = require('./routes/documents');
 const product = require('./routes/products');
 const taxonomy = require('./routes/taxonomies');
@@ -29,6 +30,7 @@ const app = express();
 mongoose.connect(`mongodb://${config.server.mongo.hostname}/${config.server.mongo.name}`, config.server.mongo.options).then(
   (res) => {
     console.log("Connected to Database Successfully.")
+    console.log('Mongo DB listening on ' + config.server.port);
   }
 ).catch((err) => {
   console.error(err);
@@ -54,6 +56,7 @@ app.use(methodOverride('_method'));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/products', product);
+app.use('/carts', cart);
 app.use('/taxonomies', taxonomy);
 app.use('/documents', document);
 app.use('/upload', upload);

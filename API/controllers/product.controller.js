@@ -14,10 +14,12 @@ exports.index = function (req, res) {
   let promise = [];
   let limit = req.query && req.query.limit || 0;
   let page = req.query && req.query.page || 0;
+  let criteria = {};
 
 // add promise find product
-  promise.push(Product.find({})
-    .populate('owner, cover, category')
+  promise.push(Product
+    .find(criteria)
+    .populate('owner cover category')
     .lean());
 
 // when promises resolve
@@ -25,7 +27,7 @@ exports.index = function (req, res) {
   //if not errors send json data
     .then(function (data) {
       let result = {};
-      result.total = data[0];
+      result.data = data[0];
       result.limit = parseInt(limit);
       result.page = parseInt(page);
       result.count = data[0].length;
@@ -43,7 +45,7 @@ exports.show = function (req, res) {
   // Promise find product id db
   Product.findById(req.params.id)
   // join owner with model defined in the model Product
-    .populate('owner, cover, category')
+    .populate('owner cover category')
     //if not errors send json data
     .then(function (data) {
       res.status(200).json(data);
@@ -65,7 +67,8 @@ exports.create = function (req, res) {
 
     let newDocument = new Document ({
       path: fullPath,
-      name: req.files[0].originalname,
+      name: req.files[0].filename,
+      originalName: req.files[0].originalname,
       type: req.files[0].mimetype
     });
 
@@ -116,7 +119,7 @@ exports.update = function (req, res) {
   // Promise find id product db
   Product.findById(req.params.id)
   // join owner cover
-    .populate('owner, category')
+    .populate('owner cover category')
     // if none error req findById product
     // execute code
     .then(function (product) {
