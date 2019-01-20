@@ -23,7 +23,8 @@ configureOAuthProviders();
 
 if (TNS_ENV !== 'production') {
     // Vue.use(VueDevtools)
-    Vue.use(VueDevtools, { host: '192.168.0.20' })
+    let APIConfig = "../config/api_config";
+    Vue.use(VueDevtools, { host: APIConfig.hostname });
 }
 // Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production');

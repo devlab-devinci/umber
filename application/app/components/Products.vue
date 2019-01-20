@@ -1,33 +1,42 @@
 <template>
   <Page>
     <ActionBar class="action-bar" title="Produits"></ActionBar>
-    <StackLayout>
-      <Image src="https://user-images.githubusercontent.com/544280/42960643-66d498ac-8b5a-11e8-8946-7224eefea6a5.jpg"></Image>
-    </StackLayout>
+    <scroll-view class="green">
+      <ListView v-for="(item, key) in products">
+        <v-template>
+          <Label :text="item.name" />
+          <Image v-if="item.cover && item.cover.name" :src="apiUrl + '/upload/' + item.cover.name"></Image>
+        </v-template>
+      </ListView>
+    </scroll-view>
   </Page>
 </template>
 
 <script>
-  import axios from "axios";
-  import APIConfig from "../config/api_config";
+  import axios from 'axios';
+  import APIConfig from '../config/api_config';
 
   const APIUrl = `${APIConfig.protocol}://${APIConfig.hostname}:${APIConfig.port}`;
 
   export default {
-    data() {
+    data: function () {
       return {
-        products: []
+        products: null,
+        apiUrl: APIUrl
       };
     },
-    mounted() {
-      let vm = this;
-      axios.get(APIUrl + '/products')
-        .then(response => {
-          console.log(response);
-          console.log(response.data);
-          vm.products = response.data
-        })
-        .catch(error => console.log(error));
+    mounted: function () {
+      this.fetchProducts();
+    },
+    methods: {
+      fetchProducts: function () {
+        let vm = this;
+        axios.get(APIUrl + '/products')
+          .then(products => {
+            vm.products = products.data.data;
+          })
+          .catch(error => console.error(error));
+      }
     }
   };
 </script>
