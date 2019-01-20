@@ -1,6 +1,6 @@
 <template>
   <Page>
-    <ActionBar class="action-bar" title="Shop">
+    <ActionBar class="action-bar" title="Shops">
       <ActionItem @tap="$navigateTo($router.products)"
                   ios.systemIcon="16" ios.position="right"
                   text="Produits" android.position="popup" />
@@ -9,13 +9,12 @@
                   text="Panier" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <ListView v-if="items && items.length" :items="items" @itemTap="" item-key="item._id">
+      <ListView v-if="items && items.length" :items="items" item-key="item._id">
         <v-template>
           <GridLayout rows="auto" columns="*,*">
-            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
-            <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
-            <Label :text="'Prix :' + item.price" col="3" row="1"/>
-            <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
+            <Image v-if="item.picture" col="0" row="0" :src="item.picture"></Image>
+            <Label :text="item.companyName" col="1" row="0"></Label>
+            <Button text="Voir le shop" col="2" @tap="showShop(item)" />
           </GridLayout>
         </v-template>
       </ListView>
@@ -25,29 +24,26 @@
 
 <script>
   export default {
-    props: {
-      id: String
-    },
     data: function () {
       return {
         items: null
       };
     },
     mounted: function () {
-      this.fetchProducts();
+      this.fetchShops();
     },
     methods: {
-      fetchProducts: function () {
+      fetchShops: function () {
         let vm = this;
-        vm.$http.get('products', {params: {owner: vm.id}})
-          .then(products => {
-            vm.items = products.data.data;
+        vm.$http.get('users', {params: {userTypes: 'seller'}})
+          .then(shops => {
+            vm.items = shops.data.data;
           })
           .catch(error => console.error(error));
       },
-      showProduct(shopItem) {
+      showShop(shopItem) {
         let vm = this;
-        this.$navigateTo(vm.$router.product, {
+        this.$navigateTo(vm.$router.shop,{
           props: {
             id: shopItem._id
           },

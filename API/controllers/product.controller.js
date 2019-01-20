@@ -16,6 +16,10 @@ exports.index = function (req, res) {
   let page = req.query && req.query.page || 0;
   let criteria = {};
 
+  if (req.query.owner) {
+    criteria.owner = req.query.owner;
+  }
+
 // add promise find product
   promise.push(Product
     .find(criteria)
@@ -75,6 +79,7 @@ exports.create = function (req, res) {
     newDocument
       .save()
       .then(function () {
+        console.log(req.body);
         let newProduct = new Product(req.body);
         newProduct.cover = newDocument;
         newProduct

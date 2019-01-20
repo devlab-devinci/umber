@@ -4,9 +4,12 @@
       <ActionItem @tap="$navigateTo($router.cart)"
                   ios.systemIcon="16" ios.position="right"
                   text="Panier" android.position="popup" />
+      <ActionItem @tap="$navigateTo($router.shops)"
+                  ios.systemIcon="16" ios.position="right"
+                  text="Shops" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <ListView for="item in products" @itemTap="">
+      <ListView v-if="items && items.length" :items="items" @itemTap="" item-key="item._id">
         <v-template>
           <GridLayout rows="auto" columns="*,*">
             <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
@@ -24,7 +27,7 @@
   export default {
     data: function () {
       return {
-        products: null
+        items: null
       };
     },
     mounted: function () {
@@ -35,7 +38,7 @@
         let vm = this;
         vm.$http.get('products')
           .then(products => {
-            vm.products = products.data.data;
+            vm.items = products.data.data;
           })
           .catch(error => console.error(error));
       },

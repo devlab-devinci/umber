@@ -8,6 +8,9 @@ import Cart from '../Cart';
 import Products from '../Products';
 import VendorHome from "../VendorHome";
 import CustomerHome from "../CustomerHome";
+import Product from '../Product';
+import Shop from '../Shop';
+import Shops from '../Shops';
 
 const Router = {
     app:App,
@@ -15,9 +18,12 @@ const Router = {
     choice:Choice,
     home: Home,
     cart: Cart,
-    products: Products,
     vendorHome: VendorHome,
     customerHome: CustomerHome,
-};
+    shop: Shop,
+    shops: Shops,
+    product: Product,
+    products: Products
+}
 
 export default Router;
