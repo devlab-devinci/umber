@@ -43,5 +43,3 @@ passwd vagrant
 run api 
 
         nodemon bin/www
-=======
->>>>>>> 5fdfaa42fd90a889818b069054801b2d6e889226
