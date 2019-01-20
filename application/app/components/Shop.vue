@@ -15,7 +15,7 @@
             <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
             <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
             <Label :text="'Prix :' + item.price" col="3" row="1"/>
-            <Button text="Ajouter" col="2" @tap="addProductCart(item)" />
+            <Button text="Ajouter" col="2" @tap="showProduct(item)" />
           </GridLayout>
         </v-template>
       </ListView>
@@ -41,10 +41,22 @@
         let vm = this;
         vm.$http.get('products', {params: {owner: vm.id}})
           .then(products => {
-            console.log(products.data.data);
             vm.items = products.data.data;
           })
           .catch(error => console.error(error));
+      },
+      showProduct(shopItem) {
+        this.$navigateTo(Product,{
+          props: {
+            id: shopItem._id
+          },
+          animated: true,
+          transition: {
+            name: "slideTop",
+            duration: 380,
+            curve: "easeIn"
+          }
+        })
       }
     }
   };
