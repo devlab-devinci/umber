@@ -60,10 +60,8 @@
         vm.$http.get('products/' + vm.id)
           .then(product => {
             vm.product = product.data;
-            console.log(product);
-            vm.$http.get('carts', {params: {owner: vm.$store.state.currentUser, recipient: vm.product.owner._id}})
+            vm.$http.get('carts', {params: {owner: vm.$store.state.currentUser._id, recipient: vm.product.owner._id}})
               .then(cart => {
-                console.log(cart);
                 vm.cart = cart.data.data;
               })
               .catch(error => console.error(error));
@@ -77,11 +75,15 @@
         newProduct.owner = vm.$store.state.currentUser;
         newProduct.cartEntries = [];
         newProduct.cartEntries.push({product: vm.product, quantity: vm.quantity});
-        /*vm.$http.get('cart')
+
+        let method = vm.cart ? 'put' : 'post';
+
+        vm.$http[method]('carts', newProduct)
           .then(products => {
             vm.products = products.data.data;
           })
-          .catch(error => console.error(error));*/
+          .catch(error => console.error(error));
+
         this.$store.commit('setProductCart', product);
       },
       addQuantity: function () {

@@ -38,11 +38,7 @@ exports.index = function (req, res) {
 
   // add promise find cart
   promise.push(Cart.find(criteria)
-    .populate({
-        path: 'owner', select: 'fullname email address'
-      }, {
-        path: 'recipient', select: 'fullname companyName address'
-      })
+    .populate('owner recipient')
     .populate('documents.receipt documents.delivery documents.credit')
     .populate('cartEntries.product')
     .lean());
@@ -102,8 +98,8 @@ exports.create = function (req, res) {
   Cart.create(req.body)
     .then(function (cart) {
       return Cart.populate(cart, [
-        {path: 'owner', select: 'fullname email address'},
-        {path: 'recipient', select: 'fullname companyName address'},
+        {path: 'owner', select: 'fullname email'},
+        {path: 'recipient', select: 'fullname companyName'},
         {path: 'cartEntries.product'},
         {path: 'documents.receipt'},
         {path: 'documents.delivery'},
@@ -241,7 +237,7 @@ exports.bySha = function (req, res) {
   Cart
     .findOne({ sha: req.params.sha })
     .select('-documents')
-    .populate('owner recipient', 'username companyName address')
+    .populate('owner recipientz', 'username companyName address')
     .lean()
     .then(function (cart) {
       if (!cart) {
