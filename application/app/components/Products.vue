@@ -9,7 +9,7 @@
                   text="Shops" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <ListView :items="items" @itemTap="" item-key="item._id">
+      <ListView v-if="items && items.length" :items="items" @itemTap="" item-key="item._id">
         <v-template>
           <GridLayout rows="auto" columns="*,*">
             <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>

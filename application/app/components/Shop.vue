@@ -9,8 +9,16 @@
                   text="Panier" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <Label :text="id" col="1" row="0"></Label>
-      <!--<Button text="Supprimer" col="2" @tap="$navigateTo($router.shop)" />-->
+      <ListView v-if="items && items.length" :items="items" @itemTap="" item-key="item._id">
+        <v-template>
+          <GridLayout rows="auto" columns="*,*">
+            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
+            <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
+            <Label :text="'Prix :' + item.price" col="3" row="1"/>
+            <Button text="Ajouter" col="2" @tap="addProductCart(item)" />
+          </GridLayout>
+        </v-template>
+      </ListView>
     </scroll-view>
   </Page>
 </template>
@@ -26,26 +34,18 @@
       };
     },
     mounted: function () {
-        let vm = this;
-        vm.$http.get('product', {owner: vm.id})
-          .then(products => {
-            console.log(products.data.data);
-            vm.items = products.data.data;
-          })
-          .catch(error => console.error(error)); 
+      this.fetchProducts();
     },
     methods: {
       fetchProducts: function () {
-        console.log(this.$navigateTo.arguments);
-        console.log(this.$router); 
-       let vm = this;
-        vm.$http.get('product', {owner: id})
+        let vm = this;
+        vm.$http.get('products', {params: {owner: vm.id}})
           .then(products => {
             console.log(products.data.data);
             vm.items = products.data.data;
           })
           .catch(error => console.error(error));
-      } 
+      }
     }
   };
 </script>

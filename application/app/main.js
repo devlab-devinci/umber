@@ -17,7 +17,6 @@ import axios from 'axios';
 import Router from './components/services/Router'
 import apiConfig from './config/api_config'
 import Authentication from './components/Authentication'
-import Shop from './components/Shop'
 
 import {configureOAuthProviders} from "./components/services/Auth";
 
@@ -240,5 +239,4 @@ Vue.prototype.$store = store
 
 new Vue({
     render: h => h('frame', [h(Authentication)])
-    // render: h => h('frame', [h(Shop)])
 }).$start()

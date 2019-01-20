@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-    <div class="container">
-      <h1>File Upload</h1>
-      <%= typeof msg != 'undefined' ? msg : '' %>
-        <form action="/products" method="POST" enctype="multipart/form-data">
-          <input type="text" name="name">
-          <input type="number" name="price">
-            <input type="file" name="cover" />
-            <button type="submit" class="btn">Submit</button>
-        </form>
-      <br>
-      <img src="<%= typeof file != 'undefined' ? file : '' %>" class="responsive-img">
-    </div>
-  </body>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+<h1><%= title %></h1>
+<p>Welcome to <%= title %></p>
+<div class="container">
+  <h1>File Upload</h1>
+  <%= typeof msg != 'undefined' ? msg : '' %>
+  <form action="/products" method="POST" enctype="multipart/form-data">
+    <input type="text" name="name">
+    <input type="number" name="price">
+    <input type="file" name="cover" />
+    <input type="text" name="owner" />
+    <button type="submit" class="btn">Submit</button>
+  </form>
+  <br>
+  <img src="<%= typeof file != 'undefined' ? file : '' %>" class="responsive-img">
+</div>
+</body>
 </html>
