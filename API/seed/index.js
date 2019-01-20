@@ -32,7 +32,7 @@ User
           companyName: 'companyName' + i,
           userTypes: 'seller',
           fullname: 'seller' + i,
-          // picture: 'https://ichef.bbci.co.uk/images/ic/720x405/p0517py6.jpg',
+          picture: 'http://placekitten.com/200/300',
           email: 'seller' + i + '@user.fr',
           password: 'seller' + i + new Date().getFullYear()
         });
@@ -40,7 +40,7 @@ User
           role: 'user',
           userTypes: 'buyer',
           fullname: 'buyer' + i,
-          // picture: 'https://ichef.bbci.co.uk/images/ic/720x405/p0517py6.jpg',sellet
+          picture: 'http://placekitten.com/200/300',
           email: 'buyer' + i + '@user.fr',
           password: 'buyer' + i + new Date().getFullYear()
         });

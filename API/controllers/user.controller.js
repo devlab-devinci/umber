@@ -2,9 +2,58 @@
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 
-const User = require('../models/user.model');
+const User = require('../models/Users');
 const error = require('../components/errors');
-const config = require('../../config');
+const config = require('../config');
+
+
+// ADD controller for route index (show list products)
+exports.index = function (req, res) {
+
+  let promise = [];
+  let limit = req.query && req.query.limit || 0;
+  let page = req.query && req.query.page || 0;
+  let criteria = {};
+
+// add promise find product
+  promise.push(User
+    .find(criteria)
+    .populate('imageShop')
+    .lean());
+
+// when promises resolve
+  Promise.all(promise)
+  //if not errors send json data
+    .then(function (data) {
+      let result = {};
+      result.data = data[0];
+      result.limit = parseInt(limit);
+      result.page = parseInt(page);
+      result.count = data[0].length;
+
+      res.status(200).json(result);
+    })
+    // else send error
+    .catch(function (err) {
+      return error.handleError(res, err);
+    });
+};
+
+// ADD controller show one product id
+exports.show = function (req, res) {
+  // Promise find product id db
+  User.findById(req.params.id)
+  // join owner with model defined in the model Product
+    .populate('owner cover category')
+    //if not errors send json data
+    .then(function (data) {
+      res.status(200).json(data);
+    })
+    // else send error
+    .catch(function (err) {
+      return error.handleError(res, err);
+    });
+};
 
 /**
  * @api {put} /users/:id Update Single User
