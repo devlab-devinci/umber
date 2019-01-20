@@ -9,20 +9,20 @@
                   text="Panier" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <ListView :items="items" item-key="item._id">
+      <ListView v-if="items && items.length" :items="items" item-key="item._id">
         <v-template>
           <GridLayout rows="auto" columns="*,*">
             <Image v-if="item.picture" col="0" row="0" :src="item.picture"></Image>
             <Label :text="item.companyName" col="1" row="0"></Label>
-              <Button text="Voir le shop" col="2" @tap="showShop(item)" />
+            <Button text="Voir le shop" col="2" @tap="showShop(item)" />
           </GridLayout>
         </v-template>
       </ListView>
     </scroll-view>
   </Page>
 </template>
+
 <script>
-import Shop from "./Shop";
   export default {
     data: function () {
       return {
@@ -42,7 +42,8 @@ import Shop from "./Shop";
           .catch(error => console.error(error));
       },
       showShop(shopItem) {
-        this.$navigateTo(Shop,{
+        let vm = this;
+        this.$navigateTo(vm.$router.shop,{
           props: {
             id: shopItem._id
           },
@@ -53,7 +54,7 @@ import Shop from "./Shop";
             curve: "easeIn"
           }
         })
-		  }
+      }
     }
   };
 </script>

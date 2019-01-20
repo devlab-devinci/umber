@@ -15,7 +15,7 @@
             <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
             <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
             <Label :text="'Prix :' + item.price" col="3" row="1"/>
-            <Button text="Ajouter" col="2" @tap="showProduct(item)" />
+            <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
           </GridLayout>
         </v-template>
       </ListView>
@@ -46,7 +46,8 @@
           .catch(error => console.error(error));
       },
       showProduct(shopItem) {
-        this.$navigateTo(Product,{
+        let vm = this;
+        this.$navigateTo(vm.$router.product, {
           props: {
             id: shopItem._id
           },

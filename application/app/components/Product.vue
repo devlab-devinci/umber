@@ -7,9 +7,12 @@
       <ActionItem @tap="$navigateTo($router.shops)"
                   ios.systemIcon="16" ios.position="right"
                   text="Shop" android.position="popup" />
+      <ActionItem @tap="$navigateTo($router.products)"
+                  ios.systemIcon="16" ios.position="right"
+                  text="Products" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <Label :text="'Nom :' + item.id" col="1" row="0"></Label>
+      <Label v-if="product" :text="'Nom :' + product._id" col="1" row="0"></Label>
     </scroll-view>
   </Page>
 </template>
@@ -21,27 +24,27 @@
     },
     data: function () {
       return {
-        products: null
+        product: null
       };
     },
     mounted: function () {
-      this.fetchProducts();
+      this.fetchProduct();
     },
     methods: {
-      fetchProducts: function () {
+      fetchProduct: function () {
         let vm = this;
-        vm.$http.get('products')
-          .then(products => {
-            vm.products = products.data.data;
+        vm.$http.get('product/' + vm.id)
+          .then(product => {
+            vm.product = product.data.data;
           })
           .catch(error => console.error(error));
       },
       addProductCart: function (product) {
-        vm.$http.get('cart')
+        /*vm.$http.get('cart')
           .then(products => {
             vm.products = products.data.data;
           })
-          .catch(error => console.error(error));
+          .catch(error => console.error(error));*/
         this.$store.commit('setProductCart', product);
       }
     }
