@@ -1,6 +1,6 @@
 <template>
   <Page>
-    <ActionBar class="action-bar" title="Produits">
+    <ActionBar class="action-bar" :title="product && product.name">
       <ActionItem @tap="$navigateTo($router.cart)"
                   ios.systemIcon="16" ios.position="right"
                   text="Panier" android.position="popup" />
@@ -12,7 +12,29 @@
                   text="Products" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <Label v-if="product" :text="'Nom :' + product._id" col="1" row="0"></Label>
+      <StackLayout v-if="product">
+        <StackLayout>
+          <Image v-if="product.cover && product.cover.name" :src="$config.url + '/upload/' + product.cover.name"></Image>
+        </StackLayout>
+        <StackLayout>
+          <Label v-if="product.name" :text="'Nom :' + product.name"></Label>
+        </StackLayout>
+        <StackLayout>
+          <Label :text="'Prix :' + product.price"/>
+        </StackLayout>
+        <StackLayout>
+          <Button text="+" @tap="addQuantity()" />
+        </StackLayout>
+        <StackLayout>
+          <Label :text="quantity"></Label>
+        </StackLayout>
+        <StackLayout>
+          <Button text="-" @tap="lessQuantity()" />
+        </StackLayout>
+        <StackLayout>
+          <Button text="Ajouter" @tap="addProductCart(product)" />
+        </StackLayout>
+      </StackLayout>
     </scroll-view>
   </Page>
 </template>
@@ -24,7 +46,9 @@
     },
     data: function () {
       return {
-        product: null
+        product: null,
+        quantity: 1,
+        cart: null
       };
     },
     mounted: function () {
@@ -33,22 +57,42 @@
     methods: {
       fetchProduct: function () {
         let vm = this;
-
         vm.$http.get('products/' + vm.id)
           .then(product => {
-            console.log(vm.product);
-
-            vm.product = product.data.data;
+            vm.product = product.data;
+            console.log(product);
+            vm.$http.get('carts', {params: {owner: vm.$store.state.currentUser, recipient: vm.product.owner._id}})
+              .then(cart => {
+                console.log(cart);
+                vm.cart = cart.data.data;
+              })
+              .catch(error => console.error(error));
           })
           .catch(error => console.error(error));
       },
       addProductCart: function (product) {
+        let vm = this;
+        let newProduct = {};
+        newProduct.recipient = {user: vm.id};
+        newProduct.owner = vm.$store.state.currentUser;
+        newProduct.cartEntries = [];
+        newProduct.cartEntries.push({product: vm.product, quantity: vm.quantity});
         /*vm.$http.get('cart')
           .then(products => {
             vm.products = products.data.data;
           })
           .catch(error => console.error(error));*/
         this.$store.commit('setProductCart', product);
+      },
+      addQuantity: function () {
+        if (this.quantity < this.product.max) {
+          this.quantity++;
+        }
+      },
+      lessQuantity: function () {
+        if (this.quantity > 1) {
+          this.quantity--;
+        }
       }
     }
   };

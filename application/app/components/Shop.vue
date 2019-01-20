@@ -9,16 +9,27 @@
                   text="Panier" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <ListView v-if="items && items.length" :items="items" @itemTap="" item-key="item._id">
-        <v-template>
-          <GridLayout rows="auto" columns="*,*">
-            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
-            <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
-            <Label :text="'Prix :' + item.price" col="3" row="1"/>
-            <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
-          </GridLayout>
-        </v-template>
-      </ListView>
+      <StackLayout v-if="shop">
+        <StackLayout>
+          <Image v-if="shop.picture" width="250rem" :src="shop.picture"></Image>
+        </StackLayout>
+        <StackLayout>
+          <Label :text="shop.companyName" col="1" row="0"></Label>
+        </StackLayout>
+        <StackLayout>
+          <Label text="Offres" col="1" row="0"></Label>
+        </StackLayout>
+        <ListView v-if="items && items.length" flexGrow="1" :items="items" @itemTap="" item-key="item._id">
+          <v-template>
+            <GridLayout rows="auto" columns="*,*">
+              <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
+              <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
+              <Label :text="'Prix :' + item.price" col="3" row="1"/>
+              <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
+            </GridLayout>
+          </v-template>
+        </ListView>
+      </StackLayout>
     </scroll-view>
   </Page>
 </template>
@@ -30,13 +41,23 @@
     },
     data: function () {
       return {
+        shop: null,
         items: null
       };
     },
     mounted: function () {
+      this.fetchShop();
       this.fetchProducts();
     },
     methods: {
+      fetchShop: function () {
+        let vm = this;
+        vm.$http.get('users/' + vm.id)
+          .then(shop => {
+            vm.shop = shop.data;
+          })
+          .catch(error => console.error(error));
+      },
       fetchProducts: function () {
         let vm = this;
         vm.$http.get('products', {params: {owner: vm.id}})

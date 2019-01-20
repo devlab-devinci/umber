@@ -16,6 +16,7 @@
             <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
             <Label :text="'Prix :' + item.price" col="3" row="1"/>
             <Button text="Ajouter" col="2" @tap="addProductCart(item)" />
+            <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
           </GridLayout>
         </v-template>
       </ListView>
@@ -49,6 +50,20 @@
           })
           .catch(error => console.error(error));*/
         this.$store.commit('setProductCart', product);
+      },
+      showProduct(productItem) {
+        let vm = this;
+        this.$navigateTo(vm.$router.product,{
+          props: {
+            id: productItem._id
+          },
+          animated: true,
+          transition: {
+            name: "slideTop",
+            duration: 380,
+            curve: "easeIn"
+          }
+        })
       }
     }
   };

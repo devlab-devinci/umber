@@ -17,16 +17,9 @@ let CartSchema = new Schema({
     quantity: Number
   }],
   recipient: {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      index: true
-    },
-    email: String,
-    phone: String,
-    firstName: String,
-    lastName: String,
-    contact: String
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    index: true
   },
   price: {
     devise: String,

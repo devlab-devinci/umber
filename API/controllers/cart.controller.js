@@ -12,25 +12,39 @@ exports.index = function (req, res) {
   let limit = req.query && req.query.limit || 0;
   let page = req.query && req.query.page || 0;
   let regex;
+  let criteria = {};
+
+  if (req.query.recipient) {
+    criteria.recipient = req.query.recipient;
+  }
+
+  if (req.query.owner) {
+    criteria.owner = req.query.owner;
+  }
 
   if (req.query.search) {
-    let c = {};
     regex = new RegExp(req.query.search, 'i');
 
-    c.$or = [
+    criteria.$or = [
       { 'persons.firstName': regex },
       { 'persons.lastName': regex },
       { 'persons.email': regex },
       { 'persons.phone': regex },
       { companyName: regex }
     ]
-    User.find(c).select('_id').lean()
+    User.find(criteria).select('_id').lean()
   }
 
 
   // add promise find cart
-  promise.push(Cart.find({})
-    .populate('owner product')
+  promise.push(Cart.find(criteria)
+    .populate({
+        path: 'owner', select: 'fullname email address'
+      }, {
+        path: 'recipient', select: 'fullname companyName address'
+      })
+    .populate('documents.receipt documents.delivery documents.credit')
+    .populate('cartEntries.product')
     .lean());
 
   // when promises resolve
@@ -56,7 +70,7 @@ exports.show = function (req, res) {
   let cartId = req.params.id;
   Cart
     .findById(cartId)
-    .populate('owner recipient.user', 'fullname')
+    .populate('owner recipient')
     .populate('documents.receipt documents.delivery documents.credit')
     .populate('cartEntries.product')
     .lean()
@@ -88,8 +102,8 @@ exports.create = function (req, res) {
   Cart.create(req.body)
     .then(function (cart) {
       return Cart.populate(cart, [
-        {path: 'owner', select: 'username companyName address'},
-        {path: 'recipient.user', select: 'username companyName address'},
+        {path: 'owner', select: 'fullname email address'},
+        {path: 'recipient', select: 'fullname companyName address'},
         {path: 'cartEntries.product'},
         {path: 'documents.receipt'},
         {path: 'documents.delivery'},
@@ -206,8 +220,8 @@ exports.update = function (req, res) {
     .then(function (cart) {
       return Cart
         .populate(cart, [
-          {path: 'owner', select: 'username companyName address'},
-          {path: 'recipient.user', select: 'username companyName address'},
+          {path: 'owner', select: 'fullname email address'},
+          {path: 'recipient', select: 'fullname companyName address'},
           {path: 'documents.receipt'},
           {path: 'cartEntries.product'},
           {path: 'documents.delivery'},
@@ -227,7 +241,7 @@ exports.bySha = function (req, res) {
   Cart
     .findOne({ sha: req.params.sha })
     .select('-documents')
-    .populate('owner recipient.user', 'username companyName address')
+    .populate('owner recipient', 'username companyName address')
     .lean()
     .then(function (cart) {
       if (!cart) {
