@@ -3,7 +3,7 @@
 android {
   defaultConfig {
     generatedDensities = []
-    applicationId = "org.nativescript.umber"
+    applicationId = "org.umber.application"
   }
   aaptOptions {
     additionalParameters "--no-version-vectors"
