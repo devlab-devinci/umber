@@ -49,7 +49,7 @@ exports.show = function (req, res) {
   // Promise find product id db
   User.findById(req.params.id)
   // join owner with model defined in the model Product
-    .populate('owner cover category')
+    .populate('imageShop')
     //if not errors send json data
     .then(function (data) {
       res.status(200).json(data);

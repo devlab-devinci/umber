@@ -1,6 +1,6 @@
 <template>
   <Page>
-    <ActionBar class="action-bar" title="Shop">
+    <ActionBar class="action-bar" title="Shops">
       <ActionItem @tap="$navigateTo($router.products)"
                   ios.systemIcon="16" ios.position="right"
                   text="Produits" android.position="popup" />
@@ -9,31 +9,33 @@
                   text="Panier" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <Label :text="id" col="1" row="0"></Label>
-      <!--<Button text="Supprimer" col="2" @tap="$navigateTo($router.shop)" />-->
+      <ListView :items="items" @itemTap="" item-key="item._id">
+        <v-template>
+          <GridLayout rows="auto" columns="*,*">
+            <Image v-if="item.picture" col="0" row="0" :src="item.picture"></Image>
+            <Label :text="item.companyName" col="1" row="0"></Label>
+            <Button text="Voir le shop" col="2" @tap="$showModal($router.shop, { context: { propsData: { id: item._id }}})" />
+          </GridLayout>
+        </v-template>
+      </ListView>
     </scroll-view>
   </Page>
 </template>
 
 <script>
   export default {
-    props: {
-      id: String
-    },
     data: function () {
       return {
         items: null
       };
     },
     mounted: function () {
-      this.fetchShop();
+      this.fetchShops();
     },
     methods: {
-      fetchShop: function () {
-        console.log(this.$navigateTo.arguments);
-        console.log(this.$router);
+      fetchShops: function () {
         let vm = this;
-        vm.$http.get('users')
+        vm.$http.get('users', {params: {userTypes: 'seller'}})
           .then(shops => {
             vm.items = shops.data.data;
           })

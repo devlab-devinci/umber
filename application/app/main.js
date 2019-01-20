@@ -17,6 +17,7 @@ import axios from 'axios';
 import Router from './components/services/Router'
 import apiConfig from './config/api_config'
 import Authentication from './components/Authentication'
+import Shop from './components/Shop'
 
 import {configureOAuthProviders} from "./components/services/Auth";
 
@@ -47,7 +48,7 @@ Vue.prototype.$config = apiConfig;
 
 Vue.prototype.$http = {
   request: resource => axios.request(resource),
-  get: resource => axios.get(apiConfig.url + '/' + resource),
+  get: (resource, params) => axios.get(apiConfig.url + '/' + resource, params),
   delete: resource => axios.put(apiConfig.url + '/' + resource),
   head: resource => axios.head(apiConfig.url + '/' + resource),
   // options: axios.options(apiConfig.url + '/' + resource),
@@ -239,4 +240,5 @@ Vue.prototype.$store = store
 
 new Vue({
     render: h => h('frame', [h(Authentication)])
+    // render: h => h('frame', [h(Shop)])
 }).$start()

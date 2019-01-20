@@ -6,28 +6,22 @@
                   text="Panier" android.position="popup" />
       <ActionItem @tap="$navigateTo($router.shops)"
                   ios.systemIcon="16" ios.position="right"
-                  text="Shops" android.position="popup" />
+                  text="Shop" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <ListView :items="items" @itemTap="" item-key="item._id">
-        <v-template>
-          <GridLayout rows="auto" columns="*,*">
-            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
-            <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
-            <Label :text="'Prix :' + item.price" col="3" row="1"/>
-            <Button text="Ajouter" col="2" @tap="addProductCart(item)" />
-          </GridLayout>
-        </v-template>
-      </ListView>
+      <Label :text="'Nom :' + item.id" col="1" row="0"></Label>
     </scroll-view>
   </Page>
 </template>
 
 <script>
   export default {
+    props: {
+      id: String
+    },
     data: function () {
       return {
-        items: null
+        products: null
       };
     },
     mounted: function () {
@@ -38,16 +32,16 @@
         let vm = this;
         vm.$http.get('products')
           .then(products => {
-            vm.items = products.data.data;
+            vm.products = products.data.data;
           })
           .catch(error => console.error(error));
       },
       addProductCart: function (product) {
-        /*vm.$http.get('cart')
+        vm.$http.get('cart')
           .then(products => {
             vm.products = products.data.data;
           })
-          .catch(error => console.error(error));*/
+          .catch(error => console.error(error));
         this.$store.commit('setProductCart', product);
       }
     }
