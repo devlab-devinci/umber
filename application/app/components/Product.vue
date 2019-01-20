@@ -33,8 +33,11 @@
     methods: {
       fetchProduct: function () {
         let vm = this;
-        vm.$http.get('product/' + vm.id)
+
+        vm.$http.get('products/' + vm.id)
           .then(product => {
+            console.log(vm.product);
+
             vm.product = product.data.data;
           })
           .catch(error => console.error(error));

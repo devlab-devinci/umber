@@ -1,9 +1,9 @@
 'use strict';
 
 const API_CONFIG = {
-    version: '/v1',
+    version: "/v1",
     hostname: "127.0.0.1",
-    vuedevtools: hostname,
+    vuedevtools: '192.168.0.20',
     protocol: "http",
     port: 3000
 };

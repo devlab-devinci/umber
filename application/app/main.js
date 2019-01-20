@@ -22,16 +22,18 @@ import {configureOAuthProviders} from "./components/services/Auth";
 
 configureOAuthProviders();
 
-if (TNS_ENV !== 'production') {
-    let APIConfig = "../config/api_config";
+apiConfig.url = `${apiConfig.protocol}://${apiConfig.hostname}:${apiConfig.port}`;
 
-    Vue.use(VueDevtools, { host: APIConfig.vuedevtools });
+if (TNS_ENV !== 'production') {
+    Vue.use(VueDevtools, { host: apiConfig.vuedevtools });
+    apiConfig.url = `${apiConfig.protocol}://${apiConfig.vuedevtools}:${apiConfig.port}`;
 }
 // Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production');
 Vue.registerElement('CardView', () => require('nativescript-cardview').CardView);
 
 import {TNSFontIcon, fonticon} from 'nativescript-fonticon';
+
 TNSFontIcon.debug = true;
 TNSFontIcon.paths = {
     'fa': './assets/font-awesome.css'
@@ -42,7 +44,6 @@ Vue.filter('fonticon', fonticon);
 
 Vue.prototype.$router = Router;
 
-apiConfig.url = `${apiConfig.protocol}://${apiConfig.hostname}:${apiConfig.port}`;
 Vue.prototype.$config = apiConfig;
 
 Vue.prototype.$http = {
@@ -87,13 +88,21 @@ const state = {
      * current_location (lt / ld / timestamp only)
      * current_location_infos ( infos from the current_location given -> https://nominatim.openstreetmap.org/reverse?format=json&lon=-122.406417&lat=37.785834 )
      */
-    current_location:{},
+
+    current_location: {},
     current_location_infos: {},
+
+    /**
+     * User Status (customer // vendor)
+     * ____________
+     */
+    user_status: "",
 
     currentCart: null,
 
     currentUser: {role: "user", userTypes: "buyer", _id:"5c43b9e2a904e53e21dfebe5", fullname: "buyer2", picture :"http://placekitten.com/200/300",email:"buyer2@user.fr", updatedAt:"2019-01-19T23:59:30.011Z", __v:0},
     // currentUser: {role :"user", userTypes: "seller", _id: "5c43b9e2a904e53e21dfebe0", companyName :"companyName0", fullname :"seller0",picture:"http://placekitten.com/200/300", email:"seller0@user.fr", updatedAt:"2019-01-19T23:59:30.011Z","__v":0}
+
 }
 
 const getters = {
@@ -139,6 +148,15 @@ const getters = {
       return state.currentUser;
     },
 
+    /**
+     * Return user status (customer OR vendor ?)
+     * @param state
+     * @returns {string}
+     */
+    getUserStatus: state => {
+        return state.user_status;
+    },
+
     getCurrentCart: state => {
         return state.currentCart;
     }
@@ -181,8 +199,18 @@ const mutations = {
      * @param state
      * @param currentLocationInfos
      */
-    setCurrentLocationInfos(state, currentLocationInfos){
+    setCurrentLocationInfos(state, currentLocationInfos) {
         state.current_location_infos = currentLocationInfos;
+    },
+
+    /**
+     * Set status for user (customer // vendor)
+     * @param state
+     * @param userStatus
+     */
+    setUserStatus(state, userStatus) {
+        console.log("USER TO SET du store fdp",  userStatus)
+        state.user_status = userStatus;
     },
 
     setProductCart(state, product) {
