@@ -7,3 +7,6 @@ node_modules
 # NativeScript application
 hooks
 platforms
+
+#Config
+app/config/api_config.js
