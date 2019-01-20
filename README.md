@@ -6,6 +6,7 @@
 <li>Hybrid Mobile application</li>
 <li>API</li>
 </ul>
+<<<<<<< HEAD
 
 
 ##For use vm
@@ -42,3 +43,5 @@ passwd vagrant
 run api 
 
         nodemon bin/www
+=======
+>>>>>>> 5fdfaa42fd90a889818b069054801b2d6e889226
