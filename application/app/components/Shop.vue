@@ -1,15 +1,20 @@
 <template>
   <Page>
-    <ActionBar class="action-bar" title="Produits"></ActionBar>
+    <ActionBar title="Shop" class="action-bar">
+      <ActionItem @tap="$navigateTo($router.products)"
+                  ios.systemIcon="16" ios.position="right"
+                  text="Produits" android.position="popup" />
+      <ActionItem @tap="$navigateTo($router.cart)"
+                  ios.systemIcon="16" ios.position="right"
+                  text="Panier" android.position="popup" />
+    </ActionBar>
     <scroll-view class="green">
-      <ListView for="item in products" @itemTap="">
+      <ListView for="item in shops" @itemTap="" item-key="item._id">
         <v-template>
           <GridLayout rows="auto" columns="*,*">
-            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="apiUrl + '/upload/' + item.cover.name"></Image>
-            <Label :text="item.name" col="1" row="0"></Label>
-            <Label :text="item.price" col="1" row="1"/>
-            <Button text="Button" col="2" @tap="addProductCart(item)" />
-          </GridLayout>
+           <Image v-if="item.picture" col="0" row="0" :src="item.picture"></Image>
+           <Label :text="item.companyName" col="1" row="0"></Label>
+            </GridLayout>
         </v-template>
       </ListView>
     </scroll-view>
@@ -17,38 +22,23 @@
 </template>
 
 <script>
-  import axios from 'axios';
-  import APIConfig from '../config/api_config';
-
-  const APIUrl = `${APIConfig.protocol}://${APIConfig.hostname}:${APIConfig.port}`;
-
   export default {
     data: function () {
       return {
-        products: null,
-        apiUrl: APIUrl
+        shops: null
       };
     },
     mounted: function () {
-      this.fetchProducts();
+      this.fetchShops();
     },
     methods: {
-      fetchProducts: function () {
+      fetchShops: function () {
         let vm = this;
-        axios.get(APIUrl + '/products')
-          .then(products => {
-            vm.products = products.data.data;
+        vm.$http.get('users', {params:{userTypes: 'seller'}})
+          .then(shops => {
+            vm.shops = shops.data.data;
           })
           .catch(error => console.error(error));
-      },
-      addProductCart: function (product) {
-        console.log(1, product);
-        axios.post(APIUrl + '/cart')
-          .then(products => {
-            vm.products = products.data.data;
-          })
-          .catch(error => console.error(error));
-        this.$store.commit('setProductCart', product);
       }
     }
   };

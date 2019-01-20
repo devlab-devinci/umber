@@ -15,6 +15,11 @@ exports.index = function (req, res) {
   let page = req.query && req.query.page || 0;
   let criteria = {};
 
+  if (req.query.userTypes) {
+    criteria.userTypes = req.query.userTypes;
+  }
+
+
 // add promise find product
   promise.push(User
     .find(criteria)

@@ -4,9 +4,12 @@
       <ActionItem @tap="$navigateTo($router.cart)"
                   ios.systemIcon="16" ios.position="right"
                   text="Panier" android.position="popup" />
+      <ActionItem @tap="$navigateTo($router.shops)"
+                  ios.systemIcon="16" ios.position="right"
+                  text="Shop" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <ListView for="item in products" @itemTap="">
+      <ListView for="item in products" @itemTap="" item-key="item._id">
         <v-template>
           <GridLayout rows="auto" columns="*,*">
             <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
