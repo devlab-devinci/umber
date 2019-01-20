@@ -7,23 +7,51 @@
 
 const User = require('../../API/models/Users');
 const Taxonomy = require('../../API/models/taxonomy.model');
+const Cart = require('../../API/models/cart.model');
+const Product = require('../../API/models/product.model');
 const _ = require('lodash');
 
 
 User
   .find({role: 'admin'})
   .then(function (users) {
+    let p = [];
+
     if (!users || !users.length) {
-       return User.create({
-         role: 'admin',
-         username: 'umber',
-         fullname: 'umber',
-         picture: 'https://ichef.bbci.co.uk/images/ic/720x405/p0517py6.jpg',
-         email: 'dev@umber.fr',
-         password: 'umber' + new Date().getFullYear()
-       });
+      let user = new User({
+        role: 'admin',
+        fullname: 'umber',
+        picture: 'https://ichef.bbci.co.uk/images/ic/720x405/p0517py6.jpg',
+        email: 'dev@umber.fr',
+        password: 'umber' + new Date().getFullYear()
+      });
+
+      for (let i = 0; 5 > i; i++) {
+        let seller = new User({
+          role: 'user',
+          companyName: 'companyName' + i,
+          userTypes: 'seller',
+          fullname: 'seller' + i,
+          picture: 'http://placekitten.com/200/300',
+          email: 'seller' + i + '@user.fr',
+          password: 'seller' + i + new Date().getFullYear()
+        });
+        let buyer = new User({
+          role: 'user',
+          userTypes: 'buyer',
+          fullname: 'buyer' + i,
+          picture: 'http://placekitten.com/200/300',
+          email: 'buyer' + i + '@user.fr',
+          password: 'buyer' + i + new Date().getFullYear()
+        });
+
+        p.push(seller.save());
+        p.push(buyer.save());
+      }
+
+      p.push(user.save());
+      return Promise.all(p);
     }
-    return Promise.resolve(true);
   })
   .then(function () {
     console.log('finished populating user');
@@ -42,6 +70,49 @@ User
       p.push(taxo.save());
     });
 
+    return Promise.all(p);
+  })
+  .then(function () {
+    console.log('finished populating taxonomies');
+    return Product.find().lean();
+  }).then(function (products) {
+  if (products.length) return;
+  let array = [
+    { name: 'Pommes de terre', price: 1, description: 'Pommes de terre bio' },
+    { name: 'Toamtes', price: 1, description: 'Pommes de terre bio'  },
+    { name: 'Fraises', price: 2, description: 'Fraises bio'  },
+    { name: 'Aubergines', price: 2, description: 'Aubergines bio' }
+  ];
+  let p = [];
+  _.each(array, function (t) {
+    let array = new Product(t);
+    p.push(array.save());
+  });
+
+  return Promise.all(p);
+  })
+  .then(function() {
+    console.log('finished populating product');
+    return Cart.find();
+  })
+  .then(function(carts) {
+    var p = [];
+    _.each(carts, function(c) {
+      if (c.documents.receipt && !Array.isArray(c.documents.receipt)) {
+        c.documents.receipt = [c.documents.receipt];
+      }
+      if (!c.items || !c.items.length) {
+        c.items = [{
+          amount: c.price.amount,
+          vat: c.price.vat,
+          currency: c.price.currency,
+          description: c.description
+        }];
+      }
+      c.remind = c.remind || 0;
+      c.sharedAt = c.sharedAt || new Date();
+      p.push(c.save());
+    });
     return Promise.all(p);
   }).then(function () {
     console.log('finished populating seed');

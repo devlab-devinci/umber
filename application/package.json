@@ -13,6 +13,9 @@
       "version": "5.0.0"
     }
   },
+  "scripts": {
+    "dev": "tns run android --bundle"
+  },
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap-social": "^5.1.1",

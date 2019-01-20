@@ -17,6 +17,21 @@ const UserSchema = new Schema({
         required: true
     },
     */
+    companyName: String,
+    role: {
+        type: String,
+        enum: ['admin', 'user'],
+        default: 'user'
+    },
+    userTypes: {
+        type: String,
+        enum: ['seller', 'buyer'],
+        default: 'buyer'
+    },
+    imageShop: {
+        type: Schema.Types.ObjectId,
+        ref: 'Document'
+    },
     picture: {
         type: String,
         required: true

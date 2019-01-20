@@ -14,9 +14,11 @@ exports.index = function (req, res) {
   let promise = [];
   let limit = req.query && req.query.limit || 0;
   let page = req.query && req.query.page || 0;
+  let criteria = {};
 
 // add promise find product
-  promise.push(Product.find({})
+  promise.push(Product
+    .find(criteria)
     .populate('owner cover category')
     .lean());
 

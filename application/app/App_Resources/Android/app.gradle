@@ -1,11 +1,11 @@
 // Add your native dependencies here:
 
 android {
-  defaultConfig {  
+  defaultConfig {
     generatedDensities = []
     applicationId = "org.umber.application"
   }
-  aaptOptions {  
-    additionalParameters "--no-version-vectors"  
-  }  
-} 
+  aaptOptions {
+    additionalParameters "--no-version-vectors"
+  }
+}
