@@ -22,10 +22,11 @@ import {configureOAuthProviders} from "./components/services/Auth";
 
 configureOAuthProviders();
 
-if (TNS_ENV !== 'production') {
-    let APIConfig = "../config/api_config";
+apiConfig.url = `${apiConfig.protocol}://${apiConfig.hostname}:${apiConfig.port}`;
 
-    Vue.use(VueDevtools, { host: APIConfig.vuedevtools });
+if (TNS_ENV !== 'production') {
+    Vue.use(VueDevtools, { host: apiConfig.vuedevtools });
+    apiConfig.url = `${apiConfig.protocol}://${apiConfig.vuedevtools}:${apiConfig.port}`;
 }
 // Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production');
@@ -43,7 +44,6 @@ Vue.filter('fonticon', fonticon);
 
 Vue.prototype.$router = Router;
 
-apiConfig.url = `${apiConfig.protocol}://${apiConfig.hostname}:${apiConfig.port}`;
 Vue.prototype.$config = apiConfig;
 
 Vue.prototype.$http = {
