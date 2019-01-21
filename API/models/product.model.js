@@ -24,6 +24,10 @@ let ProductSchema = new Schema({
     type: Number,
     required: true
   },
+  stock: {
+    type: Number,
+    required: true
+  },
   description: String,
   createdAt: {
     type: Date,

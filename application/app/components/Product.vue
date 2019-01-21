@@ -23,17 +23,22 @@
           <Label :text="'Prix :' + product.price"/>
         </StackLayout>
         <StackLayout>
-          <Button text="+" @tap="addQuantity()" />
+          <Label :text="product.stock > 0 ? 'Quantité :' + product.stock : 'Produit indisponible'"/>
         </StackLayout>
-        <StackLayout>
-          <Label :text="quantity"></Label>
-        </StackLayout>
-        <StackLayout>
-          <Button text="-" @tap="lessQuantity()" />
-        </StackLayout>
-        <StackLayout>
-          <Button :text="quantity > 0 ? 'Ajouter' : 'Retirer'" @tap="addProductCart(product)" />
-        </StackLayout>
+        <template v-if="product.stock > 0">
+          <StackLayout>
+            <Button text="+" @tap="addQuantity()" />
+          </StackLayout>
+          <StackLayout>
+            <Label :text="quantity"></Label>
+          </StackLayout>
+          <StackLayout>
+            <Button text="-" @tap="lessQuantity()" />
+          </StackLayout>
+          <StackLayout>
+            <Button :text="quantity > 0 ? 'Ajouter' : 'Retirer'" @tap="addProductCart(product)" />
+          </StackLayout>
+        </template>
       </StackLayout>
     </scroll-view>
   </Page>
@@ -49,6 +54,7 @@
       return {
         product: null,
         quantity: 1,
+        stock: 0,
         cart: null
       };
     },
@@ -60,7 +66,8 @@
         let vm = this;
         vm.$http.get('products/' + vm.id)
           .then(product => {
-            vm.product = product.data;
+            vm.product = _.cloneDeep(product.data);
+            vm.stock = vm.product.stock - 1;
             vm.$http.get('carts', {params: {owner: vm.$store.state.currentUser._id, recipient: vm.product.owner._id}})
               .then(cart => {
                 vm.cart = _.cloneDeep(cart.data.data[0]);
@@ -106,22 +113,32 @@
           });
         }
 
+        vm.product.stock = vm.stock;
         vm.$http[method](resource, newProduct)
           .then(cart => {
             vm.cart = _.cloneDeep(cart.data);
+            vm.$http.put('products/' + vm.product._id, vm.product)
+              .then(product => {
+                vm.product = _.cloneDeep(product.data);
+                vm.stock = vm.product.stock - 1;
+                vm.quantity = 1;
+              })
+              .catch(error => console.error(error));
           })
           .catch(error => console.error(error));
 
         this.$store.commit('setProductCart', product);
       },
       addQuantity: function () {
-        if (this.quantity < (this.product.max || 100)) {
+        if (0 < this.stock) {
           this.quantity++;
+          this.stock--;
         }
       },
       lessQuantity: function () {
         if (this.quantity > 0) {
           this.quantity--;
+          this.stock++;
         }
       }
     }

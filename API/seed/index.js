@@ -13,7 +13,7 @@ const _ = require('lodash');
 
 
 User
-  .find({role: 'admin'})
+  .find()
   .then(function (users) {
     let p = [];
 
@@ -78,10 +78,10 @@ User
   }).then(function (products) {
   if (products.length) return;
   let array = [
-    { name: 'Pommes de terre', price: 1, description: 'Pommes de terre bio' },
-    { name: 'Toamtes', price: 1, description: 'Pommes de terre bio'  },
-    { name: 'Fraises', price: 2, description: 'Fraises bio'  },
-    { name: 'Aubergines', price: 2, description: 'Aubergines bio' }
+    { name: 'Pommes de terre', price: 1, quantity: 10, description: 'Pommes de terre bio' },
+    { name: 'Toamtes', price: 1, quantity: 60, description: 'Pommes de terre bio'  },
+    { name: 'Fraises', price: 2, quantity: 90, description: 'Fraises bio'  },
+    { name: 'Aubergines', price: 2, quantity: 5, description: 'Aubergines bio' }
   ];
   let p = [];
   _.each(array, function (t) {
