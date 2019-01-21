@@ -101,7 +101,7 @@ exports.create = function (req, res) {
       if (data[0] <= 0 || !data[0]) {
         throw error.generateError({
           code: 403,
-          message: 'ERROR_OWNER_RECIPIENT_CART_ALREADY_EXIST'
+          message: 'ERROR_OWNER_AND_RECIPIENT_CART_ALREADY_EXIST'
         });
       }
       Cart.create(req.body)
@@ -117,7 +117,6 @@ exports.create = function (req, res) {
         })
         .then(function (cart) {
           cart = cart.toObject();
-          console.log(cart);
           return res.status(200).json(cart);
         })
         .catch(function (err) {

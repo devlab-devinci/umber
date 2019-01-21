@@ -14,6 +14,7 @@ let CartSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Product'
     },
+    price: Number,
     quantity: Number
   }],
   recipient: {
@@ -22,7 +23,10 @@ let CartSchema = new Schema({
     index: true
   },
   price: {
-    devise: String,
+    devise: {
+      type: String,
+      default: 'euro'
+    },
     price: Number
   },
   documents: {

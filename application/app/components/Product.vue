@@ -64,7 +64,6 @@
             vm.$http.get('carts', {params: {owner: vm.$store.state.currentUser._id, recipient: vm.product.owner._id}})
               .then(cart => {
                 vm.cart = _.cloneDeep(cart.data.data[0]);
-                console.log(vm.cart);
               })
               .catch(error => console.error(error));
           })
@@ -81,19 +80,30 @@
           newProduct.recipient = vm.product.owner;
           newProduct.owner = vm.$store.state.currentUser;
           newProduct.cartEntries = [];
+          newProduct.price = { price: 0 };
         }
 
         let resource = method === 'put' ? 'carts/' + vm.cart._id : 'carts';
         let findEntry = newProduct.cartEntries.findIndex(entry => entry.product._id === vm.product._id);
         if (newProduct.cartEntries.length && findEntry !== -1) {
           newProduct.cartEntries[findEntry].quantity = vm.quantity;
+          newProduct.cartEntries[findEntry].price = parseInt(vm.quantity * vm.product.price);
           if (vm.quantity === 0) {
-            newProduct.cartEntries.splice(findEntry, 1)
+            if (newProduct.price) {
+              newProduct.price.price = (!newProduct.price.price || newProduct.price.price === 0) ? 0 : parseInt(newProduct.price.price - newProduct.cartEntries[findEntry].price);
+            }
+            newProduct.cartEntries.splice(findEntry, 1);
           }
         } else {
           if (vm.quantity > 0) {
-            newProduct.cartEntries.push({product: vm.product, quantity: vm.quantity});
+            newProduct.cartEntries.push({product: vm.product, quantity: vm.quantity, price: parseInt(vm.quantity * vm.product.price)});
           }
+        }
+        if (newProduct.price) {
+          newProduct.price.price = 0;
+          _.each(newProduct.cartEntries, function (entry) {
+            newProduct.price.price = newProduct.price.price + entry.price;
+          });
         }
 
         vm.$http[method](resource, newProduct)

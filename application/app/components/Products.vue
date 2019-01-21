@@ -20,6 +20,11 @@
           </GridLayout>
         </v-template>
       </ListView>
+      <StackLayout v-else>
+        <StackLayout>
+          <Label text="Aucun produit n'est disponible"></Label>
+        </StackLayout>
+      </StackLayout>
     </scroll-view>
   </Page>
 </template>

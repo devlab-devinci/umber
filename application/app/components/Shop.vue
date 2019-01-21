@@ -29,6 +29,9 @@
             </GridLayout>
           </v-template>
         </ListView>
+        <StackLayout v-else>
+          <Label text="Aucun produit n'est disponible dans cette boutique"></Label>
+        </StackLayout>
       </StackLayout>
     </scroll-view>
   </Page>
