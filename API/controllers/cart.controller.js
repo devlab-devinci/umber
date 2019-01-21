@@ -48,7 +48,7 @@ exports.index = function (req, res) {
   //if not errors send json data
     .then(function (data) {
       let result = {};
-      result.total = data[0];
+      result.data = data[0];
       result.limit = parseInt(limit);
       result.page = parseInt(page);
       result.count = data[0].length;
@@ -93,25 +93,40 @@ exports.create = function (req, res) {
   /*if (req.user.role !== 'admin' || !req.body.owner) {
     req.body.owner = req.user._id;
   }*/
+  let promise = [];
+  promise.push(Cart.find({recipient: req.query.recipient, owner: req.query.owner}).count);
 
-  Cart.create(req.body)
-    .then(function (cart) {
-      return Cart.populate(cart, [
-        {path: 'owner', select: 'fullname email'},
-        {path: 'recipient', select: 'fullname companyName'},
-        {path: 'cartEntries.product'},
-        {path: 'documents.receipt'},
-        {path: 'documents.delivery'},
-        {path: 'documents.credit'}
-      ]);
-    })
-    .then(function (cart) {
-      cart = cart.toObject();
-      return res.status(200).json(cart);
+  Promise.all(promise)
+    .then(function (data) {
+      if (data[0] <= 0 || !data[0]) {
+        throw error.generateError({
+          code: 403,
+          message: 'ERROR_OWNER_RECIPIENT_CART_ALREADY_EXIST'
+        });
+      }
+      Cart.create(req.body)
+        .then(function (cart) {
+          return Cart.populate(cart, [
+            {path: 'owner', select: 'fullname email'},
+            {path: 'recipient', select: 'fullname companyName'},
+            {path: 'cartEntries.product'},
+            {path: 'documents.receipt'},
+            {path: 'documents.delivery'},
+            {path: 'documents.credit'}
+          ]);
+        })
+        .then(function (cart) {
+          cart = cart.toObject();
+          console.log(cart);
+          return res.status(200).json(cart);
+        })
+        .catch(function (err) {
+          return error.handleError(res, err);
+        });
     })
     .catch(function (err) {
       return error.handleError(res, err);
-    });
+    })
 };
 
 //controller update cart
@@ -137,7 +152,7 @@ exports.update = function (req, res) {
   // Promise find id cart db
   Cart.findById(req.params.id)
   // join owner cover
-    .populate('owner product')
+    .populate('owner recipient cartEntries.product documents.receipt documents.delivery documents.credit')
     // if none error req findById cart
     // execute code
     .then(function (cart) {
@@ -167,64 +182,17 @@ exports.update = function (req, res) {
       return updated.save();
     })
     .then(function (cart) {
-      return Cart.populate(cart, []);
+      return Cart.populate(cart, [
+        {path: 'owner', select: 'fullname email'},
+        {path: 'recipient', select: 'fullname companyName'},
+        {path: 'cartEntries.product'},
+        {path: 'documents.receipt'},
+        {path: 'documents.delivery'},
+        {path: 'documents.credit'}
+      ]);
       // return Cart.populate(cart, ['owner', 'cover']);
     })
     .then(function (cart) {
-      return res.status(200).json(cart);
-    })
-    .catch(function (err) {
-      return error.handleError(res, err);
-    });
-};
-
-exports.update = function (req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  Cart
-    .findById(req.params.id)
-    .then(function (cart) {
-      if (!cart) {
-        throw error.generateError({
-          code: 404,
-          message: 'ERROR_CART_NOT_FOUND'
-        });
-      }
-
-      /*if ('admin' !== req.user.role && req.user._id.toString() !== cart.owner.toString()) {
-        throw error.generateError({
-          code: 403,
-          message: 'ERROR_USER_NOT_ALLOWED_TO_MODIFY_CART'
-        });
-      }*/
-
-      if (req.body.documents) {
-        if (req.user.role !== 'admin' && cart.status !== 'draft' && req.body.documents.receipt && req.body.documents.receipt.length === 0) {
-          throw error.generateError({
-            code: 403,
-            message: 'ERROR_CART_NO_RECEIPT'
-          });
-        }
-        cart.documents = _.extend(cart.documents, req.body.documents);
-        delete req.body.documents;
-      }
-      var updated = _.extend(cart, req.body);
-      return updated.save();
-    })
-    .then(function (cart) {
-      return Cart
-        .populate(cart, [
-          {path: 'owner', select: 'fullname email'},
-          {path: 'recipient', select: 'fullname companyName'},
-          {path: 'documents.receipt'},
-          {path: 'cartEntries.product'},
-          {path: 'documents.delivery'},
-          {path: 'documents.credit'}
-        ])
-    })
-    .then(function (cart) {
-      cart = cart.toObject();
       return res.status(200).json(cart);
     })
     .catch(function (err) {
