@@ -90,7 +90,6 @@ exports.show = function (req, res) {
 
 //controller create cart
 exports.create = function (req, res) {
-  console.log(req.user, req.currentUser);
   /*if (req.user.role !== 'admin' || !req.body.owner) {
     req.body.owner = req.user._id;
   }*/
@@ -193,12 +192,12 @@ exports.update = function (req, res) {
         });
       }
 
-      if ('admin' !== req.user.role && req.user._id.toString() !== cart.owner.toString()) {
+      /*if ('admin' !== req.user.role && req.user._id.toString() !== cart.owner.toString()) {
         throw error.generateError({
           code: 403,
           message: 'ERROR_USER_NOT_ALLOWED_TO_MODIFY_CART'
         });
-      }
+      }*/
 
       if (req.body.documents) {
         if (req.user.role !== 'admin' && cart.status !== 'draft' && req.body.documents.receipt && req.body.documents.receipt.length === 0) {
@@ -216,8 +215,8 @@ exports.update = function (req, res) {
     .then(function (cart) {
       return Cart
         .populate(cart, [
-          {path: 'owner', select: 'fullname email address'},
-          {path: 'recipient', select: 'fullname companyName address'},
+          {path: 'owner', select: 'fullname email'},
+          {path: 'recipient', select: 'fullname companyName'},
           {path: 'documents.receipt'},
           {path: 'cartEntries.product'},
           {path: 'documents.delivery'},

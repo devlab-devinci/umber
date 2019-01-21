@@ -40,6 +40,7 @@
 </template>
 
 <script>
+  import _ from 'lodash';
   export default {
     props: {
       id: String
@@ -62,7 +63,7 @@
             vm.product = product.data;
             vm.$http.get('carts', {params: {owner: vm.$store.state.currentUser._id, recipient: vm.product.owner._id}})
               .then(cart => {
-                vm.cart = cart.data.data;
+                vm.cart = _.cloneDeep(cart.data.data);
               })
               .catch(error => console.error(error));
           })
@@ -70,24 +71,33 @@
       },
       addProductCart: function (product) {
         let vm = this;
-        let newProduct = {};
-        newProduct.recipient = {user: vm.id};
-        newProduct.owner = vm.$store.state.currentUser;
-        newProduct.cartEntries = [];
+        let method = 'put';
+        let newProduct = _.cloneDeep(vm.cart);
+
+        console.log(vm.cart);
+
+        if (!vm.cart) {
+          method = 'post';
+          newProduct = {};
+          newProduct.recipient = vm.product.owner;
+          newProduct.owner = vm.$store.state.currentUser;
+          newProduct.cartEntries = [];
+        }
+
+        let resource = method === 'put' ? 'carts/' + vm.cart._id : 'carts';
+
         newProduct.cartEntries.push({product: vm.product, quantity: vm.quantity});
 
-        let method = vm.cart ? 'put' : 'post';
-
-        vm.$http[method]('carts', newProduct)
-          .then(products => {
-            vm.products = products.data.data;
+        vm.$http[method](resource, newProduct)
+          .then(cart => {
+            vm.cart = _.cloneDeep(cart);
           })
           .catch(error => console.error(error));
 
         this.$store.commit('setProductCart', product);
       },
       addQuantity: function () {
-        if (this.quantity < this.product.max) {
+        if (this.quantity < (this.product.max || 100)) {
           this.quantity++;
         }
       },
