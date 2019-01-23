@@ -15,28 +15,16 @@
       <StackLayout v-if="product">
         <StackLayout>
           <Image v-if="product.cover && product.cover.name" :src="$config.url + '/upload/' + product.cover.name"></Image>
-        </StackLayout>
-        <StackLayout>
           <Label v-if="product.name" :text="'Nom :' + product.name"></Label>
-        </StackLayout>
-        <StackLayout>
           <Label :text="'Prix :' + product.price"/>
-        </StackLayout>
-        <StackLayout>
           <Label :text="product.stock > 0 ? 'Quantité :' + product.stock : 'Produit indisponible'"/>
         </StackLayout>
         <template v-if="product.stock > 0">
           <StackLayout>
             <Button text="+" @tap="addQuantity()" />
-          </StackLayout>
-          <StackLayout>
             <Label :text="quantity"></Label>
-          </StackLayout>
-          <StackLayout>
             <Button text="-" @tap="lessQuantity()" />
-          </StackLayout>
-          <StackLayout>
-            <Button :text="quantity > 0 ? 'Ajouter' : 'Retirer'" @tap="addProductCart(product)" />
+            <Button :text="quantity > 0 ? 'Ajouter' : 'Retirer'" @tap="addProductCart()" />
           </StackLayout>
         </template>
       </StackLayout>
@@ -68,6 +56,9 @@
           .then(product => {
             vm.product = _.cloneDeep(product.data);
             vm.stock = vm.product.stock - 1;
+          })
+          .then(() => {
+            vm.cart.recipient = vm.product.recipient;
             vm.$http.get('carts', {params: {owner: vm.$store.state.currentUser._id, recipient: vm.product.owner._id}})
               .then(cart => {
                 vm.cart = _.cloneDeep(cart.data.data[0]);
@@ -76,7 +67,7 @@
           })
           .catch(error => console.error(error));
       },
-      addProductCart: function (product) {
+      addProductCart: function () {
         let vm = this;
         let method = 'put';
         let newProduct = _.cloneDeep(vm.cart);
@@ -91,7 +82,9 @@
         }
 
         let resource = method === 'put' ? 'carts/' + vm.cart._id : 'carts';
+
         let findEntry = newProduct.cartEntries.findIndex(entry => entry.product._id === vm.product._id);
+
         if (newProduct.cartEntries.length && findEntry !== -1) {
           newProduct.cartEntries[findEntry].quantity = vm.quantity;
           newProduct.cartEntries[findEntry].price = parseInt(vm.quantity * vm.product.price);
@@ -101,22 +94,21 @@
             }
             newProduct.cartEntries.splice(findEntry, 1);
           }
-        } else {
-          if (vm.quantity > 0) {
-            newProduct.cartEntries.push({product: vm.product, quantity: vm.quantity, price: parseInt(vm.quantity * vm.product.price)});
-          }
+        } else if (vm.quantity > 0) {
+          newProduct.cartEntries.push({product: vm.product, quantity: vm.quantity, price: parseInt(vm.quantity * vm.product.price)});
         }
-        if (newProduct.price) {
-          newProduct.price.price = 0;
-          _.each(newProduct.cartEntries, function (entry) {
-            newProduct.price.price = newProduct.price.price + entry.price;
-          });
-        }
+
+        newProduct.price.price = 0;
+        _.each(newProduct.cartEntries, function (entry) {
+          newProduct.price.price = newProduct.price.price + entry.price;
+        });
 
         vm.product.stock = vm.stock;
         vm.$http[method](resource, newProduct)
           .then(cart => {
             vm.cart = _.cloneDeep(cart.data);
+          })
+          .then(() => {
             vm.$http.put('products/' + vm.product._id, vm.product)
               .then(product => {
                 vm.product = _.cloneDeep(product.data);
@@ -126,8 +118,6 @@
               .catch(error => console.error(error));
           })
           .catch(error => console.error(error));
-
-        this.$store.commit('setProductCart', product);
       },
       addQuantity: function () {
         if (0 < this.stock) {

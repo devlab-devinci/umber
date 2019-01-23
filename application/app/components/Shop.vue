@@ -9,24 +9,18 @@
                   text="Panier" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <StackLayout v-if="shop">
-        <StackLayout>
-          <Image v-if="shop.picture" width="250rem" :src="shop.picture"></Image>
-        </StackLayout>
-        <StackLayout>
-          <Label :text="shop.companyName" col="1" row="0"></Label>
-        </StackLayout>
-        <StackLayout>
-          <Label text="Offres" col="1" row="0"></Label>
-        </StackLayout>
-        <ListView v-if="items && items.length" flexGrow="1" :items="items" @itemTap="" item-key="item._id">
+      <StackLayout flexDirection="column" v-if="shop" orientation="vertical">
+        <Image v-if="shop.picture" width="150rem" :src="shop.picture"></Image>
+        <Label :text="shop.companyName" col="1" row="0"></Label>
+        <Label text="Offres" col="1" row="0"></Label>
+        <ListView height="100%" v-if="items && items.length" flexGrow="1" :items="items" @itemTap="" item-key="item._id"  width="100%">
           <v-template>
-            <GridLayout rows="auto" columns="*,*">
+            <StackLayout>
               <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
               <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
               <Label :text="'Prix :' + item.price" col="3" row="1"/>
               <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
-            </GridLayout>
+            </StackLayout>
           </v-template>
         </ListView>
         <StackLayout v-else>
