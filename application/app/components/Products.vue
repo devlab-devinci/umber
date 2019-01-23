@@ -11,13 +11,14 @@
     <scroll-view class="green">
       <ListView v-if="items && items.length" :items="items" @itemTap="" item-key="item._id">
         <v-template>
-          <GridLayout rows="auto" columns="*,*">
-            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
+          <StackLayout rows="auto" columns="*,*">
             <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
+            <Label :text="item.description" col="1" row="0"></Label>
+            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
             <Label :text="'Prix :' + item.price" col="3" row="1"/>
-            <Button text="Ajouter" col="2" @tap="addProductCart(item)" />
-            <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
-          </GridLayout>
+            <Label :text="'Promotion :' + item.promotion" col="3" row="1"/>
+            <Label :text="product.stock > 0 ? 'Quantité :' + product.stock : 'Produit indisponible'"/>
+          </StackLayout>
         </v-template>
       </ListView>
       <StackLayout v-else>
@@ -47,14 +48,6 @@
             vm.items = products.data.data;
           })
           .catch(error => console.error(error));
-      },
-      addProductCart: function (product) {
-        /*vm.$http.get('cart')
-          .then(products => {
-            vm.products = products.data.data;
-          })
-          .catch(error => console.error(error));*/
-        this.$store.commit('setProductCart', product);
       },
       showProduct(productItem) {
         let vm = this;

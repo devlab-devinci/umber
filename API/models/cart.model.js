@@ -17,7 +17,7 @@ let CartSchema = new Schema({
     price: Number,
     quantity: Number
   }],
-  recipient: {
+  seller: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     index: true
@@ -51,7 +51,7 @@ let CartSchema = new Schema({
     type: Boolean,
     default: false
   },
-  owner: {
+  buyer: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     index: true

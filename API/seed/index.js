@@ -78,10 +78,10 @@ User
   }).then(function (products) {
   if (products.length) return;
   let array = [
-    { name: 'Pommes de terre', price: 1, quantity: 10, description: 'Pommes de terre bio' },
-    { name: 'Toamtes', price: 1, quantity: 60, description: 'Pommes de terre bio'  },
-    { name: 'Fraises', price: 2, quantity: 90, description: 'Fraises bio'  },
-    { name: 'Aubergines', price: 2, quantity: 5, description: 'Aubergines bio' }
+    { name: 'Pommes de terre', price: 1, stock: 15, promotion: 0.75, quantity: 10, description: 'Pommes de terre bio' },
+    { name: 'Toamtes', price: 1, stock: 15, promotion: 0.75, quantity: 60, description: 'Pommes de terre bio'  },
+    { name: 'Fraises', price: 2, stock: 15, promotion: 1, quantity: 90, description: 'Fraises bio'  },
+    { name: 'Aubergines', price: 2, stock: 15, promotion: 1, quantity: 5, description: 'Aubergines bio' }
   ];
   let p = [];
   _.each(array, function (t) {
@@ -93,28 +93,6 @@ User
   })
   .then(function() {
     console.log('finished populating product');
-    return Cart.find();
-  })
-  .then(function(carts) {
-    var p = [];
-    _.each(carts, function(c) {
-      if (c.documents.receipt && !Array.isArray(c.documents.receipt)) {
-        c.documents.receipt = [c.documents.receipt];
-      }
-      if (!c.items || !c.items.length) {
-        c.items = [{
-          amount: c.price.amount,
-          vat: c.price.vat,
-          currency: c.price.currency,
-          description: c.description
-        }];
-      }
-      c.remind = c.remind || 0;
-      c.sharedAt = c.sharedAt || new Date();
-      p.push(c.save());
-    });
-    return Promise.all(p);
-  }).then(function () {
     console.log('finished populating seed');
   })
   .catch(function (err) {

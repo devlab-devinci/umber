@@ -1,77 +1,90 @@
 <template>
   <Page>
-    <ActionBar class="action-bar" title="Panier">
-      <ActionItem @tap="$navigateTo($router.products)"
+    <ActionBar class="action-bar" title="Shop">
+      <ActionItem @tap="$navigateTo($router.shops)"
                   ios.systemIcon="16" ios.position="right"
-                  text="Produits" android.position="popup" />
-      <ActionItem @tap="$navigateTo($router.shops)" ios.systemIcon="16" ios.position="right" text="Shop" android.position="popup" />
+                  text="Shops" android.position="popup" />
+      <ActionItem @tap="$navigateTo($router.cart)"
+                  ios.systemIcon="16" ios.position="right"
+                  text="Panier" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
-      <ListView v-if="carts && carts.length" for="(item, index) in carts" @itemTap="" item-key="item._id">
-        <v-template>
-          <StackLayout v-if="item && item.recipient && item.price && item.cartEntries.length" class="list-group-item">
-            <Image v-if="item.recipient.picture" col="0" row="0" :src="item.recipient.picture"></Image>
-            <Label :text="'Magasin : ' + item.recipient.companyName" col="1" row="0"></Label>
-            <Label v-if="(item.cartEntries && item.cartEntries.length)" :text="'Nombres d\'articles : ' + item.cartEntries.length"></Label>
-            <Label :text="'Prix total : ' + item.price.price + ' ' + item.price.devise" col="1" row="1"/>
-            <ListView v-if="item.cartEntries && item.cartEntries.length" for="entry in item.cartEntries"  @itemTap="" item-key="entry._id">
-              <v-template>
-                <GridLayout v-if="entry.product">
-                  <Label :text="entry.product.name" col="1" row="0"></Label>
-                  <Label :text="'Quantité : ' + entry.quantity" col="1" row="0"></Label>
-                  <Label :text="'Prix: ' + entry.price" col="1" row="1"/>
-                  <Button text="Supprimer" col="2" @tap="removeProduct(index, entry)" />
-                  <Image v-if="entry.product.cover && entry.product.cover.name" col="0" row="0" :src="$config.url + '/upload/' + entry.product.cover.name"></Image>
-                </GridLayout>
-              </v-template>
-            </ListView>
-          </StackLayout>
-        </v-template>
-      </ListView>
+      <StackLayout flexDirection="column" v-if="cart && cart.seller && cart.buyer" orientation="vertical">
+        <Image v-if="cart.seller.picture" width="150rem" :src="cart.seller.picture"></Image>
+        <Label :text="cart.seller.companyName" col="1" row="0"></Label>
+        <Label text="Offres" col="1" row="0"></Label>
+        <ListView height="100%" v-if="items && items.length" flexGrow="1" for="(item, index) in items" @itemTap="" item-key="item._id"  width="100%">
+          <v-template>
+            <StackLayout>
+              <Button text="-" col="2" @tap="removeProduct(item.product, index)" />
+              <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
+              <Label :text="'Nom :' + item.product.name" col="1" row="0"></Label>
+              <Label :text="'Prix :' + item.price" col="3" row="1"/>
+              <Button text="Voir le produit" col="2" @tap="showProduct(item.product)" />
+            </StackLayout>
+          </v-template>
+        </ListView>
+        <StackLayout v-else>
+          <Label text="Aucun produit n'est disponible dans ce pannier"></Label>
+        </StackLayout>
+      </StackLayout>
     </scroll-view>
   </Page>
 </template>
 
 <script>
   export default {
+    props: {
+      id: String
+    },
     data: function () {
       return {
-        carts: null
+        cart: null,
+        items: null
       };
     },
     mounted: function () {
-      this.fetchCarts();
+      this.fetchCart();
     },
     methods: {
-      fetchCarts: function () {
+      fetchCart: function () {
         let vm = this;
-        vm.$http.get('carts', {params: {owner: vm.$store.state.currentUser._id}})
+        vm.$http.get('carts/' + vm.id)
           .then(cart => {
-            vm.carts = _.cloneDeep(cart.data.data);
+            vm.cart = _.cloneDeep(cart.data);
+            vm.items = _.cloneDeep(cart.data.cartEntries);
           })
           .catch(error => console.error(error));
       },
-      removeProduct: function (index, product) {
+      showProduct(item) {
         let vm = this;
-        let findEntry = vm.carts[index].cartEntries.findIndex(entry => entry.product._id === product.product._id);
+        this.$navigateTo(vm.$router.product, {
+          props: {
+            id: item._id
+          },
+          animated: true,
+          transition: {
+            name: "slideTop",
+            duration: 380,
+            curve: "easeIn"
+          }
+        })
+      },
+      removeProduct: function (product, index) {
+        let vm = this;
 
-        if (vm.carts[index].cartEntries.length && findEntry !== -1) {
-          product = _.cloneDeep(vm.carts[index].cartEntries[findEntry]);
-          product.product.stock = product.product.stock + vm.carts[index].cartEntries[findEntry].quantity;
-          vm.carts[index].cartEntries.splice(findEntry, 1);
-        }
+        vm.cart.price.price = vm.cart.price.price - vm.cart.cartEntries[index].price;
 
-        vm.carts[index].price.price = 0;
-        _.each(vm.carts[index].cartEntries, function (entry) {
-          vm.carts[index].price.price = vm.carts[index].price.price + entry.price;
-        });
+        product.stock = product.stock + vm.cart.cartEntries[index].quantity;
+        vm.cart.cartEntries.splice(index, 1);
 
-        vm.$http.put('carts/' + vm.carts[index]._id, vm.carts[index])
+
+        vm.$http.put('carts/' + vm.cart._id, vm.cart)
           .then(res => {
-            vm.carts[index] = _.cloneDeep(res.data);
+            vm.cart = _.cloneDeep(res.data);
           })
           .then(() => {
-            vm.$http.put('products/' + product.product._id, product.product)
+            vm.$http.put('products/' + product._id, product)
               .then(res => {
                 console.log(res);
               })

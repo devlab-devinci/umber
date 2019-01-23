@@ -79,7 +79,6 @@ exports.create = function (req, res) {
     newDocument
       .save()
       .then(function () {
-        console.log(req.body);
         let newProduct = new Product(req.body);
         newProduct.cover = newDocument;
         newProduct
