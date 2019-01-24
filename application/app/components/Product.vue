@@ -1,9 +1,9 @@
 <template>
   <Page>
     <ActionBar class="action-bar" :title="product && product.name">
-      <ActionItem @tap="$navigateTo($router.cart)"
+      <ActionItem @tap="$navigateTo($router.carts)"
                   ios.systemIcon="16" ios.position="right"
-                  text="Panier" android.position="popup" />
+                  text="Paniers" android.position="popup" />
       <ActionItem @tap="$navigateTo($router.shops)"
                   ios.systemIcon="16" ios.position="right"
                   text="Shop" android.position="popup" />
@@ -18,7 +18,7 @@
           <Label :text="product.description" col="1" row="0"></Label>
           <Image v-if="product.cover && product.cover.name" col="0" row="0" :src="$config.url + '/upload/' + product.cover.name"></Image>
           <Label :text="'Prix :' + product.price" col="3" row="1"/>
-          <Label :text="'Promotion :' + product.promotion" col="3" row="1"/>
+          <Label v-if="product.promotion" :text="'Promotion :' + product.promotion" col="3" row="1"/>
           <Label :text="product.stock > 0 ? 'Restant :' + product.stock : 'Produit indisponible'"/>
         </StackLayout>
         <template v-if="product.stock > 0">
@@ -58,7 +58,7 @@
         vm.$http.get('products/' + vm.id)
           .then(product => {
             vm.product = _.cloneDeep(product.data);
-            vm.price = vm.product.promotion;
+            vm.price = vm.product.promotion || vm.product.price;
             vm.stock = vm.product.stock - 1;
           })
           .then(() => {
@@ -122,7 +122,7 @@
               .then(product => {
                 vm.product = _.cloneDeep(product.data);
                 vm.stock = vm.product.stock - 1;
-                vm.price = vm.product.promotion;
+                vm.price = vm.product.promotion || vm.product.price;
                 vm.quantity = 1;
               })
               .catch(error => console.error(error));
@@ -132,14 +132,14 @@
       addQuantity: function () {
         if (0 < this.stock) {
           this.quantity++;
-          this.price = Math.round((this.product.promotion * this.quantity)*100)/100;
+          this.price = Math.round(((this.product.promotion || this.product.price) * this.quantity)*100)/100;
           this.stock--;
         }
       },
       lessQuantity: function () {
         if (this.quantity > 0) {
           this.quantity--;
-          this.price = Math.round((this.product.promotion * this.quantity)*100)/100;
+          this.price = Math.round(((this.product.promotion || this.product.price) * this.quantity)*100)/100;
           this.stock++;
         }
       }

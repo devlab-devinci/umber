@@ -3,6 +3,7 @@
         <ActionBar title="Authentication" android:flat="true">
             <ActionItem @tap="$navigateTo($router.products)" ios.systemIcon="16" ios.position="right" text="Produits" android.position="popup" />
             <ActionItem @tap="$navigateTo($router.cart)" ios.systemIcon="16" ios.position="right" text="Panier" android.position="popup" />
+            <ActionItem @tap="$navigateTo($router.editProduct)" ios.systemIcon="16" ios.position="right" text="edit product" android.position="popup" />
             <ActionItem @tap="$navigateTo($router.shops)" ios.systemIcon="16" ios.position="right" text="Shop" android.position="popup" />
         </ActionBar>
 

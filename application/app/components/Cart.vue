@@ -4,9 +4,9 @@
       <ActionItem @tap="$navigateTo($router.shops)"
                   ios.systemIcon="16" ios.position="right"
                   text="Shops" android.position="popup" />
-      <ActionItem @tap="$navigateTo($router.cart)"
+      <ActionItem @tap="$navigateTo($router.carts)"
                   ios.systemIcon="16" ios.position="right"
-                  text="Panier" android.position="popup" />
+                  text="Paniers" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
       <StackLayout flexDirection="column" v-if="cart && cart.seller && cart.buyer" orientation="vertical">

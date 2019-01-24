@@ -4,9 +4,9 @@
       <ActionItem @tap="$navigateTo($router.products)"
                   ios.systemIcon="16" ios.position="right"
                   text="Produits" android.position="popup" />
-      <ActionItem @tap="$navigateTo($router.cart)"
+      <ActionItem @tap="$navigateTo($router.carts)"
                   ios.systemIcon="16" ios.position="right"
-                  text="Panier" android.position="popup" />
+                  text="Paniers" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
       <ListView v-if="items && items.length" :items="items" item-key="item._id">

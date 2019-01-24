@@ -62,42 +62,55 @@ exports.show = function (req, res) {
 
 //controller create product
 exports.create = function (req, res) {
-  upload.any()(req, res, (err) => {
-    if (err) {
-      return res.end('error request file');
+  let saveProduct = function (newDocument) {
+    let newProduct = new Product(req.body);
+
+    if (newDocument) {
+      newProduct.cover = newDocument;
     }
 
-    let fullPath = config.upload.path + '/' + req.files[0].filename;
-
-    let newDocument = new Document ({
-      path: fullPath,
-      name: req.files[0].filename,
-      originalName: req.files[0].originalname,
-      type: req.files[0].mimetype
-    });
-
-    newDocument
+    newProduct
       .save()
-      .then(function () {
-        let newProduct = new Product(req.body);
-        newProduct.cover = newDocument;
-        newProduct
-          .save()
-          .then(function (product) {
-            return res.status(201).json(product);
-          })
-          // else send error and not save
-          .catch(function (err) {
-            err.code = 422;
-            return error.handleError(res, err);
-          });
+      .then(function (product) {
+        return res.status(201).json(product);
       })
       // else send error and not save
       .catch(function (err) {
         err.code = 422;
         return error.handleError(res, err);
       });
-  });
+  };
+
+  if (req.files && req.files[0].filename) {
+    upload.any()(req, res, (err) => {
+      if (err) {
+        return res.end('error request file');
+      }
+
+      let fullPath = config.upload.path + '/' + req.files[0].filename;
+
+      let newDocument = new Document ({
+        path: fullPath,
+        name: req.files[0].filename,
+        originalName: req.files[0].originalname,
+        type: req.files[0].mimetype
+      });
+
+      newDocument
+        .save()
+        .then(function () {
+          saveProduct(newDocument);
+        })
+        // else send error and not save
+        .catch(function (err) {
+          err.code = 422;
+          return error.handleError(res, err);
+        });
+    });
+  }
+  else {
+    saveProduct();
+  }
 };
 
 //controller update product
@@ -110,7 +123,6 @@ exports.update = function (req, res) {
       message: 'ERROR_PRODUCT_NOT_FOUND'
     });
   }
-
   // condition if this user allowed update product
   /* if (!req._user || (req._user && _.isEmpty(req._user))) {
   // if not allowed return error
@@ -119,49 +131,89 @@ exports.update = function (req, res) {
       message: 'ERROR_USER_NOT_ALLOWED_TO_EDIT_PRODUCT'
     });
   } */
+  let saveProduct = function (newDocument) {
 
-  // Promise find id product db
-  Product.findById(req.params.id)
-  // join owner cover
-    .populate('owner cover category')
-    // if none error req findById product
-    // execute code
-    .then(function (product) {
-      // if nof found product
-      if (!product) {
-        // return error
-        throw error.generateError({
-          code: 404,
-          message: 'ERROR_PRODUCT_NOT_FOUND'
-        });
+    // Promise find id product db
+    Product.findById(req.params.id)
+    // join owner cover
+      .populate('owner cover category')
+      // if none error req findById product
+      // execute code
+      .then(function (product) {
+        // if nof found product
+        if (!product) {
+          // return error
+          throw error.generateError({
+            code: 404,
+            message: 'ERROR_PRODUCT_NOT_FOUND'
+          });
+        }
+        /*if (req._user && product.owner && req._user._id.toString() !== product.owner.toString()) {
+          throw error.generateError({
+            code: 403,
+            message: 'ERROR_USER_NOT_ALLOWED_TO_EDIT_PRODUCT'
+          });
+        }
+
+        if (!product.user && req._user && req._user.role !== 'admin') {
+          product.user = req._user._id;
+        }*/
+        let newProduct = new Product(product);
+
+        if (newDocument) {
+          newProduct.cover = newDocument;
+        }
+
+        let updated = _.extend(newProduct, req.body);
+
+        // update product if none error
+        return updated.save();
+      })
+      .then(function (product) {
+        return Product.populate(product, [
+          {path: 'owner'},
+          {path: 'cover'},
+          {path: 'categories'}
+        ]);
+      })
+      .then(function (product) {
+        return res.status(200).json(product);
+      })
+      .catch(function (err) {
+        return error.handleError(res, err);
+      });
+  };
+
+  if (req.files && req.files[0].filename) {
+    upload.any()(req, res, (err) => {
+      if (err) {
+        return res.end('error request file');
       }
-      /*if (req._user && product.owner && req._user._id.toString() !== product.owner.toString()) {
-        throw error.generateError({
-          code: 403,
-          message: 'ERROR_USER_NOT_ALLOWED_TO_EDIT_PRODUCT'
+
+      let fullPath = config.upload.path + '/' + req.files[0].filename;
+
+      let newDocument = new Document ({
+        path: fullPath,
+        name: req.files[0].filename,
+        originalName: req.files[0].originalname,
+        type: req.files[0].mimetype
+      });
+
+      newDocument
+        .save()
+        .then(function () {
+          saveProduct(newDocument);
+        })
+        // else send error and not save
+        .catch(function (err) {
+          err.code = 422;
+          return error.handleError(res, err);
         });
-      }
-
-      if (!product.user && req._user && req._user.role !== 'admin') {
-        product.user = req._user._id;
-      }*/
-
-      let newProduct = new Product(product);
-      let updated = _.extend(newProduct, req.body);
-
-      // update product if none error
-      return updated.save();
-    })
-    .then(function (product) {
-      return Product.populate(product, []);
-      // return Product.populate(product, ['owner', 'cover']);
-    })
-    .then(function (product) {
-      return res.status(200).json(product);
-    })
-    .catch(function (err) {
-      return error.handleError(res, err);
     });
+  }
+  else {
+    saveProduct();
+  }
 };
 
 // add controller destroy product

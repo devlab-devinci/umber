@@ -1,9 +1,9 @@
 <template>
   <Page>
     <ActionBar class="action-bar" title="Produits">
-      <ActionItem @tap="$navigateTo($router.cart)"
+      <ActionItem @tap="$navigateTo($router.carts)"
                   ios.systemIcon="16" ios.position="right"
-                  text="Panier" android.position="popup" />
+                  text="Paniers" android.position="popup" />
       <ActionItem @tap="$navigateTo($router.shops)"
                   ios.systemIcon="16" ios.position="right"
                   text="Shops" android.position="popup" />
@@ -17,7 +17,8 @@
             <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
             <Label :text="'Prix :' + item.price" col="3" row="1"/>
             <Label :text="'Promotion :' + item.promotion" col="3" row="1"/>
-            <Label :text="product.stock > 0 ? 'Quantité :' + product.stock : 'Produit indisponible'"/>
+            <Label :text="item.stock > 0 ? 'Quantité :' + item.stock : 'Produit indisponible'"/>
+            <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
           </StackLayout>
         </v-template>
       </ListView>
@@ -51,7 +52,7 @@
       },
       showProduct(productItem) {
         let vm = this;
-        this.$navigateTo(vm.$router.product,{
+        this.$navigateTo(vm.$router[vm.$store.state.currentUser.userTypes === 'seller' ? 'editProduct' : 'product'],{
           props: {
             id: productItem._id
           },

@@ -4,9 +4,9 @@
       <ActionItem @tap="$navigateTo($router.products)"
                   ios.systemIcon="16" ios.position="right"
                   text="Produits" android.position="popup" />
-      <ActionItem @tap="$navigateTo($router.cart)"
+      <ActionItem @tap="$navigateTo($router.carts)"
                   ios.systemIcon="16" ios.position="right"
-                  text="Panier" android.position="popup" />
+                  text="Paniers" android.position="popup" />
     </ActionBar>
     <scroll-view class="green">
       <StackLayout flexDirection="column" v-if="shop" orientation="vertical">
@@ -21,7 +21,7 @@
               <Label :text="item.description" col="1" row="0"></Label>
               <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
               <Label :text="'Prix :' + item.price" col="3" row="1"/>
-              <Label :text="'Promotion :' + item.promotion" col="3" row="1"/>
+              <Label v-if="item.promotion" :text="'Promotion :' + item.promotion" col="3" row="1"/>
               <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
             </StackLayout>
           </v-template>
