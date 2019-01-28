@@ -4,6 +4,30 @@ const errorManager = require('../services/errorManager');
 const mongoose = require('mongoose');
 
 const CategoryStore = require('../models/CategoryStore');
+const CategoryStorePicture = require('../models/CategoryStorePicture');
+
+
+// upload picture for category store
+const fs = require('fs');
+const multer = require('multer');
+const crypto = require('crypto');
+const mime = require('mime');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/category_store/pictures')
+    },
+    filename: function (req, file, cb) {
+        crypto.pseudoRandomBytes(16, function (err, raw) {
+            cb(null, raw.toString('hex') + Date.now() + '.' + mime.getExtension(file.mimetype));
+        });
+        //cb(null, file.originalname);
+    }
+});
+
+const upload_categoryStore_picture = multer({storage: storage})
+
+
 /**
  * POST
  * Add new category for store
@@ -188,5 +212,56 @@ router.get('/category', function (req, res, next) {
         })
 });
 
+/**
+ * Add picture to category
+ */
+router.post('/picture', upload_categoryStore_picture.single('picture'), function (req, res, next) {
+    let payload = req.body;
+    if (payload._id && typeof payload._id === 'string') {
+        if (payload._id.length === 24) {
+            let objectId = mongoose.Types.ObjectId(payload._id); //cast string to objectId mongoose
+
+            CategoryStore
+                .findOne({'_id': objectId}, function (err, categoryStore) {
+                    if (err) {
+                        errorManager.handler(res, err, "findOne failed.")
+                    } else {
+                        let newCategoryPicture = new CategoryStorePicture();
+                        newCategoryPicture.img.data = fs.readFileSync(req.file.path)
+                        newCategoryPicture.img.contentType = "image/png";
+                        newCategoryPicture.save(function (err) {
+                            if (err) {
+                                errorManager.handler(res, err, "save newCategoryPicture")
+                            } else {
+                                categoryStore
+                                    .picture = mongoose.Types.ObjectId(newCategoryPicture._id)
+                                categoryStore.save(function (err) {
+                                    if (err) {
+                                        errorManager.handler(res, err, "error save categoryStore with new picture")
+                                    } else {
+                                        res
+                                            .status(200)
+                                            .json({
+                                                "data": categoryStore,
+                                                "message": "picture added with success",
+                                                "status": 200
+                                            })
+                                    }
+                                })
+                            }
+                        });
+
+
+                    }
+                });
+        } else {
+            //error invalid mongo objectId
+            errorManager.handler(res, "_id must be 24 characters to be a valid objectId", "Cannot cast _id given string to objectId mongo")
+        }
+    } else {
+        //error field empty
+        errorManager.handler(res, "_id is missing", "field _id is missing.")
+    }
+});
 
 module.exports = router;
