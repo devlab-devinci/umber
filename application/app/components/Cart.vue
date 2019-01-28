@@ -58,7 +58,7 @@
       },
       showProduct(item) {
         let vm = this;
-        this.$navigateTo(vm.$router.product, {
+        this.$showModal(vm.$router.product, {
           props: {
             id: item._id
           },
