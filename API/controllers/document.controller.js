@@ -4,6 +4,7 @@ const Document = require('../models/document.model');
 const error = require('../components/errors');
 const config = require('../config');
 const upload = require('../components/uploads');
+const fs = require('fs');
 
 /* GET docs page. */
 exports.index = function (req, res) {
