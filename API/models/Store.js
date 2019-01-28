@@ -5,7 +5,7 @@ const mongoose = require('mongoose'),
 const Store = new Schema({
     name: {
         type: String,
-        required: true
+            required: true
     },
     address: {
         type: String,
@@ -19,8 +19,19 @@ const Store = new Schema({
         type: String,
         required: true
     },
-    pictures: [{type: Schema.Types.ObjectId, ref: 'StorePicture'}],
-    categories_store: [{type: Schema.Types.ObjectId, ref: 'CategoryStore'}],
+    pictures: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'StorePicture'
+        }
+    ],
+    categories_store: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'CategoryStore',
+            required: true
+        }
+    ],
     created_at: {
         type: Date,
         required: true

@@ -11,10 +11,12 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/authentication');
 const categoryStore = require('./routes/categoryStore');
+const store = require('./routes/store');
 
 
 
 const app = express();
+
 
 //default DEV
 mongoose.connect(`mongodb://${db_conf.dev.hostname}/${db_conf.dev.db_name}`, {
@@ -36,13 +38,12 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// upload via multer
-
-
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
-app.use('/api/v1/store', categoryStore);
+app.use('/api/v1', categoryStore);
+app.use('/api/v1', store);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

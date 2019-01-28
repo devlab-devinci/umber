@@ -7,7 +7,7 @@ let errorManager = {
             .status(400)
             .json({
                 "error": e,
-                "message": messageCustom
+                "help_infos": messageCustom
             })
     },
 

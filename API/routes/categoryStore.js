@@ -21,7 +21,6 @@ const storage = multer.diskStorage({
         crypto.pseudoRandomBytes(16, function (err, raw) {
             cb(null, raw.toString('hex') + Date.now() + '.' + mime.getExtension(file.mimetype));
         });
-        //cb(null, file.originalname);
     }
 });
 
@@ -219,7 +218,7 @@ router.get('/category', function (req, res, next) {
 /**
  * Add picture to category
  */
-router.post('/picture', upload_categoryStore_picture.single('picture'), function (req, res, next) {
+router.post('/category/picture', upload_categoryStore_picture.single('picture'), function (req, res, next) {
     let payload = req.body;
     if (payload._id && typeof payload._id === 'string') {
         if (payload._id.length === 24) {
