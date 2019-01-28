@@ -58,7 +58,6 @@
 </template>
 
 <script>
-  import adb from 'base64-js';
   import _ from 'lodash';
   import * as camera from "nativescript-camera";
   import * as imagepicker from "nativescript-imagepicker";
