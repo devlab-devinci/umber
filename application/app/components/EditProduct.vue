@@ -145,7 +145,7 @@
         let newProduct = _.cloneDeep(vm.input);
         let method = newProduct._id ? 'put' : 'post';
         let resource = method === 'put' ? 'products/' + newProduct._id : 'products';
-a
+
         // formData = vm.images[0] || null;
         newProduct.cover = vm.input.cover || null;
         newProduct.owner = vm.$store.state.currentUser;
