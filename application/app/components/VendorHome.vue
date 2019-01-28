@@ -23,6 +23,7 @@
         <TabView selectedIndex="0" iosIconRenderingMode="alwaysOriginal">
             <TabViewItem title="Mes offres">
                 <Label text="offre"></Label>
+                <Products></Products>
             </TabViewItem>
             <TabViewItem title="Commandes">
                 <Label text="commandes"></Label>
@@ -92,7 +93,7 @@
     </Page>
 </template>
 <script>
-
+    import Products from './Products';
     import {Feedback, FeedbackType, FeedbackPosition} from "nativescript-feedback";
     import {Color} from "tns-core-modules/color";
 
@@ -183,6 +184,9 @@
             onTextChanged() {
                 console.log("change texted")
             }
+        },
+        components: {
+            Products
         }
 
     }

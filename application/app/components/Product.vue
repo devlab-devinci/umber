@@ -1,16 +1,6 @@
 <template>
+  <Frame>
   <Page>
-    <ActionBar class="action-bar" :title="product && product.name">
-      <ActionItem @tap="$navigateTo($router.carts)"
-                  ios.systemIcon="16" ios.position="right"
-                  text="Paniers" android.position="popup" />
-      <ActionItem @tap="$navigateTo($router.shops)"
-                  ios.systemIcon="16" ios.position="right"
-                  text="Shop" android.position="popup" />
-      <ActionItem @tap="$navigateTo($router.products)"
-                  ios.systemIcon="16" ios.position="right"
-                  text="Products" android.position="popup" />
-    </ActionBar>
     <scroll-view class="green">
       <StackLayout v-if="product">
         <StackLayout>
@@ -32,6 +22,7 @@
       </StackLayout>
     </scroll-view>
   </Page>
+  </Frame>
 </template>
 
 <script>

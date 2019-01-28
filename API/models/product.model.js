@@ -25,8 +25,7 @@ let ProductSchema = new Schema({
     required: true
   },
   promotion: {
-    type: Number,
-    required: true
+    type: Number
   },
   stock: {
     type: Number,

@@ -1,6 +1,6 @@
 <template>
   <Page>
-    <ActionBar class="action-bar" title="Produits">
+    <ActionBar class="action-bar" :title="seller ? 'Mes offres' : 'Produits'">
       <ActionItem @tap="$navigateTo($router.carts)"
                   ios.systemIcon="16" ios.position="right"
                   text="Paniers" android.position="popup" />
@@ -33,6 +33,12 @@
 
 <script>
   export default {
+    props: {
+      seller: {
+        type: Boolean,
+        default: true
+      }
+    },
     data: function () {
       return {
         items: null
@@ -44,7 +50,7 @@
     methods: {
       fetchProducts: function () {
         let vm = this;
-        vm.$http.get('products')
+        vm.$http.get('products', vm.seller && {params: { owner: vm.$store.state.currentUser._id}})
           .then(products => {
             vm.items = products.data.data;
           })
@@ -52,7 +58,8 @@
       },
       showProduct(productItem) {
         let vm = this;
-        this.$navigateTo(vm.$router[vm.$store.state.currentUser.userTypes === 'seller' ? 'editProduct' : 'product'],{
+        let method = vm.$store.state.currentUser.userTypes === 'seller' ? '$showModal' : '$navigateTo';
+        this[method](vm.$router[vm.$store.state.currentUser.userTypes === 'seller' ? 'editProduct' : 'product'],{
           props: {
             id: productItem._id
           },

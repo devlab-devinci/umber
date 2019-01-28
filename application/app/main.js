@@ -53,8 +53,8 @@ Vue.prototype.$http = {
   head: resource => axios.head(apiConfig.url + '/' + resource),
   // options: axios.options(apiConfig.url + '/' + resource),
   path: (resource, data) => axios.patch(apiConfig.url + '/' + resource, data),
-  post: (resource, data) => axios.post(apiConfig.url + '/' + resource, data),
-  put: (resource, data) => axios.put(apiConfig.url + '/' + resource, data)
+  post: (resource, data, config) => axios.post(apiConfig.url + '/' + resource, data, config),
+  put: (resource, data, config) => axios.put(apiConfig.url + '/' + resource, data, config)
 };
 
 
@@ -100,8 +100,8 @@ const state = {
 
     currentCart: null,
 
-    currentUser: {role: "user", userTypes: "buyer", _id:"5c43b9e2a904e53e21dfebe5", fullname: "buyer2", picture :"http://placekitten.com/200/300",email:"buyer2@user.fr", updatedAt:"2019-01-19T23:59:30.011Z", __v:0},
-    // currentUser: {role :"user", userTypes: "seller", _id: "5c43b9e2a904e53e21dfebe0", companyName :"companyName0", fullname :"seller0",picture:"http://placekitten.com/200/300", email:"seller0@user.fr", updatedAt:"2019-01-19T23:59:30.011Z","__v":0}
+    // currentUser: {role: "user", userTypes: "buyer", _id:"5c43b9e2a904e53e21dfebe5", fullname: "buyer2", picture :"http://placekitten.com/200/300",email:"buyer2@user.fr", updatedAt:"2019-01-19T23:59:30.011Z", __v:0},
+    currentUser: {role :"user", userTypes: "seller", _id: "5c43b9e2a904e53e21dfebe0", companyName :"companyName0", fullname :"seller0",picture:"http://placekitten.com/200/300", email:"seller0@user.fr", updatedAt:"2019-01-19T23:59:30.011Z","__v":0}
 
 }
 

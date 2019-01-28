@@ -115,6 +115,10 @@ exports.create = function (req, res) {
 
 //controller update product
 exports.update = function (req, res) {
+
+  console.log(req.files);
+  console.log(req.body);
+
   // add verification id product
   // if not exit id product return error 404
   if (!req.body._id) {

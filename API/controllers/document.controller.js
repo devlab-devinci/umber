@@ -4,7 +4,6 @@ const Document = require('../models/document.model');
 const error = require('../components/errors');
 const config = require('../config');
 const upload = require('../components/uploads');
-const fs = require('fs');
 
 /* GET docs page. */
 exports.index = function (req, res) {
@@ -20,10 +19,13 @@ exports.index = function (req, res) {
 
 exports.create = function (req, res) {
 
+  console.log(req);
   upload.any()(req, res, (err) => {
     if (err) {
       return res.end('error request file');
     }
+
+    console.log(req.files || req.file);
 
     let fullPath = config.upload.path + '/' + req.files[0].filename;
 
@@ -33,6 +35,8 @@ exports.create = function (req, res) {
       originalName: req.files[0].originalname,
       type: req.files[0].mimetype
     });
+
+    console.log(newDocument);
 
     newDocument
       .save()

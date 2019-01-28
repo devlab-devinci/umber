@@ -43,6 +43,7 @@ let CartSchema = new Schema({
       ref: 'Document'
     }]
   },
+  qrCode: Object,
   remind: {
     type: Number,
     default: 0
