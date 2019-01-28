@@ -170,7 +170,9 @@ router.get('/category/:id', function (req, res, next) {
         if (params_id.length === 24) {
             let objectId = mongoose.Types.ObjectId(params_id); //cast string to objectId mongoose
             CategoryStore
-                .findOne({'_id': objectId}, function (err, categoryStore) {
+                .findOne({'_id': objectId})
+                .populate('CategoryStorePicture')
+                .exec(function (err, categoryStore) {
                     if (err) {
                         errorManager.handler(res, err, "findOne failed.")
                     } else {
@@ -197,7 +199,9 @@ router.get('/category/:id', function (req, res, next) {
  */
 router.get('/category', function (req, res, next) {
     CategoryStore
-        .find({}, function (err, categories) {
+        .find({})
+        .populate('CategoryStorePicture')
+        .exec(function (err, categories) {
             if (err) {
                 errorManager.handler(res, err, "find failed.")
             } else {
