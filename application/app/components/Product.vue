@@ -1,5 +1,4 @@
 <template>
-  <Frame>
   <Page>
     <scroll-view class="green">
       <StackLayout v-if="product">
@@ -22,7 +21,6 @@
       </StackLayout>
     </scroll-view>
   </Page>
-  </Frame>
 </template>
 
 <script>
