@@ -34,23 +34,20 @@
           <Button text="Take Picture" @tap="takePicture" />
           <Button text="Choose Picture" @tap="selectPicture" />
           <WrapLayout ref="images">
-            <Image v-if="image" :src="image.src" width="75" height="75" />
+            <Image v-if="image" :src="image.src" v-model="image.src" width="75" height="75" />
             <Image v-else-if="input.cover && input.cover.name" :src="$config.url + '/upload/' + input.cover.name" data-img-alt="input.cover.name" width="75" height="75"/>
           </WrapLayout>
           <StackLayout class="hr-light"></StackLayout>
         </StackLayout>
-       <!-- <StackLayout class="input-field">
+        <StackLayout v-if="listCategories && listCategories.length" class="input-field">
           <Label text="Categorie" class="label font-weight-bold m-b-5" />
-          <ListPicker :items="listCategories" selectedIndex="0"
-                      @selectedIndexChange="selectedIndexChanged" />
-
-          <TextField keyboardType="number" class="input" v-model="input.categories" />
+          <ListPicker :items="listCategories" @selectedIndexChange="selectedIndexChanged" selectedIndex="indexSelectCat"/>
           <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>-->
+        </StackLayout>
         <GridLayout rows="auto, auto" columns="*, *">
           <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
-         <!-- <Button text="Load" @tap="load" class="btn btn-primary" row="0" col="1"  />
-          <Button text="Clear" @tap="clear" class="btn btn-primary" row="1" col="0" colSpan="2"  />-->
+          <!-- <Button text="Load" @tap="load" class="btn btn-primary" row="0" col="1"  />
+           <Button text="Clear" @tap="clear" class="btn btn-primary" row="1" col="0" colSpan="2"  />-->
         </GridLayout>
       </StackLayout>
     </scroll-view>
@@ -71,8 +68,9 @@
     },
     data: function () {
       return {
-        listCategories: [],
         input: {},
+        indexSelectCat: null,
+        listCategories: [],
         categories: null,
         image: null
       }
@@ -86,9 +84,17 @@
     methods: {
       fetchCategory: function () {
         let vm = this;
-        vm.$http.get('taxonomies', {params: { type: 'category'}})
+        vm.$http.get('taxonomies', {params: { type: 'product'}})
           .then(cat => {
-              vm.categories = _.cloneDeep(cat.data);
+            let cats = _.cloneDeep(cat.data.data);
+
+            _.each(cats, function (cat, index) {
+              vm.listCategories.push(cat.name);
+              if (cat.name === (vm.input.categories && vm.input.categories.name)) {
+                vm.indexSelectCat = index;
+              }
+            });
+            vm.categories = cats;
           })
           .catch(error => console.error(error));
       },
@@ -143,8 +149,8 @@
           })
           .catch(error => console.error(error));
       },
-      selectedIndexChanged: function () {
-
+      selectedIndexChanged: function (picker) {
+        this.input.categories = this.categories[picker.object.selectedIndex];
       },
       save: function () {
         let vm = this;
@@ -156,6 +162,7 @@
         newProduct.cover = vm.input.cover || null;
         newProduct.owner = vm.$store.state.currentUser;
 
+        console.log(newProduct.categories);
 // upload configuration
         var request = {
           headers: {
@@ -164,8 +171,8 @@
         };
         console.log(vm.image);
 
-        // vm.$http[method](resource, newProduct)
-        vm.$http.post('upload', {file: vm.image}, request)
+        vm.$http[method](resource, newProduct)
+        //vm.$http.post('upload', {file: vm.image}, request)
           .then(product => {
             console.log(product.data);
             vm.image = _.cloneDeep(product.data);

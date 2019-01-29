@@ -59,10 +59,14 @@ User
   }).then(function (taxonomies) {
     if (taxonomies.length) return;
     let taxos = [
-      { type: 'category', name: 'Dessert' },
-      { type: 'category', name: 'Poisson'},
-      { type: 'category', name: 'Légume' },
-      { type: 'category', name: 'Viande' }
+      { type: 'shop', name: 'Boucherie' },
+      { type: 'shop', name: 'Boulangerie'},
+      { type: 'shop', name: 'Marécher' },
+      { type: 'shop', name: 'Superette' },
+      { type: 'product', name: 'Dessert' },
+      { type: 'product', name: 'Poisson'},
+      { type: 'product', name: 'Légume' },
+      { type: 'product', name: 'Viande' }
     ];
     let p = [];
     _.each(taxos, function (t) {
