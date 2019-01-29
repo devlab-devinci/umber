@@ -73,6 +73,7 @@
       return {
         listCategories: [],
         input: {},
+        categories: null,
         image: null
       }
     },
@@ -80,8 +81,17 @@
       if (this.id) {
         this.fetchProduct();
       }
+      this.fetchCategory();
     },
     methods: {
+      fetchCategory: function () {
+        let vm = this;
+        vm.$http.get('taxonomies', {params: { type: 'category'}})
+          .then(cat => {
+              vm.categories = _.cloneDeep(cat.data);
+          })
+          .catch(error => console.error(error));
+      },
       selectPicture() {
 
         let vm = this;
