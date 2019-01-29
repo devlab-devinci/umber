@@ -320,7 +320,7 @@ router.delete('/store/pictures', function (req, res, next) {
     let storePictures_id = req.body.picturesId;
     let storePictures_objectId = [];
 
-    //convert string into ObjectId mong
+    //convert string into ObjectId mongo
     for (let i in storePictures_id) {
         storePictures_objectId.push(mongoose.Types.ObjectId(storePictures_id[i]))
     }

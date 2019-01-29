@@ -10,9 +10,12 @@ const db_conf = require('./conf/db');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/authentication');
+
 const categoryStore = require('./routes/categoryStore');
 const store = require('./routes/store');
 
+const productCategory = require('./routes/productCategory');
+const product = require('./routes/product');
 
 
 const app = express();
@@ -41,8 +44,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
+
+/** STORE **/
 app.use('/api/v1', categoryStore);
 app.use('/api/v1', store);
+
+/** PRODUCT **/
+app.use('/api/v1', productCategory);
+app.use('/api/v1', product);
 
 
 // catch 404 and forward to error handler
