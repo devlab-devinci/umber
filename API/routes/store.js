@@ -4,9 +4,31 @@ const errorManager = require('../services/errorManager');
 const mongoose = require('mongoose');
 
 const Store = require('../models/Store');
+const StorePicture = require('../models/StorePicture');
 
 
 const Authentication = require('../middleware/Authentication');
+
+
+// upload
+const fs = require('fs');
+const multer = require('multer');
+const crypto = require('crypto');
+const mime = require('mime');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/store/pictures')
+    },
+    filename: function (req, file, cb) {
+        crypto.pseudoRandomBytes(16, function (err, raw) {
+            cb(null, raw.toString('hex') + Date.now() + '.' + mime.getExtension(file.mimetype));
+        });
+    }
+});
+
+const upload_store_pictures = multer({storage: storage});
+
 
 /**
  * POST
@@ -129,7 +151,161 @@ router.delete('/store', function (req, res, next) {
     }
 });
 
-//TODO update
+/**
+ * PUT
+ * Update store by id
+ */
+router.put('/store', function (req, res, next) {
+    let payload = req.body;
+
+    if (payload._id && typeof payload._id === 'string') {
+        if (payload._id.length === 24) {
+            let objectId = mongoose.Types.ObjectId(payload._id); //cast string to objectId mongoose
+            Store
+                .findOne({'_id': objectId}, function (err, store) {
+                    if (err) {
+                        errorManager.handler(res, err, "find one error - PUT")
+                    } else {
+                        if (store) {
+                            Store
+                                .updateOne({_id: objectId}, {$set: payload}, function (err, storeUpdated) {
+                                    if (err) {
+                                        //cannot update error mongo
+                                        errorManager
+                                            .handler(res, err, "Update failed.")
+                                    } else {
+                                        res
+                                            .status(200)
+                                            .json({
+                                                "data": storeUpdated,
+                                                "message": "updated with success.",
+                                                "status": 200
+                                            })
+                                    }
+                                });
+                        } else {
+                            errorManager.handler(res, "store not found", "no store found for id given")
+                        }
+                    }
+                });
+
+        } else {
+            errorManager.handler(res, "_id must be 24 characters to be a valid objectId", "Cannot cast _id given string to objectId mongo")
+        }
+    } else {
+        errorManager.handler(res, "_id is missing (string)", "field _id is missing.")
+    }
+
+});
+
+/**
+ * POST
+ * Add new picture for storePicture
+ */
+router.post('/store/picture', upload_store_pictures.single('picture'), function (req, res, next) {
+    let payload = req.body;
+    if (payload._id && typeof payload._id === 'string') {
+        if (payload._id.length === 24) {
+            let objectId = mongoose.Types.ObjectId(payload._id); //cast string to objectId mongoose
+
+            Store
+                .findOne({'_id': objectId}, function (err, store) {
+                    if (err) {
+                        errorManager.handler(res, err, "findOne failed.")
+                    } else {
+                        let newStorePicture = new StorePicture();
+                        newStorePicture.img.data = fs.readFileSync(req.file.path);
+                        newStorePicture.img.contentType = "image/png";
+                        newStorePicture.save(function (err) {
+                            if (err) {
+                                errorManager.handler(res, err, "save error for newStorePicture")
+                            } else {
+                                store.pictures.push(mongoose.Types.ObjectId(newStorePicture._id));
+                                store.save(function (err) {
+                                    if (err) {
+                                        errorManager.handler(res, err, "error save store with new picture")
+                                    } else {
+                                        res
+                                            .status(200)
+                                            .json({
+                                                "data": store,
+                                                "message": "picture added with success",
+                                                "status": 200
+                                            })
+                                    }
+                                })
+                            }
+                        });
+
+
+                    }
+                });
+        } else {
+            //error invalid mongo objectId
+            errorManager.handler(res, "_id must be 24 characters to be a valid objectId", "Cannot cast _id given string to objectId mongo")
+        }
+    } else {
+        //error field empty
+        errorManager.handler(res, "_id is missing", "field _id is missing.")
+    }
+});
+
+/**
+ * POST
+ * Add severals new pictures to one store
+ * LIMIT 6 pictures
+ */
+router.post('/store/pictures', upload_store_pictures.array('pictures', 6), function (req, res, next) {
+    let payload = req.body;
+    let newPictures = [];
+    if (payload._id && typeof payload._id === 'string') {
+        if (payload._id.length === 24) {
+            let objectId = mongoose.Types.ObjectId(payload._id); //cast string to objectId mongoosee
+            Store.findOne({'_id': objectId}, function (err, store) {
+                if (err) {
+                    errorManager.handler(res,err,"store find One error")
+                } else {
+                    if(store){
+                        for (let i in req.files) {
+                            let newStorePicture = new StorePicture();
+                            newStorePicture.img.data = fs.readFileSync(req.files[i].path);
+                            newStorePicture.img.contentType = "image/png";
+                            newPictures.push(newStorePicture._id)
+                        }
+                        for (let x in newPictures){
+                            store.pictures.push(newPictures[x]._id)
+                        }
+                        store
+                            .save(function(err){
+                                if(err){
+                                    errorManager.handler(res,err, "store add pictures failed.")
+                                } else {
+                                    res
+                                        .status(200)
+                                        .json({
+                                            "data": store,
+                                            "message": "pictures added with success",
+                                            "status": 200
+                                        })
+                                }
+                            });
+                    } else {
+                        errorManager.handler(res,"store not found", "store dosnt exist")
+                    }
+
+                }
+            });
+
+        } else {
+            //error invalid mongo objectId
+            errorManager.handler(res, "_id must be 24 characters to be a valid objectId", "Cannot cast _id given string to objectId mongo")
+        }
+    } else {
+        //error field empty
+        errorManager.handler(res, "_id is missing", "field _id is missing.")
+    }
+});
+
 //TODO add picture
 // TODO remove or add picture in fields pictures: []
 

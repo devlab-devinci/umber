@@ -120,7 +120,7 @@ router.put('/category', function (req, res, next) {
                         } else {
                             if (categoryStore) {
                                 CategoryStore
-                                    .update({_id: payload._id}, {$set: {name: payload.name}}, function (err, categoryUpdated) {
+                                    .updateOne({_id: objectId}, {$set: {name: payload.name}}, function (err, categoryUpdated) {
                                         if (err) {
                                             //cannot update error mongo
                                             errorManager
