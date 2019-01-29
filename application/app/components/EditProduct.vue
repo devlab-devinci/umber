@@ -33,8 +33,8 @@
           <Label text="Photo du produit" class="label font-weight-bold m-b-5" />
           <Button text="Take Picture" @tap="takePicture" />
           <Button text="Choose Picture" @tap="selectPicture" />
-          <WrapLayout>
-            <Image v-if="images && images.length" v-for="img in images" :src="img.src" width="75" height="75" :key="img.id"/>
+          <WrapLayout ref="images">
+            <Image v-if="image" :src="image.src" width="75" height="75" />
             <Image v-else-if="input.cover && input.cover.name" :src="$config.url + '/upload/' + input.cover.name" data-img-alt="input.cover.name" width="75" height="75"/>
           </WrapLayout>
           <StackLayout class="hr-light"></StackLayout>
@@ -64,6 +64,7 @@
 
   import { InputImage } from './InputImage';
   import { Image } from "tns-core-modules/ui/image";
+
   export default {
     props: {
       id: String
@@ -72,7 +73,7 @@
       return {
         listCategories: [],
         input: {},
-        images: []
+        image: null
       }
     },
     mounted: function () {
@@ -85,7 +86,7 @@
 
         let vm = this;
         let context = imagepicker.create({
-          mode: 'multiple'
+          mode: 'single'
         });
 
         context.authorize()
@@ -94,13 +95,9 @@
           })
           .then(selection => {
             selection.forEach(selected => {
-
-              console.log(1, JSON.stringify(selected));
               let img = new Image();
               img.src = selected;
-              console.log(1, img.src);
-              // console.log(adb.toByteArray(vm.images[0].src));
-              vm.images.push(img);
+              vm.image = img;
             });
           }).catch(function (e) {
           console.log('error in selectPicture', e);
@@ -115,8 +112,8 @@
               .then(imageAsset => {
                 let img = new Image();
                 img.src = imageAsset;
-                vm.images.push(img);
-                console.log('ive got '+vm.images.length+' images now.');
+                vm.image = img;
+                console.log('ive got '+vm.image.length+' image now.');
               })
               .catch(e => {
                 console.log('error:', e);
@@ -150,19 +147,18 @@
         newProduct.owner = vm.$store.state.currentUser;
 
 // upload configuration
-        // var request = {
-          // headers: {
-            // 'Content-Type': 'multipart/form-data',
-          // }
-        // };
-        // var formData = new FormData();
+        var request = {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        };
+        console.log(vm.image);
 
-        // formData.append('image', vm.images[0]);
-        vm.$http[method](resource, newProduct)
-        // vm.$http.post('upload', formData, request)
+        // vm.$http[method](resource, newProduct)
+        vm.$http.post('upload', {file: vm.image}, request)
           .then(product => {
-            console.log(product)
-            vm.images[0] = _.cloneDeep(product.data);
+            console.log(product.data);
+            vm.image = _.cloneDeep(product.data);
           })
           .catch(error => console.error(error));
       }

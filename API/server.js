@@ -19,12 +19,10 @@ const product = require('./routes/products');
 const taxonomy = require('./routes/taxonomies');
 const upload = require('./routes/uploads');
 const authRouter = require('./routes/authentication');
+const categoryStore = require('./routes/categoryStore');
+const store = require('./routes/store');
 
 const app = express();
-
-/**
- * Connect mongodb with mongoose.
- */
 
 //default DEV
 mongoose.connect(`mongodb://${config.server.mongo.hostname}/${config.server.mongo.name}`, config.server.mongo.options).then(
@@ -61,17 +59,24 @@ app.use('/taxonomies', taxonomy);
 app.use('/documents', document);
 app.use('/upload', upload);
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
+app.use('/api/v1', categoryStore);
+app.use('/api/v1', store);
 
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  // render the error page
-  res.status(err.status || 500);
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+    next(createError(404));
+});
 
-  res.render('error');
 // error handler
-  next(createError(404));
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 app.use(config.uploadExpressPath, express.static(config.uploadDir));
