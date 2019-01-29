@@ -263,22 +263,22 @@ router.post('/store/pictures', upload_store_pictures.array('pictures', 6), funct
             let objectId = mongoose.Types.ObjectId(payload._id); //cast string to objectId mongoosee
             Store.findOne({'_id': objectId}, function (err, store) {
                 if (err) {
-                    errorManager.handler(res,err,"store find One error")
+                    errorManager.handler(res, err, "store find One error")
                 } else {
-                    if(store){
+                    if (store) {
                         for (let i in req.files) {
                             let newStorePicture = new StorePicture();
                             newStorePicture.img.data = fs.readFileSync(req.files[i].path);
                             newStorePicture.img.contentType = "image/png";
                             newPictures.push(newStorePicture._id)
                         }
-                        for (let x in newPictures){
+                        for (let x in newPictures) {
                             store.pictures.push(newPictures[x]._id)
                         }
                         store
-                            .save(function(err){
-                                if(err){
-                                    errorManager.handler(res,err, "store add pictures failed.")
+                            .save(function (err) {
+                                if (err) {
+                                    errorManager.handler(res, err, "store add pictures failed.")
                                 } else {
                                     res
                                         .status(200)
@@ -290,7 +290,7 @@ router.post('/store/pictures', upload_store_pictures.array('pictures', 6), funct
                                 }
                             });
                     } else {
-                        errorManager.handler(res,"store not found", "store dosnt exist")
+                        errorManager.handler(res, "store not found", "store dosnt exist")
                     }
 
                 }
@@ -306,8 +306,61 @@ router.post('/store/pictures', upload_store_pictures.array('pictures', 6), funct
     }
 });
 
-//TODO add picture
-// TODO remove or add picture in fields pictures: []
+
+/**
+ * DELETE
+ * Remove 1 picture from 1 store
+ */
+router.delete('/store/pictures', function (req, res, next) {
+    let store_id = req.body.storeId;
+
+    /**
+     * Array of string id (mongo for $pull and $in)
+     */
+    let storePictures_id = req.body.picturesId;
+    let storePictures_objectId = [];
+
+    //convert string into ObjectId mong
+    for (let i in storePictures_id) {
+        storePictures_objectId.push(mongoose.Types.ObjectId(storePictures_id[i]))
+    }
+
+    Store
+        .findOne({'_id': store_id}, function (err, store) {
+            if (err) {
+                errorManager.handler(res, err, "err find one found")
+            } else {
+                if (store) {
+                    Store
+                        .updateOne({_id: store_id}, {
+                            $pull: {
+                                'pictures':
+                                    {
+                                        $in: storePictures_objectId
+                                    }
+                            }
+                        }, function (err, storeUpdated) {
+                            if (err) {
+                                errorManager.handler(res, err, "store remove pictures failed.")
+                            } else {
+                                res
+                                    .status(200)
+                                    .json({
+                                        "data": storeUpdated,
+                                        "message": "pictures from store removed with success",
+                                        "status": 200
+                                    })
+                            }
+                        });
+
+                } else {
+                    errorManager.handler(res, "store not found", "store dosnt exist")
+                }
+            }
+        });
+
+
+});
 
 
 module.exports = router;
