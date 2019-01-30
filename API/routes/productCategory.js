@@ -28,7 +28,7 @@ const upload_categoryProduct_picture = multer({storage: storage});
 
 /**
  * POST
- * add new category by id
+ * add new category
  */
 router.post('/product/category', function (req, res, next) {
     let payload = req.body;
@@ -44,7 +44,11 @@ router.post('/product/category', function (req, res, next) {
                 } else {
                     res
                         .status(200)
-                        .json({"data": productCategory, "message": "new product category added with success", "status": 200})
+                        .json({
+                            "data": productCategory,
+                            "message": "new product category added with success",
+                            "status": 200
+                        })
                 }
             })
     } else {
@@ -58,7 +62,7 @@ router.post('/product/category', function (req, res, next) {
  * GET
  * show category by id
  */
-router.get('/product/category/:id', upload_categoryProduct_picture.single('picture'), function (req, res, next) {
+router.get('/product/category/:id', function (req, res, next) {
     let id = req.params.id;
 
     errorManager
@@ -97,6 +101,23 @@ router.get('/product/category/:id', upload_categoryProduct_picture.single('pictu
 
 });
 
+
+/**
+ * POST
+ * Add new picture for category
+ */
+router.post('/product/category/picture', upload_categoryProduct_picture.single('picture'), function (req, res, next) {
+    res.json("ok");
+});
+
+// TODO
+// ADD  picture / pictures (multi upload) / DELETE PICTURE
+
+// ADD product / delete product
+
+// DELETE category
+
+// update category
 
 module.exports = router;
 

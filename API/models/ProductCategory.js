@@ -13,3 +13,4 @@ const ProductCategory = new Schema({
 });
 
 module.exports = mongoose.model('ProductCategory', ProductCategory);
+
