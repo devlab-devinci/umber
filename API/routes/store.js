@@ -138,7 +138,7 @@ router.delete('/store', function (req, res, next) {
                 } else {
                     res
                         .status(200)
-                        .json({"data": payload, "message": "deleted with success.", "status": 200})
+                        .json({"data": "deleted store", "message": "deleted with success.", "status": 200})
                 }
             });
         } else {
