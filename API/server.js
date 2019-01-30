@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const bodyParser = require('body-parser');
 
 const mongoose = require('mongoose');
 const db_conf = require('./conf/db');
@@ -29,7 +30,6 @@ mongoose.connect(`mongodb://${db_conf.dev.hostname}/${db_conf.dev.db_name}`, {
 
 // PRODUCTION only
 //mongoose.connect(`mongodb://${db_conf.production.hostname}/${db_conf.production.db_name}`);
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
