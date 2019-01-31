@@ -10,7 +10,6 @@ const mongoose = require('mongoose');
 const ProductCategory = require('../models/ProductCategory');
 const Product = require('../models/Product');
 const Store = require('../models/Store');
-const Category = require('../models/ProductCategory');
 
 /**
  * POST
