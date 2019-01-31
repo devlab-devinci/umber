@@ -43,7 +43,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
-app.use('/users', usersRouter);
+app.use('/api/v1', usersRouter);
 
 /** STORE **/
 app.use('/api/v1', categoryStore);

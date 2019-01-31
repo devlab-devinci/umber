@@ -1,9 +1,13 @@
 'use strict';
 
+const fetch = require("node-fetch");
+const Bluebird = require('bluebird');
+fetch.Promise = Bluebird;
 
 module.exports = {
     authChecker: function (req, res, next) {
-        let token = req.headers['x-access-token']; // TODO (fb token) or JWT (mais si JWT on doit ajouter jwt.verify en pour la gestion d'erreur
+        //TODO WIP for role
+        let token = req.headers['access_token'] || req.params.access_token;
         if (!token) {
             res
                 .status(403)
@@ -11,10 +15,29 @@ module.exports = {
                     {
                         "data": "bad token provided",
                         "message": "UNAUTHORIZED",
+                        "dev_message": "If you are developper, please check into facebook developper your app -> tools -> get acess_token",
                         "code_status": 403
                     })
         } else {
-            next();
+            fetch(`https://graph.facebook.com/me?access_token=${token}`)
+                .then(res => res.json())
+                .then(body => {
+                    if (body.error) {
+                        res
+                            .status(403)
+                            .json({
+                                "data": body.error.message,
+                                "type": body.error.type
+                            })
+                    } else {
+                        req.current_user = {
+                            username: body.name,
+                            id: body.id
+                        };
+
+                        next();
+                    }
+                });
         }
     },
 
