@@ -9,7 +9,8 @@ const mongoose = require('mongoose');
 
 const ProductCategory = require('../models/ProductCategory');
 const Product = require('../models/Product');
-
+const Store = require('../models/Store');
+const Category = require('../models/ProductCategory');
 
 /**
  * POST
@@ -20,6 +21,9 @@ router.post('/product', function (req, res, next) {
 
     let newProduct = new Product(payload);
     newProduct.created_at = Date.now();
+
+    console.log(newProduct)
+
     newProduct
         .save(function (err) {
             if (err) {
@@ -140,7 +144,13 @@ router.delete('/product', function (req, res, next) {
 
 /**
  * PUT
- * Edit product
+ * Edit product + edit category
+ */
+//TODO
+
+/**
+ * DELETE
+ * Remove product from category
  */
 //TODO
 
@@ -149,7 +159,86 @@ router.delete('/product', function (req, res, next) {
  * POST
  * Add category to product
  */
-//TODO
+router.post('/product/category', function (req, res, next) {
+    let payload = req.body;
+    let ids = [req.body._id, req.body.category_id];
+    errorManager
+        .isValidIds(ids)
+        .then(function (response) {
+            if (response.error) {
+                errorManager
+                    .handler(res, response.data, "error isValidIds")
+            } else {
+                Product
+                    .findOne({'_id': payload._id})
+                    .exec(function (err, product) {
+                        if (err) {
+                            errorManager
+                                .handler(res, err, "error find one product")
+                        } else {
+                            if (product) {
+                                ProductCategory
+                                    .findOne({'_id': payload.category_id})
+                                    .exec(function (err, productCategory) {
+                                        if (err) {
+                                            errorManager
+                                                .handler(res, err, "findOne productCategory error")
+                                        } else {
+                                            if (productCategory) {
+                                                let _idFields = [];
+                                                for (let i = 0; i < productCategory.products.length; i++) {
+                                                    _idFields.push(productCategory.products[i]._id)
+                                                }
+                                                errorManager
+                                                    .checkDuplicated(payload._id, _idFields)
+                                                    .then(function (response) {
+                                                        if (response.error) {
+                                                            errorManager
+                                                                .handler(res, response.data, "error duplicated")
+                                                        } else {
+                                                            product.categories_product.push(productCategory);
+                                                            product.save(function (err) {
+                                                                if (err) {
+                                                                    errorManager
+                                                                        .handler(res, err, "product save failed")
+                                                                } else {
+                                                                    productCategory.products.push(product);
+                                                                    productCategory
+                                                                        .save(function (err) {
+                                                                            if (err) {
+                                                                                errorManager
+                                                                                    .handler(res, err, "productCategory save failed")
+                                                                            } else {
+                                                                                res
+                                                                                    .status(200)
+                                                                                    .json({
+                                                                                        "data": "product updated, product added in category product",
+                                                                                        "message": "category product / product updated with success",
+                                                                                        "status": 200
+                                                                                    })
+                                                                            }
+                                                                        })
+                                                                }
+                                                            })
+                                                        }
+                                                    })
+                                                    .catch(err => errorManager.handler(res, err, "error checkDuplicated"))
+                                            } else {
+                                                errorManager
+                                                    .handler(res, "product category is empty", "produc category not found")
+                                            }
+                                        }
+                                    })
+                            } else {
+                                errorManager
+                                    .handler(res, "product is empty", "product not found")
+                            }
+                        }
+                    })
+            }
+        })
+        .catch(err => errorManager.handler(res, err, "error isValidsIds"));
+});
 
 /**
  * POST
@@ -157,13 +246,89 @@ router.delete('/product', function (req, res, next) {
  */
 router.post('/product/store', function (req, res, next) {
     let payload = req.body;
-
-    //TODO check 2 _id store  + _id product
-    // TODO get product + store
-    //  TODO push store in product.stores
-    //TODO = fin
-
-    res.json("todo")
+    let ids = [req.body._id, req.body.store_id];
+    errorManager
+        .isValidIds(ids)
+        .then(function (response) {
+            if (response.error) {
+                errorManager
+                    .handler(res, response.data, "error isValidIds")
+            } else {
+                Store
+                    .findOne({'_id': payload.store_id})
+                    .populate('products')
+                    .exec(function (err, store) {
+                        if (err) {
+                            errorManager
+                                .handler(res, err, "error findOne store")
+                        } else {
+                            if (store) {
+                                Product
+                                    .findOne({'_id': payload._id})
+                                    .exec(function (err, product) {
+                                        if (err) {
+                                            errorManager
+                                                .handler(res, err, "error findOne product")
+                                        } else {
+                                            if (product) {
+                                                let _idFields = [];
+                                                for (let i = 0; i < store.products.length; i++) {
+                                                    _idFields.push(store.products[i]._id)
+                                                }
+                                                errorManager
+                                                    .checkDuplicated(payload._id, _idFields)
+                                                    .then(function (response) {
+                                                        console.log(response)
+                                                        if (response.error) {
+                                                            errorManager
+                                                                .handler(res, response.data, "error manager duplicate")
+                                                        } else {
+                                                            store
+                                                                .products
+                                                                .push(product);
+                                                            store.save(function (err) {
+                                                                if (err) {
+                                                                    errorManager
+                                                                        .handler(res, err, "save product in store error")
+                                                                } else {
+                                                                    product
+                                                                        .stores
+                                                                        .push(store)
+                                                                    product
+                                                                        .save(function (err) {
+                                                                            if (err) {
+                                                                                errorManager
+                                                                                    .handler(res, "save error", "save product in store error")
+                                                                            } else {
+                                                                                res
+                                                                                    .status(200)
+                                                                                    .json({
+                                                                                        "data": "store updated, product added in store",
+                                                                                        "message": "store / product updated with success",
+                                                                                        "status": 200
+                                                                                    })
+                                                                            }
+                                                                        })
+                                                                }
+                                                            })
+                                                        }
+                                                    })
+                                                    .catch(err => errorManager.handler(res, err, "error checkDuplicated"))
+                                            } else {
+                                                errorManager
+                                                    .handler(res, "product is empty", "product not found")
+                                            }
+                                        }
+                                    })
+                            } else {
+                                errorManager
+                                    .handler(res, err, "store is empty")
+                            }
+                        }
+                    })
+            }
+        })
+        .catch(err => console.log(err))
 });
 
 module.exports = router;

@@ -7,10 +7,11 @@ const Product = new Schema({
         type: String,
         required: true
     },
-    price: {
+    /*price: {
         type: Schema.Types.Decimal,
         required: true
     },
+    */
     stock: {
         type: Number,
         required: true

@@ -32,7 +32,7 @@ const upload_categoryProduct_picture = multer({storage: storage});
  * POST
  * add new category
  */
-router.post('/product/category', function (req, res, next) {
+router.post('/category/product', function (req, res, next) {
     let payload = req.body;
 
     if (payload.name) {
