@@ -1,9 +1,11 @@
 'use strict';
 
+const fbConfig = require('../config/facebook_api');
+const fetch = require('node-fetch');
 
 module.exports = {
     authChecker: function (req, res, next) {
-        let token = req.headers['x-access-token']; // TODO (fb token) or JWT (mais si JWT on doit ajouter jwt.verify en pour la gestion d'erreur
+        let token = req.headers['fb-access-token'];
         if (!token) {
             res
                 .status(403)
@@ -14,7 +16,20 @@ module.exports = {
                         "code_status": 403
                     })
         } else {
-            next();
+            const verifyUrl = fbConfig.fb_api.getVerifyAccessTokenUrl(fbConfig.fb_api.token_verify_url, token)
+            fetch(verifyUrl)
+                .then(res => res.json())
+                .then(fbData => {
+                    if (fbData.error) {
+                        //callback error
+                        fbConfig.fb_api.errorTokenAction(res, fbData.error)
+                    } else {
+                        // TODO => voir pour l'attribution des roles dans l'objet de fb voir pour ca
+                        req.current_user = fbData; //set infos to logged user from fb account (accessible on each routes via req.current_user)
+                        next(); // go to next middleware
+                    }
+                });
+
         }
     },
 

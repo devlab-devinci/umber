@@ -34,7 +34,7 @@ const upload_store_pictures = multer({storage: storage});
  * POST
  * Add new store
  */
-router.post('/store', Authentication.hasRole("API_USER"), function (req, res, next) {
+router.post('/store', Authentication.authChecker, Authentication.hasRole("API_USER"), function (req, res, next) {
     let payload = req.body;
 
 
@@ -60,7 +60,7 @@ router.post('/store', Authentication.hasRole("API_USER"), function (req, res, ne
  * GET
  * list stores
  */
-router.get('/store', function (req, res, next) {
+router.get('/store', Authentication.authChecker,function (req, res, next) {
     Store
         .find({})
         .populate('StorePicture')
