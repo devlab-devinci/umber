@@ -34,7 +34,8 @@
                     .post(`${api_config.api_url}/auth/current_user/role`, {role: self.STATUS_VENDOR}, {
                         headers: {
                             'fb-access-token': self.$store
-                                .getters.getAccessToken
+                                .getters.getAccessToken,
+
                         }
                     })
                     .then(function (response) {

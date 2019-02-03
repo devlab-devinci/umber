@@ -34,7 +34,7 @@ const upload_store_pictures = multer({storage: storage});
  * POST
  * Add new store
  */
-router.post('/store', Authentication.authChecker, Authentication.hasRole("API_USER"), function (req, res, next) {
+router.post('/store', Authentication.authChecker, function (req, res, next) {
     let payload = req.body;
 
 

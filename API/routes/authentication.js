@@ -51,7 +51,7 @@ router.post('/login/fb', function (req, res, next) {
         })
 });
 
-router.post('/current_user/role', Authentication.authChecker, function (req, res, next) {
+router.post('/current_user/role', Authentication.authChecker, Authentication.allowRole('*'), function (req, res, next) {
     let payload = req.body;
     req.current_user.role = payload.role;
     res.status(200).json({error: false, message: "role setted with success", current_user: req.current_user})

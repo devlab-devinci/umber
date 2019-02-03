@@ -39,10 +39,12 @@ module.exports = {
      * @param role
      * @returns {Function}
      */
-    hasRole: function (role) {
+    allowRole: function (role) {
         return function (req, res, next) {
             if (role) {
-                if (role === req.current_user.role) { //STATUS_VENDOR or STATUS_CUSTOMER
+                if (role === req.headers['role']) { //STATUS_VENDOR or STATUS_CUSTOMER send in header from application request
+                    next();
+                } else if ('*') {
                     next();
                 } else {
                     res
