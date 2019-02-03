@@ -14,13 +14,13 @@ const fb_api = {
         if (process.env.NODE_ENV === 'development') {
             res
                 .status(403)
-                .json({"code": 403, "data": errorFb})
+                .json({"code": 403, "data": errorFb, "error": true,})
         } else {
             delete errorFb.fbtrace_id; //remove for prod (keep for dev debug)
             delete errorFb.code;
             res
                 .status(403)
-                .json({"code": 403, "data": errorFb})
+                .json({"code": 403, "data": errorFb, "error": true,})
         }
     }
 };

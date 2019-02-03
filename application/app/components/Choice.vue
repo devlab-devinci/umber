@@ -12,7 +12,8 @@
 
 <script>
     import Router from "./services/Router"
-
+    import axios from 'axios'
+    import {api_config} from '../api_config';
 
     export default {
         name: "Choice",
@@ -28,11 +29,28 @@
         },
         methods: {
             goToHomeVendor() {
-                console.log('he is', this.STATUS_VENDOR);
-                this.$store.commit('setUserStatus', this.STATUS_VENDOR); //commit == mutation (update)
-                console.log("CHOICE -> USER STATUS : ", this.$store.getters.getUserStatus)
+               let self = this;
+                axios
+                    .post(`${api_config.api_url}/auth/current_user/role`, {role: self.STATUS_VENDOR}, {
+                        headers: {
+                            'fb-access-token': self.$store
+                                .getters.getAccessToken
+                        }
+                    })
+                    .then(function (response) {
+                        console.log(response)
+                        if (response.error) {
+                            console.log("you are not authenticated.....")
+                        } else {
+                            console.log('he is', self.STATUS_VENDOR);
+                            self.$store.commit('setUserStatus', self.STATUS_VENDOR); //commit == mutation (update)
+                            console.log("CHOICE -> USER STATUS : ", self.$store.getters.getUserStatus)
+                            self.$navigateTo(Router.vendorHome);
+                        }
+                    })
+                    .catch(err => console.log(err))
 
-                this.$navigateTo(Router.vendorHome);
+
             },
             goToHomeCustomer() {
                 console.log('he is', this.STATUS_CUSTOMER);

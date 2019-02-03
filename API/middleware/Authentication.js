@@ -11,6 +11,7 @@ module.exports = {
                 .status(403)
                 .json(
                     {
+                        "error": true,
                         "data": "bad token provided",
                         "message": "UNAUTHORIZED",
                         "code_status": 403
@@ -33,17 +34,22 @@ module.exports = {
         }
     },
 
-    //TODO -> use scope or ajouter role dans un jwt pour ici et creer des role hardcodé dans un fichier genre security.js pour qu'on sache
+    /**
+     * take role in parameter from user and compare with req.current_user data
+     * @param role
+     * @returns {Function}
+     */
     hasRole: function (role) {
         return function (req, res, next) {
             if (role) {
-                if (role === "API_USER") {
+                if (role === req.current_user.role) { //STATUS_VENDOR or STATUS_CUSTOMER
                     next();
                 } else {
                     res
                         .status(403)
                         .json(
                             {
+                                "error": true,
                                 "data": "Access denied",
                                 "message": "UNAUTHORIZED",
                                 "code_status": 403
@@ -54,6 +60,7 @@ module.exports = {
                     .status(403)
                     .json(
                         {
+                            "error": true,
                             "data": "Access denied",
                             "message": "UNAUTHORIZED",
                             "code_status": 403
