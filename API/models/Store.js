@@ -25,6 +25,12 @@ const Store = new Schema({
             ref: 'StorePicture'
         }
     ],
+    products: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Product'
+        }
+    ],
     categories_store: [
         {
             type: Schema.Types.ObjectId,

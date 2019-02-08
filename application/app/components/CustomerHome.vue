@@ -22,8 +22,7 @@
 
         <TabView selectedIndex="0" iosIconRenderingMode="alwaysOriginal">
             <TabViewItem title="Commerces">
-                <Label text="commerce"></Label>
-                <Shops></Shops>
+                <Store></Store>
             </TabViewItem>
             <TabViewItem title="Recherche">
                 <Label text="commandes"></Label>
@@ -95,7 +94,8 @@
 <script>
 
     import Shops from './Shop';
-    import {Feedback, FeedbackType, FeedbackPosition} from "nativescript-feedback";
+    import Store from './Store';
+    import {Feedback, FeedbackType} from "nativescript-feedback";
     import {Color} from "tns-core-modules/color";
 
     import GeolocationService from "./services/Geolocation";
@@ -187,7 +187,8 @@
             }
         },
         components: {
-            Shops
+            Shops,
+            Store
         }
 
     }

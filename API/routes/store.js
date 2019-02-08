@@ -5,9 +5,11 @@ const mongoose = require('mongoose');
 
 const Store = require('../models/Store');
 const StorePicture = require('../models/StorePicture');
-
+const Product = require('../models/product.model');
 
 const Authentication = require('../middleware/Authentication');
+
+const _ = require('lodash');
 
 
 // upload
@@ -60,7 +62,7 @@ router.post('/store', Authentication.authChecker, function (req, res, next) {
  * GET
  * list stores
  */
-router.get('/store', Authentication.authChecker,function (req, res, next) {
+router.get('/store', Authentication.authChecker, function (req, res, next) {
     Store
         .find({})
         .populate('StorePicture')
@@ -95,7 +97,7 @@ router.get('/store/:_id', function (req, res, next) {
         } else {
             Store
                 .findOne({'_id': mongoose.Types.ObjectId(paramId)})
-                .populate('StorePicture')
+                .populate('categories_store pictures products')
                 .exec(function (err, store) {
                     if (err) {
                         errorManager.handler(res, err, "error find mongo")
@@ -358,9 +360,162 @@ router.delete('/store/pictures', function (req, res, next) {
                 }
             }
         });
-
-
 });
+
+
+/**
+ * POST
+ * Add one product to store
+ */
+router.post('/store/product', function (req, res, next) {
+    let payload = req.body;
+    let _ids = [payload.store_id, payload.product_id];
+    errorManager
+        .isValidIds(_ids)
+        .then(function (response) {
+            if (response.error) {
+                errorManager
+                    .handler(res, response.data, "error isValidId")
+            } else {
+                let objectIdProduct = mongoose.Types.ObjectId(payload.product_id);
+                let objectIdStore = mongoose.Types.ObjectId(payload.store_id);
+
+                Product
+                    .findOne({
+                        '_id': objectIdProduct
+                    })
+                    .exec(function (err, product) {
+                        if (err) {
+                            errorManager
+                                .handler(res, err, "error FindOne product")
+                        } else {
+                            if (product) {
+                                Store
+                                    .findOne({'_id': objectIdStore})
+                                    .exec(function (err, store) {
+                                        if (err) {
+                                            errorManager
+                                                .handler(res, err, "findOne store error");
+                                        } else {
+                                            if (store) {
+                                                errorManager
+                                                    .checkDuplicated(objectIdProduct, store.products)
+                                                    .then(function (response) {
+                                                        if (response.error) {
+                                                            errorManager
+                                                                .handler(res, response.data, "checkDuplicated failed")
+                                                        } else {
+                                                            store.products.push(product)
+                                                            store.save(function (err) {
+                                                                if (err) {
+                                                                    errorManager
+                                                                        .handler(res, err, "store save error")
+                                                                } else {
+                                                                    res.status(200)
+                                                                        .json({
+                                                                            "data": store,
+                                                                            "message": "product added with success",
+                                                                            "status": 200
+                                                                        })
+                                                                }
+                                                            })
+                                                        }
+                                                    })
+                                                    .catch(err => errorManager.handler(res,err, "checkDuplicated failed."))
+                                            } else {
+                                                errorManager
+                                                    .handler(res, "sotre dosnt exist for this id", "store not found");
+                                            }
+                                        }
+                                    })
+                            } else {
+                                errorManager
+                                    .handler(res, "product is empty", "product not found for this id")
+                            }
+                        }
+                    })
+
+
+            }
+        })
+        .catch(function (err) {
+            errorManager
+                .handler(res, err, "isValidIds failed.")
+        })
+});
+
+
+/**
+ * DELETE
+ * Delete on product from store
+ */
+router.delete('/store/product', function (req, res, next) {
+    let payload = req.body;
+    let _ids = [payload.store_id, payload.product_id];
+    errorManager
+        .isValidIds(_ids)
+        .then(function (response) {
+            if (response.error) {
+                errorManager
+                    .handler(res, response.data, "error isValidId")
+            } else {
+                let objectIdProduct = mongoose.Types.ObjectId(payload.product_id);
+                let objectIdStore = mongoose.Types.ObjectId(payload.store_id);
+
+                Product
+                    .findOne({
+                        '_id': objectIdProduct
+                    })
+                    .exec(function (err, product) {
+                        if (err) {
+                            errorManager
+                                .handler(res, err, "error FindOne product")
+                        } else {
+                            if (product) {
+                                Store
+                                    .findOne({'_id': objectIdStore})
+                                    .exec(function (err, store) {
+                                        if (err) {
+                                            errorManager
+                                                .handler(res, err, "findOne store error");
+                                        } else {
+                                            if (store) {
+                                                _.remove(store.products, objectIdProduct)
+                                                store.save(function (err) {
+                                                    if (err) {
+                                                        errorManager
+                                                            .handler(res, err, "store save error")
+                                                    } else {
+                                                        res.status(200)
+                                                            .json({
+                                                                "data": store,
+                                                                "message": "product removed with success",
+                                                                "status": 200
+                                                            })
+                                                    }
+                                                })
+                                            } else {
+                                                errorManager
+                                                    .handler(res, "sotre dosnt exist for this id", "store not found");
+                                            }
+                                        }
+                                    })
+                            } else {
+                                errorManager
+                                    .handler(res, "product is empty", "product not found for this id")
+                            }
+                        }
+                    })
+
+
+            }
+        })
+        .catch(function (err) {
+            errorManager
+                .handler(res, err, "isValidIds failed.")
+        })
+});
+
 
 
 module.exports = router;

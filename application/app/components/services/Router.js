@@ -13,11 +13,13 @@ import Product from '../Product';
 import Shop from '../Shop';
 import Shops from '../Shops';
 import EditProduct from "../EditProduct";
+import Store from '../Store';
+import StoreView from '../StoreView';
 
 const Router = {
-    app:App,
+    app: App,
     authentication: Authentication,
-    choice:Choice,
+    choice: Choice,
     home: Home,
     carts: Carts,
     cart: Cart,
@@ -27,7 +29,9 @@ const Router = {
     shop: Shop,
     shops: Shops,
     product: Product,
-    products: Products
-}
+    products: Products,
+    storeView: StoreView,
+    store: Store
+};
 
 export default Router;

@@ -1,13 +1,4 @@
 <template>
-  <Page>
-    <ActionBar class="action-bar" title="Shop">
-      <ActionItem @tap="$navigateTo($router.products)"
-                  ios.systemIcon="16" ios.position="right"
-                  text="Produits" android.position="popup" />
-      <ActionItem @tap="$navigateTo($router.carts)"
-                  ios.systemIcon="16" ios.position="right"
-                  text="Paniers" android.position="popup" />
-    </ActionBar>
     <scroll-view class="green">
       <StackLayout flexDirection="column" v-if="shop" orientation="vertical">
         <Image v-if="shop.picture" width="150rem" :src="shop.picture"></Image>
@@ -31,7 +22,6 @@
         </StackLayout>
       </StackLayout>
     </scroll-view>
-  </Page>
 </template>
 
 <script>

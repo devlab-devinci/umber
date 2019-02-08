@@ -29,7 +29,7 @@
         },
         methods: {
             goToHomeVendor() {
-               let self = this;
+                let self = this;
                 axios
                     .post(`${api_config.api_url}/auth/current_user/role`, {role: self.STATUS_VENDOR}, {
                         headers: {
@@ -50,15 +50,29 @@
                         }
                     })
                     .catch(err => console.log(err))
-
-
             },
             goToHomeCustomer() {
-                console.log('he is', this.STATUS_CUSTOMER);
-                this.$store.commit('setUserStatus', this.STATUS_CUSTOMER); //commit == mutation (update)
-                console.log("CHOICE -> USER STATUS : ", this.$store.getters.user_status)
+                let self = this;
+                axios
+                    .post(`${api_config.api_url}/auth/current_user/role`, {role: self.STATUS_CUSTOMER}, {
+                        headers: {
+                            'fb-access-token': self.$store
+                                .getters.getAccessToken,
 
-                this.$navigateTo(Router.customerHome);
+                        }
+                    })
+                    .then(function (response) {
+                        if (response.error) {
+                            console.log("you are not authenticated ...");
+                        } else {
+                            console.log('he is', self.STATUS_CUSTOMER);
+                            self.$store.commit('setUserStatus', self.STATUS_CUSTOMER); //commit == mutation (update)
+                            console.log("CHOICE -> USER STATUS : ", self.$store.getters.getUserStatus)
+
+                            self.$navigateTo(Router.customerHome);
+                        }
+                    })
+                    .catch(err => console.log(err))
             }
 
         }

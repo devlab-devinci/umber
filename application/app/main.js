@@ -12,11 +12,14 @@
 
 
 import Vue from 'nativescript-vue'
+import Vue2Filters from 'vue2-filters'
 import VueDevtools from 'nativescript-vue-devtools'
 import axios from 'axios';
 import Router from './components/services/Router'
 import apiConfig from './config/api_config'
 import Authentication from './components/Authentication'
+
+
 
 import {configureOAuthProviders} from "./components/services/Auth";
 
@@ -25,12 +28,18 @@ configureOAuthProviders();
 apiConfig.url = `${apiConfig.protocol}://${apiConfig.hostname}:${apiConfig.port}`;
 
 if (TNS_ENV !== 'production') {
-    Vue.use(VueDevtools, { host: apiConfig.vuedevtools });
+    Vue.use(VueDevtools, {host: apiConfig.vuedevtools});
     apiConfig.url = `${apiConfig.protocol}://${apiConfig.vuedevtools}:${apiConfig.port}`;
 }
+Vue.use(Vue2Filters);
+
 // Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production');
 Vue.registerElement('CardView', () => require('nativescript-cardview').CardView);
+Vue.registerElement(
+    'PullToRefresh',
+    () => require('nativescript-pulltorefresh').PullToRefresh
+);
 
 import {TNSFontIcon, fonticon} from 'nativescript-fonticon';
 
@@ -47,14 +56,14 @@ Vue.prototype.$router = Router;
 Vue.prototype.$config = apiConfig;
 
 Vue.prototype.$http = {
-  request: resource => axios.request(resource),
-  get: (resource, params) => axios.get(apiConfig.url + '/' + resource, params),
-  delete: resource => axios.put(apiConfig.url + '/' + resource),
-  head: resource => axios.head(apiConfig.url + '/' + resource),
-  // options: axios.options(apiConfig.url + '/' + resource),
-  path: (resource, data) => axios.patch(apiConfig.url + '/' + resource, data),
-  post: (resource, data, config) => axios.post(apiConfig.url + '/' + resource, data, config),
-  put: (resource, data, config) => axios.put(apiConfig.url + '/' + resource, data, config)
+    request: resource => axios.request(resource),
+    get: (resource, params) => axios.get(apiConfig.url + '/' + resource, params),
+    delete: resource => axios.put(apiConfig.url + '/' + resource),
+    head: resource => axios.head(apiConfig.url + '/' + resource),
+    // options: axios.options(apiConfig.url + '/' + resource),
+    path: (resource, data) => axios.patch(apiConfig.url + '/' + resource, data),
+    post: (resource, data, config) => axios.post(apiConfig.url + '/' + resource, data, config),
+    put: (resource, data, config) => axios.put(apiConfig.url + '/' + resource, data, config)
 };
 
 
@@ -101,7 +110,17 @@ const state = {
     currentCart: null,
 
     // currentUser: {role: "user", userTypes: "buyer", _id:"5c43b9e2a904e53e21dfebe5", fullname: "buyer2", picture :"http://placekitten.com/200/300",email:"buyer2@user.fr", updatedAt:"2019-01-19T23:59:30.011Z", __v:0},
-    currentUser: {role :"user", userTypes: "seller", _id: "5c43b9e2a904e53e21dfebe0", companyName :"companyName0", fullname :"seller0",picture:"http://placekitten.com/200/300", email:"seller0@user.fr", updatedAt:"2019-01-19T23:59:30.011Z","__v":0}
+    currentUser: {
+        role: "user",
+        userTypes: "seller",
+        _id: "5c43b9e2a904e53e21dfebe0",
+        companyName: "companyName0",
+        fullname: "seller0",
+        picture: "http://placekitten.com/200/300",
+        email: "seller0@user.fr",
+        updatedAt: "2019-01-19T23:59:30.011Z",
+        "__v": 0
+    }
 
 }
 
@@ -145,7 +164,7 @@ const getters = {
     },
 
     getCurrentUser: state => {
-      return state.currentUser;
+        return state.currentUser;
     },
 
     /**
@@ -209,7 +228,7 @@ const mutations = {
      * @param userStatus
      */
     setUserStatus(state, userStatus) {
-        console.log("USER TO SET du store fdp",  userStatus)
+        console.log("USER TO SET du store fdp", userStatus)
         state.user_status = userStatus;
     },
 
@@ -220,7 +239,7 @@ const mutations = {
         state.currentCart.push(product);
     },
 
-    removeProductCart (state, {productIndex}) {
+    removeProductCart(state, {productIndex}) {
         state.currentCart.splice(productIndex, 1);
         return state.currentCart
     },
