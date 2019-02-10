@@ -98,12 +98,12 @@
                     .then(function (stores) {
                         console.log("store refresh", stores)
                         self.stores = stores.data.data; //array
-                        setTimeout(function() {
+                        setTimeout(function () {
                             pullRefresh.refreshing = false;
                         }, 500);
                     })
-                    .catch(function(err){
-                        setTimeout(function() {
+                    .catch(function (err) {
+                        setTimeout(function () {
                             console.log("errorrefresh ->", err);
                             pullRefresh.refreshing = false;
                         }, 1000);

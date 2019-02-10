@@ -1,97 +1,100 @@
 <template>
-  <Page>
-    <ActionBar class="action-bar" title="Shop">
-      <ActionItem @tap="$navigateTo($router.shops)"
-                  ios.systemIcon="16" ios.position="right"
-                  text="Shops" android.position="popup" />
-      <ActionItem @tap="$navigateTo($router.carts)"
-                  ios.systemIcon="16" ios.position="right"
-                  text="Paniers" android.position="popup" />
-    </ActionBar>
-    <scroll-view class="green">
-      <StackLayout flexDirection="column" v-if="cart && cart.seller && cart.buyer" orientation="vertical">
-        <Image v-if="cart.seller.picture" width="150rem" :src="cart.seller.picture"></Image>
-        <Label :text="cart.seller.companyName" col="1" row="0"></Label>
-        <Label text="Offres" col="1" row="0"></Label>
-        <ListView height="100%" v-if="items && items.length" flexGrow="1" for="(item, index) in items" @itemTap="" item-key="item._id"  width="100%">
-          <v-template>
+    <Page>
+        <ActionBar class="action-bar" title="Votre panier">
+        </ActionBar>
+
+        <scroll-view class="green" v-if="this.current_cart !== null">
             <StackLayout>
-              <Button text="-" col="2" @tap="removeProduct(item.product, index)" />
-              <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
-              <Label :text="'Nom :' + item.product.name" col="1" row="0"></Label>
-              <Label :text="'Prix :' + item.price" col="3" row="1"/>
-              <Button text="Voir le produit" col="2" @tap="showProduct(item.product)" />
+                <ListView for="product in formatted">
+                    <v-template>
+                        <StackLayout>
+                            <Label :text="product.name | capitalize"></Label>
+                            <Label>
+                                <FormattedString>
+                                    <Span :text="product.price"></Span>
+                                    <Span text=" x "></Span>
+                                    <Span :text="product.quantity"></Span>
+                                    <Span text=" = "></Span>
+                                    <Span :text="product.total"></Span>
+                                </FormattedString>
+                            </Label>
+                        </StackLayout>
+                    </v-template>
+                </ListView>
+                <StackLayout>
+                    <Label :text="total_bill"></Label>
+                </StackLayout>
             </StackLayout>
-          </v-template>
-        </ListView>
-        <StackLayout v-else>
-          <Label text="Aucun produit n'est disponible dans ce pannier"></Label>
-        </StackLayout>
-      </StackLayout>
-    </scroll-view>
-  </Page>
+
+        </scroll-view>
+        <scroll-view class="green" v-else>
+            <StackLayout>
+                <Label text="Panier not exist"></Label>
+            </StackLayout>
+        </scroll-view>
+    </Page>
 </template>
 
 <script>
-  export default {
-    props: {
-      id: String
-    },
-    data: function () {
-      return {
-        cart: null,
-        items: null
-      };
-    },
-    mounted: function () {
-      this.fetchCart();
-    },
-    methods: {
-      fetchCart: function () {
-        let vm = this;
-        vm.$http.get('carts/' + vm.id)
-          .then(cart => {
-            vm.cart = _.cloneDeep(cart.data);
-            vm.items = _.cloneDeep(cart.data.cartEntries);
-          })
-          .catch(error => console.error(error));
-      },
-      showProduct(item) {
-        let vm = this;
-        this.$showModal(vm.$router.product, {
-          props: {
-            id: item._id
-          },
-          animated: true,
-          transition: {
-            name: "slideTop",
-            duration: 380,
-            curve: "easeIn"
-          }
-        })
-      },
-      removeProduct: function (product, index) {
-        let vm = this;
 
-        vm.cart.price.price = vm.cart.price.price - vm.cart.cartEntries[index].price;
+    const _ = require('lodash');
 
-        product.stock = product.stock + vm.cart.cartEntries[index].quantity;
-        vm.cart.cartEntries.splice(index, 1);
+    export default {
+        props: {},
+        data: function () {
+            return {
+                current_cart: null,
+                formated: null,
+                total_bill: 0,
+            };
+        },
+        mounted: function () {
+            this.checkCurrentCart();
+        },
+        methods: {
+            checkCurrentCart() {
+                if (this.$store.getters.getCurrentCart === null) {
+                    this.current_cart = null;
+                } else {
+                    this.current_cart = this.$store.getters.getCurrentCart;
+
+                    let formatted = this.current_cart.map(function (item) {
+                        return item.name
+                    }).filter((value, index, self) => self.indexOf(value) === index);
+
+                    let products = [];
+                    for (let item in formatted) {
+                        products.push({
+                            name: formatted[item],
+                            quantity: 0,
+                            total: 0,
+                            price: 0,
+                        })
+                    }
+
+                    for (let y in this.current_cart) {
+                        for (let x in products) {
+                            if (this.current_cart[y].name == products[x].name) {
+                                products[x].quantity += this.current_cart[y].quantity
+                                products[x].price = parseFloat(this.current_cart[y].price)
+                                products[x].total += (parseFloat(this.current_cart[y].price) * this.current_cart[y].quantity)
+
+                            }
+                        }
+                    }
+
+                    this.total_bill = products.map((product) => product.total).reduce((prev, next) => {
+                        return prev + next
+                    });
+
+                    this.formatted = products;
+                    console.log("end", products)
+                    console.log("total vbill", this.total_bill)
 
 
-        vm.$http.put('carts/' + vm.cart._id, vm.cart)
-          .then(res => {
-            vm.cart = _.cloneDeep(res.data);
-          })
-          .then(() => {
-            vm.$http.put('products/' + product._id, product)
-              .then(res => {
-                console.log(res);
-              })
-              .catch(error => console.error(error));
-          })
-          .catch(error => console.error(error));
-      }
+                }
+            },
+        }
     }
-  };
+    ;
 </script>

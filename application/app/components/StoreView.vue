@@ -5,6 +5,8 @@
                 <Button text="pannier" left="2" top="1" width="20" height="40" backgroundColor="#550C5C"/>
                 <Button text="nb product" left="10" top="4" width="40" height="30" backgroundColor="#FAC152"/>
             </AbsoluteLayout>
+            <ActionItem @tap="goToCartView" ios.systemIcon="9" ios.position="right" text="edit product"
+                        android.position="popup"/>
         </ActionBar>
 
         <StackLayout>
@@ -17,13 +19,15 @@
             <StackLayout className="mt-5" v-if="this.store.products.length > 0">
                 <Label text="Produits"></Label>
             </StackLayout>
-            <ListView v-if="this.store.products.length > 0" for="product in this.store.products">
+            <ListView v-if="this.store.products.length > 0" for="(product, key, index) in this.store.products">
                 <v-template>
                     <StackLayout orientation="vertical">
                         <Label :text="product.name | capitalize"></Label>
                         <Label :text="product.price | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"></Label>
                         <TextView :text="product.description"></TextView>
-                        <Button text="Add to cart" @tap="addToCart(product)"></Button>
+                        <TextField keyboardType="number" hint="Quantité" v-model="product.key">
+                        </TextField>
+                        <Button text="Add to cart" @tap="addToCart(product, product.key)"></Button>
                     </StackLayout>
                 </v-template>
             </ListView>
@@ -40,6 +44,8 @@
     import {api_config} from '../api_config';
     import {Feedback, FeedbackType} from "nativescript-feedback";
     import {Color} from "tns-core-modules/color";
+    import Router from "./services/Router";
+
 
     const Toast = require('nativescript-toast');
 
@@ -49,29 +55,42 @@
             store: ""
         },
         mounted() {
-            console.log(this.store)
-            const myToaast = Toast.makeText(this.message, 'long');
-            myToaast.show();
-
+            console.log("do you have a cart ?", this.$store.getters.getCurrentCart);
         },
         data() {
             return {}
         },
         methods: {
-            addToCart(product) {
-                let feedback = new Feedback();
-                feedback
-                    .success({
-                        title: `${product.name}`,
-                        titleColor: new Color("#222222"),
-                        type: FeedbackType.Custom, // this is the default type, by the way
-                        message: `Ajouter au panier !`,
-                        messageColor: new Color("#333333"),
-                        duration: 2000,
-                        backgroundColor: new Color("yellowgreen")
-                    });
+            addToCart(product, quantity) {
+                if (!quantity) {
+                    const errorQuantityToast = Toast.makeText('Choisissez une quantité', 'short');
+                    errorQuantityToast.show();
+                } else {
+                    product.quantity = quantity;
+                    let feedback = new Feedback();
+                    feedback
+                        .success({
+                            title: `${product.name}`,
+                            titleColor: new Color("#222222"),
+                            type: FeedbackType.Custom, // this is the default type, by the way
+                            message: `Ajouter au panier !`,
+                            messageColor: new Color("#333333"),
+                            duration: 2000,
+                            backgroundColor: new Color("#78e08f")
+                        });
 
-                console.log("HOME - > USER STATUS : ", this.$store.getters.getUserStatus);
+
+                    this.$store.commit('setProductCart', product);
+
+
+                    //console.log(" $$$$$$$$ CURRENT CART $$$$$$$ : ", this.$store.getters.getCurrentCart);
+                    //console.log("HOME - > USER STATUS : ", this.$store.getters.getUserStatus);
+                }
+
+            },
+            goToCartView() {
+                console.log("GO TO CART LIST")
+                this.$navigateTo(Router.cart);
             }
         }
 

@@ -20,7 +20,6 @@ import apiConfig from './config/api_config'
 import Authentication from './components/Authentication'
 
 
-
 import {configureOAuthProviders} from "./components/services/Auth";
 
 configureOAuthProviders();
@@ -110,6 +109,7 @@ const state = {
     currentCart: null,
 
     // currentUser: {role: "user", userTypes: "buyer", _id:"5c43b9e2a904e53e21dfebe5", fullname: "buyer2", picture :"http://placekitten.com/200/300",email:"buyer2@user.fr", updatedAt:"2019-01-19T23:59:30.011Z", __v:0},
+    //TODO dont use it
     currentUser: {
         role: "user",
         userTypes: "seller",
@@ -236,7 +236,7 @@ const mutations = {
         if (!state.currentCart) {
             state.currentCart = []
         }
-        state.currentCart.push(product);
+        state.currentCart.push(product)
     },
 
     removeProductCart(state, {productIndex}) {
