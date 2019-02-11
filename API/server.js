@@ -21,6 +21,7 @@ const upload = require('./routes/uploads');
 const authRouter = require('./routes/authentication');
 const categoryStore = require('./routes/categoryStore');
 const store = require('./routes/store');
+const position = require('./routes/position');
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/api/v1', categoryStore);
 app.use('/api/v1', store);
+app.use('/api/v1', position);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

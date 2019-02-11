@@ -1,22 +1,10 @@
 <template>
     <Page>
 
-        <ActionBar>
-            <SearchBar hint="Localisation ..." text="" textFieldBackgroundColor="#b2bec3"
-                       @textChange="onTextChanged" @submit="setLocation"/>
-
-            <!--
-            <StackLayout orientation="horizontal">
-                <Image src="https://play.nativescript.org/dist/assets/img/NativeScript_logo.png" width="40" height="40"
-                       verticalAlignment="center"/>
-                <Label class="m-l-5" text="Umber" fontSize="24" verticalAlignment="center"/>
-                <Label class="m-l-5" textWrap="true">
-                    <FormattedString>
-                        <Span class="fa" style="color: #fd79a8" :text="'fa-map' | fonticon"></Span>
-                    </FormattedString>
-                </Label>
-            </StackLayout>
-             -->
+        <ActionBar title="Commerces">
+            <ActionItem @tap="choiceLocationMenu"
+                        ios.systemIcon="3" ios.position="left"
+                        android.systemIcon="ic_menu_share" android.position="actionBar"/>
         </ActionBar>
 
 
@@ -25,7 +13,11 @@
                 <Store></Store>
             </TabViewItem>
             <TabViewItem title="Recherche">
-                <Label text="commandes"></Label>
+                <StackLayout>
+                    <SearchBar hint="Localisation ..." text="" textFieldBackgroundColor="#b2bec3"
+                               v-model="searchByLocationValue"
+                               @textChange="onTextChanged" @submit="searchByLocation"/>
+                </StackLayout>
             </TabViewItem>
             <TabViewItem title="Reçues">
                 <Label text="reçues"></Label>
@@ -93,6 +85,15 @@
 </template>
 <script>
 
+    import {LoadingIndicator} from "nativescript-loading-indicator";
+
+    const loaderOptions = require('./services/LoaderConfig').getOptions();
+    const loader = new LoadingIndicator();
+
+    const geolib = require('geolib');
+    import axios from 'axios';
+    import {api_config} from '../api_config';
+
     import Shops from './Shop';
     import Store from './Store';
     import {Feedback, FeedbackType} from "nativescript-feedback";
@@ -100,7 +101,9 @@
 
     import GeolocationService from "./services/Geolocation";
 
+
     import Router from "./services/Router";
+    import {action} from "tns-core-modules/ui/dialogs";
 
     export default {
         name: "CustomerHome",
@@ -163,28 +166,58 @@
         data() {
             return {
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
+                searchByLocationValue: "",
             }
         },
         methods: {
-            setLocation(event) {
-                confirm('Voulez-vous rafraîchir votre position ?')
-                    .then(response => {
-                        console.log(response);
-                        if (response) {
-                            //TODO -> loader activity https://www.nativescript.org/blog/showing-an-activity-indicator-during-processing-in-nativescript-apps
-                            //TODO _> ajouter la possibilité d'ajouter une location manuellement
-                            GeolocationService.setLocationCheck();
-                            console.log('CALL SET LOCATIONCHECK puis set la location')
-                        } else {
-                            console.log("nothing.")
-                        }
 
-                    });
+            searchByLocation(event) {
 
+                console.log("SEARCH LOCATION : ", this.searchByLocationValue)
+                loader.show(loaderOptions);
+                setTimeout(function () {
+                    loader.hide();
+                }, 1000);
             },
             onTextChanged() {
                 console.log("change texted")
+                console.log(this.searchByLocationValue)
+            },
+
+            choiceLocationMenu() {
+                let self = this;
+                let current_position_lat = self.$store.getters.getCurrentLocationInfos.lat;
+                let current_position_lon = self.$store.getters.getCurrentLocationInfos.lon;
+
+                console.log("device emulator location", current_position_lat, current_position_lon)
+                const headers = {
+                    'fb-access-token': this.$store
+                        .getters.getAccessToken
+
+                };
+                action("Position", "Cancel button text", [this.$store.getters.getCurrentLocationInfos.display_name, "Option2"])
+                    .then(result => {
+                        loader.show(loaderOptions);
+                        if (result === this.$store.getters.getCurrentLocationInfos.display_name) { // when we choose first (auto detect position)
+                            axios
+                                .get(`${api_config.api_url}/api/v1/position/stores/${current_position_lat}/${current_position_lon}`, {headers: headers})
+                                .then(function (storesForPosition) {
+                                    setTimeout(function () {
+                                        loader.hide();
+                                        //TODO set dans la current liste des commerces a la place de celle par défaut
+                                        console.log("DATA RESPONSE", storesForPosition.data);
+                                        self.$root.$emit('updateStoresList', storesForPosition.data.data);
+                                    }, 1000);
+                                })
+                                .catch(err => console.log("ERROR HIT", err));
+
+
+                        }
+
+                    });
             }
+
+
         },
         components: {
             Shops,

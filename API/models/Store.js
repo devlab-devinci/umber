@@ -5,7 +5,7 @@ const mongoose = require('mongoose'),
 const Store = new Schema({
     name: {
         type: String,
-            required: true
+        required: true
     },
     address: {
         type: String,
@@ -38,6 +38,12 @@ const Store = new Schema({
             required: true
         }
     ],
+
+    //set by mapquest api
+    mapQuestMapPictureUrl: {type: String},
+    mapQuestLat: {type: String},
+    mapQuestLng: {type: String},
+
     created_at: {
         type: Date,
         required: true

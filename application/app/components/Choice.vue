@@ -44,9 +44,6 @@
                             console.log("you are not authenticated.....")
                         } else {
                             console.log('he is', self.STATUS_VENDOR);
-                            /**
-                             * RAPPEL : COMMIT -> trigger mutation // DISPATCH -> trigger action
-                             */
                             self.$store.commit('setUserStatus', self.STATUS_VENDOR); //commit == mutation (update)
                             console.log("CHOICE -> USER STATUS : ", self.$store.getters.getUserStatus)
                             self.$navigateTo(Router.vendorHome);

@@ -18,12 +18,22 @@
             </StackLayout>
              -->
         </ActionBar>
-
-
         <TabView selectedIndex="0" iosIconRenderingMode="alwaysOriginal">
             <TabViewItem title="Mes offres">
-                <Label text="offre"></Label>
-                <Products></Products>
+                <StackLayout style="margin:10px;">
+                    <SegmentedBar selectedIndex="0"
+                                  @selectedIndexChange="onSelectedIndexChange" v-model="selectedItem">
+                        <SegmentedBarItem title="Mes offres"/>
+                        <SegmentedBarItem title="Ajouter un magasin"/>
+                        <SegmentedBarItem title="Ajouter une offre"/>
+                    </SegmentedBar>
+
+                    <StackLayout>
+                        <Label text="ajouter une offre"></Label>
+                    </StackLayout>
+
+
+                </StackLayout>
             </TabViewItem>
             <TabViewItem title="Commandes">
                 <Label text="commandes"></Label>
@@ -99,10 +109,13 @@
 
     import GeolocationService from "./services/Geolocation";
 
+    import axios from 'axios';
+    import {api_config} from '../api_config';
     import Router from "./services/Router";
 
     export default {
         name: "CustomerHome",
+
 //callback lifecyclme (vuejs)
         beforeCreate() {
             let feedback = new Feedback();
@@ -124,6 +137,23 @@
             let self = this;
             //display status (if user choose vendor OR customer)
             //console.log("PICTURE", this.$store.getters.getFbUser.picture.data.url);
+
+            const headers = {
+                'fb-access-token': this.$store
+                    .getters.getAccessToken
+
+            };
+
+            //categories for store loading
+            axios
+                .get(`${api_config.api_url}/api/v1/category`, {headers: headers})
+                .then(function (categoriesStores) {
+                    self.categories_store = categoriesStores.data;
+                    console.log(self.categories_store);
+                })
+                .catch(err => console.log("ERROR HIT", err));
+
+
 
             GeolocationService.enablePermission() //call to init permission
             //https://www.thepolyglotdeveloper.com/2017/03/device-geolocation-nativescript-angular-application/
@@ -162,6 +192,7 @@
         data() {
             return {
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
+                categories_store: []
             }
         },
         methods: {
@@ -183,7 +214,12 @@
             },
             onTextChanged() {
                 console.log("change texted")
+            },
+            onSelectedIndexChange() {
+                console.log("ITEM SELECTED", this.selectedItem);
+                console.log("selected items")
             }
+
         },
         components: {
             Products

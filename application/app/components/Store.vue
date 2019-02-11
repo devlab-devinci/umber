@@ -34,12 +34,18 @@
                 'fb-access-token': this.$store.getters.getAccessToken
             };
 
+
             axios
                 .get(`${api_config.api_url}/api/v1/store`, {headers: headers})
                 .then(function (stores) {
                     self.stores = stores.data.data; //array
                 })
                 .catch(err => console.log("STORE GET ERROR ----> ", err))
+
+            //update from position sleected
+            this.$root.$on('updateStoresList', (stores) => { // here you need to use the arrow function
+                this.stores = stores;
+            })
         },
         data() {
             return {
@@ -109,7 +115,7 @@
                         }, 1000);
                     });
 
-            }
+            },
 
         }
     }

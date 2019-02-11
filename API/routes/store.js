@@ -11,6 +11,8 @@ const Authentication = require('../middleware/Authentication');
 
 const _ = require('lodash');
 
+const axios = require('axios');
+const mapquestapi = require('../config/mapquestapi').mapquestapi;
 
 // upload
 const fs = require('fs');
@@ -41,21 +43,38 @@ router.post('/store', Authentication.authChecker, function (req, res, next) {
 
 
     let newStore = new Store(payload);
-    newStore.created_at = Date.now();
-    newStore
-        .save(function (err) {
-            if (err) {
-                errorManager.handler(res, err, "error save mongo")
-            } else {
-                res
-                    .status(200)
-                    .json({
-                        "data": newStore,
-                        "message": "store added with success",
-                        "status": 200
+    axios
+        .get(`${mapquestapi.geocoding_uri}${encodeURIComponent(payload.city.trim())}, ${encodeURIComponent(payload.zipcode.trim())}, ${encodeURIComponent(payload.address.trim())}`)
+        .then(function (response) {
+            if (response.data.results) {
+                let mapUrl = response.data.results[0].locations[0].mapUrl;
+                let mapLat = response.data.results[0].locations[0].latLng.lat.toString();
+                let mapLong = response.data.results[0].locations[0].latLng.lng.toString();
+                newStore.created_at = Date.now();
+                newStore.mapQuestMapPictureUrl = mapUrl;
+                newStore.mapQuestLat = mapLat;
+                newStore.mapQuestLng = mapLong;
+                newStore
+                    .save(function (err) {
+                        if (err) {
+                            errorManager.handler(res, err, "error save mongo")
+                        } else {
+                            res
+                                .status(200)
+                                .json({
+                                    "data": newStore,
+                                    "message": "store added with success",
+                                    "status": 200
+                                })
+                        }
                     })
+            } else {
+                errorManager.handler(res, response, "map quest error")
             }
-        })
+
+        }).catch(err => console.log(err));
+
+
 });
 
 /**
@@ -421,7 +440,7 @@ router.post('/store/product', function (req, res, next) {
                                                             })
                                                         }
                                                     })
-                                                    .catch(err => errorManager.handler(res,err, "checkDuplicated failed."))
+                                                    .catch(err => errorManager.handler(res, err, "checkDuplicated failed."))
                                             } else {
                                                 errorManager
                                                     .handler(res, "sotre dosnt exist for this id", "store not found");
@@ -515,8 +534,6 @@ router.delete('/store/product', function (req, res, next) {
                 .handler(res, err, "isValidIds failed.")
         })
 });
-
-
 
 module.exports = router;
 
