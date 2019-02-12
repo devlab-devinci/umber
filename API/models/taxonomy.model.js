@@ -6,6 +6,10 @@ const Schema = mongoose.Schema;
 var TaxonomySchema = new Schema({
   name: String,
   type: String,
+  image: {
+    type: Schema.Types.ObjectId,
+    ref: 'Document'
+  },
   createdAt: {
     type: Date,
     required: true,
