@@ -59,7 +59,6 @@
   import * as camera from "nativescript-camera";
   import * as imagepicker from "nativescript-imagepicker";
 
-  import { InputImage } from './InputImage';
   import { Image } from "tns-core-modules/ui/image";
 
   export default {

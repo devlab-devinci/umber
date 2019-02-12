@@ -2,35 +2,62 @@
     <Page>
 
         <ActionBar>
-            <SearchBar hint="Localisation ..." text="" textFieldBackgroundColor="#b2bec3"
-                       @textChange="onTextChanged" @submit="setLocation"/>
-
-            <!--
-            <StackLayout orientation="horizontal">
-                <Image src="https://play.nativescript.org/dist/assets/img/NativeScript_logo.png" width="40" height="40"
-                       verticalAlignment="center"/>
-                <Label class="m-l-5" text="Umber" fontSize="24" verticalAlignment="center"/>
-                <Label class="m-l-5" textWrap="true">
-                    <FormattedString>
-                        <Span class="fa" style="color: #fd79a8" :text="'fa-map' | fonticon"></Span>
-                    </FormattedString>
-                </Label>
-            </StackLayout>
-             -->
         </ActionBar>
         <TabView selectedIndex="0" iosIconRenderingMode="alwaysOriginal">
             <TabViewItem title="Mes offres">
                 <StackLayout style="margin:10px;">
-                    <SegmentedBar selectedIndex="0"
-                                  @selectedIndexChange="onSelectedIndexChange" v-model="selectedItem">
+                    <SegmentedBar @selectedIndexChange="onSelectedIndexChange" v-model="selectedItem">
                         <SegmentedBarItem title="Mes offres"/>
                         <SegmentedBarItem title="Ajouter un magasin"/>
                         <SegmentedBarItem title="Ajouter une offre"/>
                     </SegmentedBar>
 
-                    <StackLayout>
-                        <Label text="ajouter une offre"></Label>
-                    </StackLayout>
+                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'">
+                        <Label order="2" :text="selectedItem" backgroundColor="blue"
+                               height="100" width="100"></Label>
+                        <Label order="1" :text="selectedItem" backgroundColor="red"
+                               height="100" width="100"></Label>
+                    </FlexboxLayout>
+
+
+                    <FlexboxLayout :visibility="selectedItem === 1 ? 'visible' : 'collapsed'"
+                                   style="align-items:center; flex-direction:column;">
+                        <StackLayout class="form">
+                            <StackLayout class="input-field">
+                                <TextField class="input" hint="Nom ..." v-model="form_name"></TextField>
+                            </StackLayout>
+
+                            <StackLayout class="input-field">
+                                <TextField class="input"
+                                           hint="3 Allée Autocomplete to do wiht google places ..."
+                                           v-model="form_address"></TextField>
+                            </StackLayout>
+
+                            <StackLayout class="input-field">
+                                <TextField class="input" hint="City's name" v-model="form_city"></TextField>
+                            </StackLayout>
+
+                            <StackLayout class="input-field">
+                                <TextField class="input" hint="Zipcode ...." v-model="form_zipcode"></TextField>
+                            </StackLayout>
+
+                            <StackLayout class="input-field">
+                                <ListPicker :items="this.categories_store_names" v-model="pickerIndex"></ListPicker>
+                            </StackLayout>
+
+                            <StackLayout>
+                                <Button text="Confirmer" class="btn btn-primary" @tap="submit"></Button>
+                            </StackLayout>
+                        </StackLayout>
+                    </FlexboxLayout>
+
+
+                    <FlexboxLayout :visibility="selectedItem === 2 ? 'visible' : 'collapsed'">
+                        <Label order="2" :text="selectedItem" backgroundColor="blue"
+                               height="100" width="100"></Label>
+                        <Label order="1" :text="selectedItem" backgroundColor="red"
+                               height="100" width="100"></Label>
+                    </FlexboxLayout>
 
 
                 </StackLayout>
@@ -103,6 +130,11 @@
     </Page>
 </template>
 <script>
+    import {LoadingIndicator} from "nativescript-loading-indicator";
+
+    const loaderOptions = require('./services/LoaderConfig').getOptions();
+    const loader = new LoadingIndicator();
+
     import Products from './Products';
     import {Feedback, FeedbackType, FeedbackPosition} from "nativescript-feedback";
     import {Color} from "tns-core-modules/color";
@@ -113,11 +145,13 @@
     import {api_config} from '../api_config';
     import Router from "./services/Router";
 
+
     export default {
         name: "CustomerHome",
 
 //callback lifecyclme (vuejs)
         beforeCreate() {
+            let self = this;
             let feedback = new Feedback();
             feedback
                 .success({
@@ -128,32 +162,41 @@
                     messageColor: new Color("#333333"),
                     duration: 2000,
                     backgroundColor: new Color("yellowgreen")
-                })
+                });
 
-            console.log("HOME - > USER STATUS : ", this.$store.getters.getUserStatus);
+            //console.log("HOME - > USER STATUS : ", this.$store.getters.getUserStatus);
 
-        },
-        mounted() {
-            let self = this;
-            //display status (if user choose vendor OR customer)
-            //console.log("PICTURE", this.$store.getters.getFbUser.picture.data.url);
+
+            //categories for store loading
+            loader.show(loaderOptions);
 
             const headers = {
                 'fb-access-token': this.$store
                     .getters.getAccessToken
 
             };
-
-            //categories for store loading
             axios
                 .get(`${api_config.api_url}/api/v1/category`, {headers: headers})
                 .then(function (categoriesStores) {
-                    self.categories_store = categoriesStores.data;
-                    console.log(self.categories_store);
+                    self.categories_store = categoriesStores.data.data;
+                    for (let i in self.categories_store) {
+                        self.categories_store_names.push(self.categories_store[i].name)
+                    }
+                    setTimeout(function () {
+                        loader.hide();
+                    }, 1000);
                 })
-                .catch(err => console.log("ERROR HIT", err));
+                .catch(function (err) {
+                    loader.hide();
+                    console.log("ERROR HIT", err)
+                });
 
 
+        },
+        mounted() {
+            let self = this;
+            //display status (if user choose vendor OR customer)
+            //console.log("PICTURE", this.$store.getters.getFbUser.picture.data.url);
 
             GeolocationService.enablePermission() //call to init permission
             //https://www.thepolyglotdeveloper.com/2017/03/device-geolocation-nativescript-angular-application/
@@ -192,33 +235,96 @@
         data() {
             return {
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
-                categories_store: []
+                categories_store: [],
+                categories_store_names: [],
+                selectedItem: 0,
+                pickerIndex: 0,
+                form_name: "",
+                form_address: "",
+                form_city: "",
+                form_zipcode: ""
             }
         },
         methods: {
-            setLocation(event) {
-                confirm('Voulez-vous rafraîchir votre position ?')
-                    .then(response => {
-                        console.log(response);
-                        if (response) {
-                            //TODO -> loader activity https://www.nativescript.org/blog/showing-an-activity-indicator-during-processing-in-nativescript-apps
-                            //TODO _> ajouter la possibilité d'ajouter une location manuellement
-                            GeolocationService.setLocationCheck();
-                            console.log('CALL SET LOCATIONCHECK puis set la location')
-                        } else {
-                            console.log("nothing.")
-                        }
-
-                    });
-
-            },
             onTextChanged() {
                 console.log("change texted")
             },
             onSelectedIndexChange() {
                 console.log("ITEM SELECTED", this.selectedItem);
-                console.log("selected items")
-            }
+                -
+                    console.log(typeof this.selectedItem);
+                console.log(this.selectedItem === 0 ? 'visible' : 'collapsed')
+            },
+
+            submit() {
+                let feedback = new Feedback();
+                let self = this;
+
+                //premier temps aller cherche la catégorie
+                // deuxieme temps push object id de cette categorie dans mon magasin
+                let city = this.form_city;
+                let zipcode = this.form_zipcode;
+                let address = this.form_address;
+                let name = this.form_name;
+
+                let body = {
+                    city: city,
+                    zipcode: zipcode,
+                    address: address,
+                    name: name,
+                    category_id: ""
+                };
+
+                const headers = {
+                    'fb-access-token': this.$store
+                        .getters.getAccessToken
+
+                };
+
+                loader.show(loaderOptions);
+                axios.get(`${api_config.api_url}/api/v1/${this.categories_store_names[this.pickerIndex]}/category/store`)
+                    .then(function (category) {
+                        body.category_id = category.data.data._id;
+                        axios.post(`${api_config.api_url}/api/v1/store`, body, {headers: headers})
+                            .then(function (response) {
+                                console.log(response.status);
+                                if (response.status === 200) {
+                                    loader.hide();
+                                    feedback
+                                        .success({
+                                            title: "Félicitation !",
+                                            titleColor: new Color("#222222"),
+                                            type: FeedbackType.Custom, // this is the default type, by the way
+                                            message: `Store ajouté !`,
+                                            messageColor: new Color("#333333"),
+                                            duration: 2000,
+                                            backgroundColor: new Color("yellowgreen")
+                                        });
+                                    self.$navigateTo(Router.vendorHome)
+                                } else {
+                                    loader.hide();
+                                    feedback
+                                        .warning({
+                                            message: "Erreur lors de l'ajout du store !"
+                                        });
+                                }
+                            })
+                            .catch(function(err){
+                                loader.hide();
+                                feedback.warning({
+                                   message: "Erreur dans les champs !"
+                                });
+                            })
+
+                    })
+                    .catch(function(err){
+                        loader.hide();
+                        feedback.error({
+                            title: "Oups, une erreur est survenue!",
+                            titleColor: new Color("black")
+                        });
+                    })
+            },
 
         },
         components: {

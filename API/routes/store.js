@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const Store = require('../models/Store');
 const StorePicture = require('../models/StorePicture');
 const Product = require('../models/product.model');
+const StoreCategory = require('../models/CategoryStore');
 
 const Authentication = require('../middleware/Authentication');
 
@@ -40,39 +41,58 @@ const upload_store_pictures = multer({storage: storage});
  */
 router.post('/store', Authentication.authChecker, function (req, res, next) {
     let payload = req.body;
+    let category_id = "";
 
+    if (!payload.city || !payload.address || !payload.zipcode) {
+        errorManager
+            .handler(res, "missing fields.", "check city, address, zipcode fields.")
+    } else {
+        errorManager
+            .isValidId(payload.category_id)
+            .then(function (response) {
+                if (response.error) {
+                    errorManager
+                        .handler(res, "not valid id.", "invalid id for _id cast")
+                } else {
+                    category_id = mongoose.Types.ObjectId(payload.category_id);
 
-    let newStore = new Store(payload);
-    axios
-        .get(`${mapquestapi.geocoding_uri}${encodeURIComponent(payload.city.trim())}, ${encodeURIComponent(payload.zipcode.trim())}, ${encodeURIComponent(payload.address.trim())}`)
-        .then(function (response) {
-            if (response.data.results) {
-                let mapUrl = response.data.results[0].locations[0].mapUrl;
-                let mapLat = response.data.results[0].locations[0].latLng.lat.toString();
-                let mapLong = response.data.results[0].locations[0].latLng.lng.toString();
-                newStore.created_at = Date.now();
-                newStore.mapQuestMapPictureUrl = mapUrl;
-                newStore.mapQuestLat = mapLat;
-                newStore.mapQuestLng = mapLong;
-                newStore
-                    .save(function (err) {
-                        if (err) {
-                            errorManager.handler(res, err, "error save mongo")
-                        } else {
-                            res
-                                .status(200)
-                                .json({
-                                    "data": newStore,
-                                    "message": "store added with success",
-                                    "status": 200
-                                })
-                        }
-                    })
-            } else {
-                errorManager.handler(res, response, "map quest error")
-            }
+                    let newStore = new Store(payload);
+                    axios
+                        .get(`${mapquestapi.geocoding_uri}${encodeURIComponent(payload.city.trim())}, ${encodeURIComponent(payload.zipcode.trim())}, ${encodeURIComponent(payload.address.trim())}`)
+                        .then(function (response) {
+                            if (response.data.results) {
+                                let mapUrl = response.data.results[0].locations[0].mapUrl;
+                                let mapLat = response.data.results[0].locations[0].latLng.lat.toString();
+                                let mapLong = response.data.results[0].locations[0].latLng.lng.toString();
+                                newStore.created_at = Date.now();
+                                newStore.mapQuestMapPictureUrl = mapUrl;
+                                newStore.mapQuestLat = mapLat;
+                                newStore.mapQuestLng = mapLong;
+                                newStore.categories_store.push(category_id);
+                                newStore
+                                    .save(function (err) {
+                                        if (err) {
+                                            errorManager.handler(res, err, "error save mongo")
+                                        } else {
+                                            res
+                                                .status(200)
+                                                .json({
+                                                    "data": newStore,
+                                                    "message": "store added with success",
+                                                    "status": 200
+                                                })
+                                        }
+                                    })
+                            } else {
+                                errorManager.handler(res, response, "map quest error")
+                            }
 
-        }).catch(err => console.log(err));
+                        }).catch(err => console.log(err));
+                }
+            })
+            .catch(err => errorManager.handler(res, err, "error isValidId"))
+        //convert to objectId
+    }
 
 
 });
@@ -534,6 +554,38 @@ router.delete('/store/product', function (req, res, next) {
                 .handler(res, err, "isValidIds failed.")
         })
 });
+
+
+router.get('/:name/category/store', function (req, res, next) {
+    let paramName = req.params.name;
+    StoreCategory
+        .findOne({'name': paramName})
+        .populate('categories_store pictures products')
+        .exec(function (err, store) {
+            if (err) {
+                errorManager.handler(res, err, "error find mongo")
+            } else {
+                if (store) {
+                    res
+                        .status(200)
+                        .json({
+                            "data": store,
+                            "message": "store found with success",
+                            "status": 200,
+                            "error": false
+                        })
+                } else {
+                    errorManager.handler(res, "no store found.", "store is empty")
+                }
+            }
+        })
+
+})
+
+
+router.post('/test/pic', upload_store_pictures.single('file'), function (req, res, next) {
+    res.json(req.files);
+})
 
 module.exports = router;
 

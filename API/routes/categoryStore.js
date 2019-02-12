@@ -200,6 +200,7 @@ router.get('/category', function (req, res, next) {
     CategoryStore
         .find({})
         .populate('CategoryStorePicture')
+        .sort({'name': 1})
         .exec(function (err, categories) {
             if (err) {
                 errorManager.handler(res, err, "find failed.")

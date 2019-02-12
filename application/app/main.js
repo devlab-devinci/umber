@@ -72,6 +72,7 @@ Vue.prototype.$http = {
 import FbConfig from './components/services/FbConfig';
 import Vuex from 'vuex';
 import * as http from "http";
+import Test from "./components/Test";
 
 Vue.use(Vuex);
 // -> https://blog.ippon.fr/2017/05/29/vue-js-2-0-petit-tutoriel-volume-4/

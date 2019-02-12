@@ -19,6 +19,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap-social": "^5.1.1",
+    "crypto": "^1.0.1",
     "geolib": "^2.0.24",
     "i": "^0.3.6",
     "nativescript-camera": "^4.1.1",
@@ -41,6 +42,7 @@
     "npm": "^6.5.0",
     "tns-core-modules": "^5.0.2",
     "utm-converter": "^0.1.1",
+    "uuid": "^3.3.2",
     "vue2-filters": "^0.4.1",
     "vuex": "^3.0.1"
   },
