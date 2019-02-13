@@ -2,6 +2,9 @@
     <Page>
 
         <ActionBar>
+            <ActionItem text="Mes Offres" :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"></ActionItem>
+            <ActionItem text="Ajouter un store" :visibility="selectedItem === 1 ? 'visible' : 'collapsed'"></ActionItem>
+            <ActionItem text="Ajouter une offre" :visibility="selectedItem === 2 ? 'visible' : 'collapsed'"></ActionItem>
         </ActionBar>
         <TabView selectedIndex="0" iosIconRenderingMode="alwaysOriginal">
             <TabViewItem title="Mes offres">

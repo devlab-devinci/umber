@@ -6,6 +6,9 @@ const mongoose = require('mongoose');
 const Store = require('../models/Store');
 
 const geolib = require('geolib');
+const axios = require('axios');
+
+const mapquestapi = require('../config/mapquestapi').mapquestapi;
 
 /**
  * GET
@@ -14,8 +17,8 @@ const geolib = require('geolib');
 router.get('/position/stores/:lat/:lon', function (req, res, next) {
     let current_position_lat = req.params.lat;
     let current_position_lon = req.params.lon;
-    console.log("ok",parseFloat(current_position_lat));
-    console.log("ok",parseFloat(current_position_lon));
+    console.log("ok", parseFloat(current_position_lat));
+    console.log("ok", parseFloat(current_position_lon));
 
     Store
         .find({})
@@ -47,6 +50,7 @@ router.get('/position/stores/:lat/:lon', function (req, res, next) {
                         })
                 } else {
                     // send list stores around
+                    console.log("STORE AROUNDé", storesAround.length);
                     res
                         .status(200)
                         .json({
@@ -63,6 +67,34 @@ router.get('/position/stores/:lat/:lon', function (req, res, next) {
             }
         })
 
+});
+
+
+router.get('/geocoding/localisation/:fullAddress/define/localisation', function (req, res, next) {
+    //send destinitation from alert and parse to coordonnee lat / lon pour etre ensuite utilisé dans la route au dessus
+    let localisation = req.params.fullAddress;
+    axios
+        .get(`${mapquestapi.geocoding_uri}${encodeURIComponent(localisation).trim()}`)
+        .then(function (response) {
+            if (response.data.results) {
+                console.log("API localisation", `${mapquestapi.geocoding_uri}${encodeURIComponent(localisation).trim()}`)
+                let mapLat = response.data.results[0].locations[0].latLng.lat.toString();
+                let mapLong = response.data.results[0].locations[0].latLng.lng.toString();
+                console.log("API", mapLat)
+                console.log("API", mapLong)
+                res.status(200)
+                    .json({
+                        "mapLat": mapLat,
+                        "mapLon": mapLong,
+                        "status": 200
+                    })
+            } else {
+                errorManager.handler(res, response, "Destination non trouvée")
+            }
+
+        }).catch(function (err) {
+        errorManager.handler(res, err, "map quest error")
+    });
 });
 
 

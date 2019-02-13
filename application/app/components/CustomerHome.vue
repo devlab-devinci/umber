@@ -105,6 +105,9 @@
     import Router from "./services/Router";
     import {action} from "tns-core-modules/ui/dialogs";
 
+    const dialogs = require('tns-core-modules/ui/dialogs');
+
+
     export default {
         name: "CustomerHome",
 //callback lifecyclme (vuejs)
@@ -195,7 +198,7 @@
                         .getters.getAccessToken
 
                 };
-                action("Position", "Cancel button text", [this.$store.getters.getCurrentLocationInfos.display_name, "Option2"])
+                action("Position", "Changer d'addresse", [this.$store.getters.getCurrentLocationInfos.display_name, "Entrez une addresse"])
                     .then(result => {
                         loader.show(loaderOptions);
                         if (result === this.$store.getters.getCurrentLocationInfos.display_name) { // when we choose first (auto detect position)
@@ -209,8 +212,56 @@
                                         self.$root.$emit('updateStoresList', storesForPosition.data.data);
                                     }, 1000);
                                 })
-                                .catch(err => console.log("ERROR HIT", err));
+                                .catch(function (err) {
+                                    console.log(err);
+                                    loader.hide()
+                                })
+                        } else {
+                            loader.hide();
+                            prompt({
+                                title: "Addresse complète",
+                                message: "",
+                                okButtonText: "Localiser",
+                                cancelButtonText: "Annuler",
+                                defaultText: "3 allée des platanes Draveil 91210",
+                            }).then(result => {
+                                if (result.text === "") {
+                                    alert({
+                                        message: "Addresse invalide",
+                                        title: "Oups",
+                                        okButtonText: "Fermer"
+                                    })
+                                        .then(function () {/*close*/
+                                        })
+                                } else {
+                                    let localisation = result.text;
+                                    console.log("LOCALISATION", localisation)
+                                    loader.show(loaderOptions);
+                                    axios
+                                        .get(`${api_config.api_url}/api/v1/geocoding/localisation/${encodeURIComponent(localisation.trim())}/define/localisation`, {headers: headers})
+                                        .then(function (result) {
+                                            console.log(result.data);
+                                            console.log("ICI",result.data.mapLat);
+                                            console.log("ICI",result.data.mapLon);
 
+                                            let lat = result.data.mapLat;
+                                            let lon = result.data.mapLon;
+                                            axios
+                                                .get(`${api_config.api_url}/api/v1/position/stores/${lat}/${lon}`, {headers: headers})
+                                                .then(function (storesAround) {
+                                                    self.$root.$emit('updateStoresList', storesAround.data.data);
+                                                    loader.hide()
+                                                })
+                                                .catch(function (err) {
+                                                    loader.hide()
+                                                    console.log(err)
+                                                })
+                                            //TODO send ces coordonnée sur l'api pour avoir les stores alentour + refresh les stores et les loaders
+                                        }).catch(function(err){loader.hide(); console.log(err)})
+
+                                }
+                                console.log(`Dialog result: ${result.result}, text: ${result.text}`)
+                            });
 
                         }
 

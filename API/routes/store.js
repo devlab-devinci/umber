@@ -580,12 +580,12 @@ router.get('/:name/category/store', function (req, res, next) {
             }
         })
 
-})
+});
 
 
 router.post('/test/pic', upload_store_pictures.single('file'), function (req, res, next) {
     res.json(req.files);
-})
+});
 
 module.exports = router;
 
