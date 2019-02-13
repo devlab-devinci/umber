@@ -15,16 +15,20 @@ exports.index = function (req, res) {
   let limit = req.query && req.query.limit || 0;
   let page = req.query && req.query.page || 0;
   let criteria = {};
+  let categories = {};
 
   if (req.query.userTypes) {
     criteria.userTypes = req.query.userTypes;
   }
 
+  if (req.query.categories) {
+    categories = {'shop.categories': req.query.categories};
+  }
 
 // add promise find product
   promise.push(User
-    .find(criteria)
-    .populate('imageShop')
+    .find(categories)
+    .populate('imageShop shop.categories')
     .lean());
 
 // when promises resolve

@@ -198,7 +198,7 @@ exports.bySha = function (req, res) {
   Cart
     .findOne({ sha: req.params.sha })
     .select('-documents')
-    .populate('buyer sellerz', 'username companyName address')
+    .populate('buyer sellers', 'username companyName address')
     .lean()
     .then(function (cart) {
       if (!cart) {
