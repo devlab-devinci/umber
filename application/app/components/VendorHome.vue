@@ -4,7 +4,8 @@
         <ActionBar>
             <ActionItem text="Mes Offres" :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"></ActionItem>
             <ActionItem text="Ajouter un store" :visibility="selectedItem === 1 ? 'visible' : 'collapsed'"></ActionItem>
-            <ActionItem text="Ajouter une offre" :visibility="selectedItem === 2 ? 'visible' : 'collapsed'"></ActionItem>
+            <ActionItem text="Ajouter une offre"
+                        :visibility="selectedItem === 2 ? 'visible' : 'collapsed'"></ActionItem>
         </ActionBar>
         <TabView selectedIndex="0" iosIconRenderingMode="alwaysOriginal">
             <TabViewItem title="Mes offres">
@@ -15,11 +16,20 @@
                         <SegmentedBarItem title="Ajouter une offre"/>
                     </SegmentedBar>
 
-                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'">
-                        <Label order="2" :text="selectedItem" backgroundColor="blue"
-                               height="100" width="100"></Label>
-                        <Label order="1" :text="selectedItem" backgroundColor="red"
-                               height="100" width="100"></Label>
+                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"
+                                   style="align-items:center; flex-direction:column;">
+                        <StackLayout>
+                            <ListView for="product in this.owner_products" v-if="this.owner_products.length > 0">
+                                <v-template>
+                                    <StackLayout @tap="onProductTap(product)">
+                                        <Label :text="product.name"/>
+                                    </StackLayout>
+                                </v-template>
+                            </ListView>
+                            <Label text="Pas de produits pour le moment" v-if="this.owner_products.length === 0">
+
+                            </Label>
+                        </StackLayout>
                     </FlexboxLayout>
 
 
@@ -55,11 +65,44 @@
                     </FlexboxLayout>
 
 
-                    <FlexboxLayout :visibility="selectedItem === 2 ? 'visible' : 'collapsed'">
-                        <Label order="2" :text="selectedItem" backgroundColor="blue"
-                               height="100" width="100"></Label>
-                        <Label order="1" :text="selectedItem" backgroundColor="red"
-                               height="100" width="100"></Label>
+                    <!-- OFFER FORM-->
+                    <FlexboxLayout :visibility="selectedItem === 2 ? 'visible' : 'collapsed'"
+                                   style="align-items:center; flex-direction:column;">
+                        <StackLayout class="form">
+                            <StackLayout class="input-field">
+                                <TextField class="input" hint="Nom du produit ..."
+                                           v-model="form_offer_name"></TextField>
+                                <TextField class="input" hint="Prix ..." v-model="form_offer_price"></TextField>
+                                <TextField class="input" hint="Description ..."
+                                           v-model="form_offer_description"></TextField>
+                                <TextField class="input" hint="Quantité ..." v-model="form_offer_stock"></TextField>
+                                <TextField class="input" hint="Remise ..." v-model="form_offer_promotion"></TextField>
+                                <ListPicker :items="this.categories_product_names"
+                                            v-model="form_offer_category_picker_index"></ListPicker>
+                                <StackLayout>
+                                    <Button text="Confirmer" class="btn btn-primary" @tap="submitOffer"></Button>
+                                </StackLayout>
+                            </StackLayout>
+                            <!-- TODO enlever ce bout de code mais si on le fait la liste n'aparait plus pour une raison inconnu -->
+                            <StackLayout class="input-field">
+                                <TextField class="input"
+                                           hint="3 Allée Autocomplete to do wiht google places ..."
+                                           v-model="form_address"></TextField>
+                            </StackLayout>
+
+                            <StackLayout class="input-field">
+                                <TextField class="input" hint="City's name" v-model="form_city"></TextField>
+                            </StackLayout>
+
+                            <StackLayout class="input-field">
+                                <TextField class="input" hint="Zipcode ...." v-model="form_zipcode"></TextField>
+                            </StackLayout>
+                            <!-- TODO enlever ce bout de code mais si on le fait la liste n'aparait plus pour une raison inconnu -->
+
+                            <StackLayout>
+                                <Button text="Confirmer" class="btn btn-primary" @tap="submit"></Button>
+                            </StackLayout>
+                        </StackLayout>
                     </FlexboxLayout>
 
 
@@ -151,7 +194,6 @@
 
     export default {
         name: "CustomerHome",
-
 //callback lifecyclme (vuejs)
         beforeCreate() {
             let self = this;
@@ -179,11 +221,18 @@
 
             };
             axios
-                .get(`${api_config.api_url}/api/v1/category`, {headers: headers})
-                .then(function (categoriesStores) {
-                    self.categories_store = categoriesStores.data.data;
+                .get(`${api_config.api_url}/api/v1/dual/categories`, {headers: headers})
+                .then(function (response) {
+                    self.categories_store = response.data.categories_store;
+                    self.categories_product = response.data.categories_product;
+
                     for (let i in self.categories_store) {
+                        console.log("?N?", self.categories_store[i].name)
                         self.categories_store_names.push(self.categories_store[i].name)
+                    }
+                    for (let i in self.categories_product) {
+                        console.log("?o?", self.categories_product[i].name)
+                        self.categories_product_names.push(self.categories_product[i].name)
                     }
                     setTimeout(function () {
                         loader.hide();
@@ -191,13 +240,32 @@
                 })
                 .catch(function (err) {
                     loader.hide();
-                    console.log("ERROR HIT", err)
+                    feedback.error({
+                        title: "Oups, une erreur est survenue! réessayer plus tard",
+                        titleColor: new Color("black")
+                    });
+                    console.log("ERROR DUAL categories :", err)
                 });
 
+            axios
+                .get(`${api_config.api_url}/api/v1/offers/${self.$store.getters.getCurrentUser._id}`, {headers: headers})
+                .then(function (response) {
+                    self.owner_products = response.data.data;
 
+                })
+                .catch(function (err) {
+                    loader.hide();
+                    feedback.error({
+                        title: "Oups, une erreur est survenue! réessayer plus tard",
+                        titleColor: new Color("black")
+                    });
+                    console.log("ERROR:", err);
+                })
         },
         mounted() {
             let self = this;
+            console.log("MOUNTED")
+            console.log(this.categories_product);
             //display status (if user choose vendor OR customer)
             //console.log("PICTURE", this.$store.getters.getFbUser.picture.data.url);
 
@@ -237,6 +305,10 @@
         },
         data() {
             return {
+
+                owner_products: [],
+                owner_products_index: 0,
+
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
                 categories_store: [],
                 categories_store_names: [],
@@ -245,7 +317,16 @@
                 form_name: "",
                 form_address: "",
                 form_city: "",
-                form_zipcode: ""
+                form_zipcode: "",
+
+                categories_product: [],
+                categories_product_names: [],
+                form_offer_name: "",
+                form_offer_price: 0,
+                form_offer_stock: 1,
+                form_offer_promotion: 0,
+                form_offer_description: "",
+                form_offer_category_picker_index: 0,
             }
         },
         methods: {
@@ -254,9 +335,9 @@
             },
             onSelectedIndexChange() {
                 console.log("ITEM SELECTED", this.selectedItem);
-                -
-                    console.log(typeof this.selectedItem);
+                console.log(typeof this.selectedItem);
                 console.log(this.selectedItem === 0 ? 'visible' : 'collapsed')
+                console.log(this.categories_product_names);
             },
 
             submit() {
@@ -312,15 +393,15 @@
                                         });
                                 }
                             })
-                            .catch(function(err){
+                            .catch(function (err) {
                                 loader.hide();
                                 feedback.warning({
-                                   message: "Erreur dans les champs !"
+                                    message: "Erreur dans les champs !"
                                 });
                             })
 
                     })
-                    .catch(function(err){
+                    .catch(function (err) {
                         loader.hide();
                         feedback.error({
                             title: "Oups, une erreur est survenue!",
@@ -328,6 +409,107 @@
                         });
                     })
             },
+            submitOffer() {
+                const headers = {
+                    'fb-access-token': this.$store
+                        .getters.getAccessToken
+
+                };
+                console.log("submit new offer . . .");
+                loader.show(loaderOptions);
+                let feedback = new Feedback();
+                let inputOffer = {
+                    name: "",
+                    price: "",
+                    stock: 0,
+                    promotion: 0,
+                    description: "",
+                    category_name: this.categories_product_names[this.form_offer_category_picker_index],
+                    owner_id: this.$store.getters.getCurrentUser._id
+                };
+
+                let errorValidation = [];
+
+                if (this.form_offer_name && typeof this.form_offer_name === "string" && this.form_offer_name.length !== 0) {
+                    inputOffer.name = this.form_offer_name
+                } else {
+                    errorValidation.push("invalide name");
+                }
+
+                if (this.form_offer_price > 0) {
+                    inputOffer.price = this.form_offer_price
+                } else {
+                    errorValidation.push("invalide price");
+                }
+
+                if (this.form_offer_stock > 0) {
+                    inputOffer.stock = this.form_offer_stock
+                } else {
+                    errorValidation.push("invalide stock");
+                }
+
+                if (this.form_offer_promotion > this.form_offer_price) {
+                    inputOffer.promotion = this.form_offer_promotion;
+                } else {
+                    errorValidation.push("invalide promotion");
+                }
+
+                inputOffer.description = this.form_offer_description;
+
+                if (errorValidation.length > 0) {
+                    //error
+                    setTimeout(function () {
+                        feedback
+                            .warning({
+                                message: "Erreur, vérifier les champs !"
+                            });
+                        loader.hide()
+                    }, 1000);
+
+                } else {
+                    //console.log("current_user _id", this.$store.getters.getCurrentUser._id);
+                    //console.log("payload", inputOffer)
+                    axios
+                        .post(`${api_config.api_url}/api/v1/offer`, inputOffer, {headers: headers})
+                        .then(function (response) {
+                            console.log(response);
+                            if (response.data.status === 200) {
+                                loader.hide();
+                                feedback
+                                    .success({
+                                        title: "Félicitation !",
+                                        titleColor: new Color("#222222"),
+                                        type: FeedbackType.Custom, // this is the default type, by the way
+                                        message: `Offre ajouté !`,
+                                        messageColor: new Color("#333333"),
+                                        duration: 2000,
+                                        backgroundColor: new Color("yellowgreen")
+                                    });
+                            } else {
+                                loader.hide()
+                                feedback
+                                    .error({
+                                        message: "Une erreur survenue. Veuillez réessayer"
+                                    });
+                            }
+                        })
+                        .catch(function (err) {
+                            loader.hide()
+                            feedback
+                                .warning("Oups, une erreur est surevenue. Veuillez réessayer plus tard")
+                        });
+
+                }
+            },
+            onProductTap(product) {
+                this.$navigateTo(Router.product_detail, {
+                    props: {
+                        product: product
+                    }
+                });
+
+
+            }
 
         },
         components: {

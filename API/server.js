@@ -22,7 +22,8 @@ const authRouter = require('./routes/authentication');
 const categoryStore = require('./routes/categoryStore');
 const store = require('./routes/store');
 const position = require('./routes/position');
-
+const productCategory = require('./routes/productCategory');
+const advanced = require('./routes/advanced');
 const app = express();
 
 //default DEV
@@ -64,6 +65,8 @@ app.use('/users', usersRouter);
 app.use('/api/v1', categoryStore);
 app.use('/api/v1', store);
 app.use('/api/v1', position);
+app.use('/api/v1', productCategory);
+app.use('/api/v1', advanced); // dual
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

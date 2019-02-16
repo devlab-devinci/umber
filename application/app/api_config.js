@@ -13,6 +13,6 @@
  * @type {{api_url: string}}
  */
 export const api_config = {
-        api_url: 'https://neco.serveo.net' //e.g https://multo.serveo.net
+        api_url: 'https://multo.serveo.net' //e.g https://multo.serveo.net
 
 };

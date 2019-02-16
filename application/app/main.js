@@ -109,8 +109,11 @@ const state = {
 
     currentCart: null,
 
+    currentUser: {} // set from after fb login when user is svaed in mongodb (usfull to get _id)
+
     // currentUser: {role: "user", userTypes: "buyer", _id:"5c43b9e2a904e53e21dfebe5", fullname: "buyer2", picture :"http://placekitten.com/200/300",email:"buyer2@user.fr", updatedAt:"2019-01-19T23:59:30.011Z", __v:0},
     //TODO dont use it
+    /*
     currentUser: {
         role: "user",
         userTypes: "seller",
@@ -122,6 +125,7 @@ const state = {
         updatedAt: "2019-01-19T23:59:30.011Z",
         "__v": 0
     }
+    */
 
 }
 
@@ -244,6 +248,10 @@ const mutations = {
         state.currentCart.splice(productIndex, 1);
         return state.currentCart
     },
+
+    setCurrentUser(state, currentUser) {
+        state.currentUser = currentUser
+    }
 };
 
 

@@ -15,6 +15,7 @@ import Shops from '../Shops';
 import EditProduct from "../EditProduct";
 import Store from '../Store';
 import StoreView from '../StoreView';
+import ProductDetail from '../Product_detail';
 
 const Router = {
     app: App,
@@ -31,7 +32,8 @@ const Router = {
     product: Product,
     products: Products,
     storeView: StoreView,
-    store: Store
+    store: Store,
+    product_detail: ProductDetail
 };
 
 export default Router;

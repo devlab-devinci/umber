@@ -225,42 +225,49 @@
                                 cancelButtonText: "Annuler",
                                 defaultText: "3 allée des platanes Draveil 91210",
                             }).then(result => {
-                                if (result.text === "") {
-                                    alert({
-                                        message: "Addresse invalide",
-                                        title: "Oups",
-                                        okButtonText: "Fermer"
-                                    })
-                                        .then(function () {/*close*/
-                                        })
+                                console.log("result prompt", result);
+                                if (!result.result) {
+                                    //Annuler
                                 } else {
-                                    let localisation = result.text;
-                                    console.log("LOCALISATION", localisation)
-                                    loader.show(loaderOptions);
-                                    axios
-                                        .get(`${api_config.api_url}/api/v1/geocoding/localisation/${encodeURIComponent(localisation.trim())}/define/localisation`, {headers: headers})
-                                        .then(function (result) {
-                                            console.log(result.data);
-                                            console.log("ICI",result.data.mapLat);
-                                            console.log("ICI",result.data.mapLon);
+                                    if (result.text === "") {
+                                        alert({
+                                            message: "Addresse invalide",
+                                            title: "Oups",
+                                            okButtonText: "Fermer"
+                                        })
+                                            .then(function () {/*close*/
+                                            })
+                                    } else {
+                                        let localisation = result.text;
+                                        console.log("LOCALISATION", localisation)
+                                        loader.show(loaderOptions);
+                                        axios
+                                            .get(`${api_config.api_url}/api/v1/geocoding/localisation/${encodeURIComponent(localisation.trim())}/define/localisation`, {headers: headers})
+                                            .then(function (result) {
+                                                console.log(result.data);
+                                                console.log("ICI", result.data.mapLat);
+                                                console.log("ICI", result.data.mapLon);
 
-                                            let lat = result.data.mapLat;
-                                            let lon = result.data.mapLon;
-                                            axios
-                                                .get(`${api_config.api_url}/api/v1/position/stores/${lat}/${lon}`, {headers: headers})
-                                                .then(function (storesAround) {
-                                                    self.$root.$emit('updateStoresList', storesAround.data.data);
-                                                    loader.hide()
-                                                })
-                                                .catch(function (err) {
-                                                    loader.hide()
-                                                    console.log(err)
-                                                })
-                                            //TODO send ces coordonnée sur l'api pour avoir les stores alentour + refresh les stores et les loaders
-                                        }).catch(function(err){loader.hide(); console.log(err)})
+                                                let lat = result.data.mapLat;
+                                                let lon = result.data.mapLon;
+                                                axios
+                                                    .get(`${api_config.api_url}/api/v1/position/stores/${lat}/${lon}`, {headers: headers})
+                                                    .then(function (storesAround) {
+                                                        self.$root.$emit('updateStoresList', storesAround.data.data);
+                                                        loader.hide()
+                                                    })
+                                                    .catch(function (err) {
+                                                        loader.hide()
+                                                        console.log(err)
+                                                    })
+                                            }).catch(function (err) {
+                                            loader.hide();
+                                            console.log(err)
+                                        });
+                                        console.log(`Dialog result: ${result.result}, text: ${result.text}`)
 
+                                    }
                                 }
-                                console.log(`Dialog result: ${result.result}, text: ${result.text}`)
                             });
 
                         }
