@@ -2,8 +2,32 @@
     <Page>
         <ActionBar :title="this.product.name | capitalize " android:flat="true">
         </ActionBar>
-        <Label :text="this.product.name">
-        </Label>
+        <StackLayout>
+            <Label :text="this.product.name">
+            </Label>
+            <Label :text="this.product.price | currency('€') ">
+            </Label>
+            <Label textWrap="true">
+                <FormattedString>
+                    <Span text="Remise : "></Span>
+                    <Span :text="this.product.promotion | currency('€') "/>
+                </FormattedString>
+            </Label>
+            <Label :text="product.description">
+            </Label>
+            <Label textWrap="true">
+                <FormattedString>
+                    <Span text="Quantité : "></Span>
+                    <Span :text="product.stock"/>
+                </FormattedString>
+            </Label>
+            <Label textWrap="true">
+                <FormattedString>
+                    <Span text="Catégorie : "></Span>
+                    <Span :text="product.categories[0].name"/>
+                </FormattedString>
+            </Label>
+        </StackLayout>
     </Page>
 </template>
 
@@ -22,9 +46,16 @@
             product: ""
         },
         data() {
-            return {
-            }
+            return {}
         },
         methods: {}
     }
 </script>
+
+<style scoped>
+    ActionBar {
+        background-color: #53ba82;
+        color: #ffffff;
+    }
+</style>
+

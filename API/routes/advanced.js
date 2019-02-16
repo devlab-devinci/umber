@@ -138,6 +138,7 @@ router.get('/offers/:user_id', function (req, res, next) {
             } else {
                 Product
                     .find({owner: user_id})
+                    .populate('categories')
                     .then(function (product) {
                         res
                             .status(200)
