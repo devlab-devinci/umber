@@ -436,7 +436,8 @@
                     promotion: 0,
                     description: "",
                     category_name: this.categories_product_names[this.form_offer_category_picker_index],
-                    owner_id: this.$store.getters.getCurrentUser._id
+                    owner_id: this.$store.getters.getCurrentUser._id,
+                    owner_store_id: this.owner_stores[this.owner_stores_index]._id
                 };
 
                 let errorValidation = [];
@@ -480,6 +481,7 @@
                 } else {
                     //console.log("current_user _id", this.$store.getters.getCurrentUser._id);
                     //console.log("payload", inputOffer)
+                    console.log("STORE ID",inputOffer.owner_store_id);
                     axios
                         .post(`${api_config.api_url}/api/v1/offer`, inputOffer, {headers: headers})
                         .then(function (response) {

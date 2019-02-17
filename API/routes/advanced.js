@@ -81,9 +81,11 @@ router.post('/offer', Authentication.authChecker, function (req, res, next) {
     let payload = req.body;
     let owner_id = req.body.owner_id;
     let product_category_name = req.body.category_name;
+    let owner_store_id = payload.owner_store_id;
 
     delete payload.owner_id; // clear object for new Product
     delete payload.category_name;
+    delete payload.owner_store_id;
 
 
     ProductCategory
@@ -111,12 +113,35 @@ router.post('/offer', Authentication.authChecker, function (req, res, next) {
                                                     errorManager
                                                         .handler(res, err, "error save newProduct")
                                                 } else {
-                                                    res
-                                                        .status(200)
-                                                        .json({
-                                                            "data": newProduct,
-                                                            "status": 200
+                                                    Store
+                                                        .findOne({'_id': owner_store_id})
+                                                        .then(function (store) {
+                                                            if (store) {
+                                                                store.products.push(newProduct._id);
+                                                                store.save(function (err) {
+                                                                    if (err) {
+                                                                        console.log("ERRRRRORé", err);
+                                                                        errorManager
+                                                                            .handler(res, err, "error store save newproduct._id")
+                                                                    } else {
+                                                                        res
+                                                                            .status(200)
+                                                                            .json({
+                                                                                "data": newProduct,
+                                                                                "status": 200
+                                                                            })
+                                                                    }
+                                                                })
+
+                                                            } else {
+                                                                errorManager
+                                                                    .handler(res, "store empty", "store not found")
+                                                            }
                                                         })
+                                                        .catch(function (err) {
+                                                            errorManager
+                                                                .handler(res, err, "find one store")
+                                                        });
                                                 }
                                             })
                                     } else {
