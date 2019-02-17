@@ -16,6 +16,7 @@ import EditProduct from "../EditProduct";
 import Store from '../Store';
 import StoreView from '../StoreView';
 import ProductDetail from '../Product_detail';
+import Payment from '../Payment';
 
 const Router = {
     app: App,
@@ -33,7 +34,8 @@ const Router = {
     products: Products,
     storeView: StoreView,
     store: Store,
-    product_detail: ProductDetail
+    product_detail: ProductDetail,
+    payment: Payment
 };
 
 export default Router;

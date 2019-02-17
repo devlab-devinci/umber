@@ -39,6 +39,25 @@ passwd vagrant
 
 
 ### API
-run api 
+nodemon bin/www.js
+
+forward : 
+ssh -R 80:localhost:3000 serveo.net
+
+(don't forget to update ./application/api_config.js with forewarded url);
+
+### Payment Server
+
+nodemon bin/www
+
+forward : 
+ssh -R 80:localhost:6999 serveo.net
+
+(don't forget to update ./application/api_config.js with forewarded url);
+
+
+
+
+
 
         nodemon bin/www

@@ -11,7 +11,7 @@
                             <Label :text="product.name | capitalize"></Label>
                             <Label>
                                 <FormattedString>
-                                    <Span :text="product.price"></Span>
+                                    <Span :text="product.price | currency('€')"></Span>
                                     <Span text=" x "></Span>
                                     <Span :text="product.quantity"></Span>
                                     <Span text=" = "></Span>
@@ -22,7 +22,10 @@
                     </v-template>
                 </ListView>
                 <StackLayout>
-                    <Label :text="total_bill"></Label>
+                    <Label :text="total_bill | currency('€')"></Label>
+                </StackLayout>
+                <StackLayout>
+                    <Button text="Paiement" @tap="goToPaiement"></Button>
                 </StackLayout>
             </StackLayout>
 
@@ -37,7 +40,12 @@
 
 <script>
 
+    import Router from "./services/Router";
+
     const _ = require('lodash');
+
+    import {api_config} from '../api_config';
+
 
     export default {
         props: {},
@@ -46,6 +54,8 @@
                 current_cart: null,
                 formated: null,
                 total_bill: 0,
+                quantity_formatted: 0,
+                payment_url: api_config.payment_server_url
             };
         },
         mounted: function () {
@@ -94,6 +104,9 @@
 
                 }
             },
+            goToPaiement() {
+                this.$navigateTo(Router.payment);
+            }
         }
     }
     ;
