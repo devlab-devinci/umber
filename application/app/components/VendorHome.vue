@@ -68,41 +68,46 @@
                     <!-- OFFER FORM-->
                     <FlexboxLayout :visibility="selectedItem === 2 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
-                        <StackLayout class="form">
-                            <StackLayout class="input-field">
-                                <TextField class="input" hint="Nom du produit ..."
-                                           v-model="form_offer_name"></TextField>
-                                <TextField class="input" hint="Prix ..." v-model="form_offer_price"></TextField>
-                                <TextField class="input" hint="Description ..."
-                                           v-model="form_offer_description"></TextField>
-                                <TextField class="input" hint="Quantité ..." v-model="form_offer_stock"></TextField>
-                                <TextField class="input" hint="Remise ..." v-model="form_offer_promotion"></TextField>
-                                <ListPicker :items="this.categories_product_names"
-                                            v-model="form_offer_category_picker_index"></ListPicker>
+                        <ScrollView>
+                            <StackLayout class="form">
+                                <StackLayout class="input-field">
+                                    <TextField class="input" hint="Nom du produit ..."
+                                               v-model="form_offer_name"></TextField>
+                                    <TextField class="input" hint="Prix ..." v-model="form_offer_price"></TextField>
+                                    <TextField class="input" hint="Description ..."
+                                               v-model="form_offer_description"></TextField>
+                                    <TextField class="input" hint="Quantité ..." v-model="form_offer_stock"></TextField>
+                                    <TextField class="input" hint="Remise ..."
+                                               v-model="form_offer_promotion"></TextField>
+                                    <ListPicker :items="this.categories_product_names"
+                                                v-model="form_offer_category_picker_index"></ListPicker>
+                                    <ListPicker :items="this.owner_stores_name"
+                                                v-model="owner_stores_index"></ListPicker>
+                                    <StackLayout>
+                                        <Button text="Confirmer" class="btn btn-primary" @tap="submitOffer"></Button>
+                                    </StackLayout>
+                                </StackLayout>
+                                <!-- TODO enlever ce bout de code mais si on le fait la liste n'aparait plus pour une raison inconnu -->
+                                <StackLayout class="input-field">
+                                    <TextField class="input"
+                                               hint="3 Allée Autocomplete to do wiht google places ..."
+                                               v-model="form_address"></TextField>
+                                </StackLayout>
+
+                                <StackLayout class="input-field">
+                                    <TextField class="input" hint="City's name" v-model="form_city"></TextField>
+                                </StackLayout>
+
+                                <StackLayout class="input-field">
+                                    <TextField class="input" hint="Zipcode ...." v-model="form_zipcode"></TextField>
+                                </StackLayout>
+                                <!-- TODO enlever ce bout de code mais si on le fait la liste n'aparait plus pour une raison inconnu -->
+
                                 <StackLayout>
-                                    <Button text="Confirmer" class="btn btn-primary" @tap="submitOffer"></Button>
+                                    <Button text="Confirmer" class="btn btn-primary" @tap="submit"></Button>
                                 </StackLayout>
                             </StackLayout>
-                            <!-- TODO enlever ce bout de code mais si on le fait la liste n'aparait plus pour une raison inconnu -->
-                            <StackLayout class="input-field">
-                                <TextField class="input"
-                                           hint="3 Allée Autocomplete to do wiht google places ..."
-                                           v-model="form_address"></TextField>
-                            </StackLayout>
-
-                            <StackLayout class="input-field">
-                                <TextField class="input" hint="City's name" v-model="form_city"></TextField>
-                            </StackLayout>
-
-                            <StackLayout class="input-field">
-                                <TextField class="input" hint="Zipcode ...." v-model="form_zipcode"></TextField>
-                            </StackLayout>
-                            <!-- TODO enlever ce bout de code mais si on le fait la liste n'aparait plus pour une raison inconnu -->
-
-                            <StackLayout>
-                                <Button text="Confirmer" class="btn btn-primary" @tap="submit"></Button>
-                            </StackLayout>
-                        </StackLayout>
+                        </ScrollView>
                     </FlexboxLayout>
 
 
@@ -221,18 +226,20 @@
 
             };
             axios
-                .get(`${api_config.api_url}/api/v1/dual/categories`, {headers: headers})
+                .get(`${api_config.api_url}/api/v1/dual/categories/${this.$store.getters.getCurrentUser._id}`, {headers: headers})
                 .then(function (response) {
                     self.categories_store = response.data.categories_store;
                     self.categories_product = response.data.categories_product;
+                    self.owner_stores = response.data.owner_stores;
 
                     for (let i in self.categories_store) {
-                        console.log("?N?", self.categories_store[i].name)
                         self.categories_store_names.push(self.categories_store[i].name)
                     }
                     for (let i in self.categories_product) {
-                        console.log("?o?", self.categories_product[i].name)
                         self.categories_product_names.push(self.categories_product[i].name)
+                    }
+                    for (let i in self.owner_stores) {
+                        self.owner_stores_name.push(self.owner_stores[i].name)
                     }
                     setTimeout(function () {
                         loader.hide();
@@ -306,6 +313,9 @@
         data() {
             return {
 
+                owner_stores: [],
+                owner_stores_name: [],
+                owner_stores_index: 0,
                 owner_products: [],
                 owner_products_index: 0,
 
@@ -369,6 +379,7 @@
                 axios.get(`${api_config.api_url}/api/v1/${this.categories_store_names[this.pickerIndex]}/category/store`)
                     .then(function (category) {
                         body.category_id = category.data.data._id;
+                        body.owner_id = self.$store.getters.getCurrentUser._id;
                         axios.post(`${api_config.api_url}/api/v1/store`, body, {headers: headers})
                             .then(function (response) {
                                 console.log(response.status);

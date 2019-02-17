@@ -13,7 +13,15 @@ const StoreCategory = require('../models/CategoryStore');
 const ProductCategory = require('../models/ProductCategory.model');
 const Authentication = require('../middleware/Authentication');
 
-router.get('/dual/categories', Authentication.authChecker, function (req, res, next) {
+//API -> passer l'user id dans l'url
+// recuperer tous les stores, les populate avec owner et recuperer que ce de l'user
+// -> voir sur le pc fixe le truck avec after poplate (filter)
+// -> return dans le json owner_store => coté app le set et faire une list view + ajouter dans les data le necessaire
+//
+
+router.get('/dual/categories/:owner_id', Authentication.authChecker, function (req, res, next) {
+    let owner_id = req.params.owner_id;
+
     ProductCategory
         .find({})
         .sort({'name': 1})
@@ -30,13 +38,30 @@ router.get('/dual/categories', Authentication.authChecker, function (req, res, n
                                 errorManager.handler(res, err, "find failed.")
                             } else {
                                 if (categoriesStore) {
-                                    res
-                                        .status(200)
-                                        .json({
-                                            "categories_store": categoriesStore,
-                                            "categories_product": categoriesProduct,
-                                            "message": "dual categories (stores / products) success.",
-                                            "status": 200
+                                    Store
+                                        .find({})
+                                        .populate('owner')
+                                        .exec(function (err, stores) {
+                                            if (err) {
+                                                errorManager
+                                                    .handler(res, err, "find stores error")
+                                            } else {
+                                                if (stores) {
+                                                    const owner_stores = stores.filter(field => owner_id == field.owner._id)
+                                                    res
+                                                        .status(200)
+                                                        .json({
+                                                            "owner_stores": owner_stores,
+                                                            "categories_store": categoriesStore,
+                                                            "categories_product": categoriesProduct,
+                                                            "message": "dual categories (stores / products) success.",
+                                                            "status": 200
+                                                        })
+                                                } else {
+                                                    errorManager
+                                                        .handler(res, "stores empty.", "stores not found")
+                                                }
+                                            }
                                         })
                                 } else {
                                     errorManager.handler(res, "no stores catogires find.", "categoriesStore empty")

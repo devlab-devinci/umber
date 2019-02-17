@@ -48,7 +48,7 @@ router.post('/store', Authentication.authChecker, function (req, res, next) {
             .handler(res, "missing fields.", "check city, address, zipcode fields.")
     } else {
         errorManager
-            .isValidId(payload.category_id)
+            .isValidIds([payload.category_id, payload.owner_id])
             .then(function (response) {
                 if (response.error) {
                     errorManager
@@ -57,6 +57,7 @@ router.post('/store', Authentication.authChecker, function (req, res, next) {
                     category_id = mongoose.Types.ObjectId(payload.category_id);
 
                     let newStore = new Store(payload);
+                    newStore.owner = payload.owner_id;
                     axios
                         .get(`${mapquestapi.geocoding_uri}${encodeURIComponent(payload.city.trim())}, ${encodeURIComponent(payload.zipcode.trim())}, ${encodeURIComponent(payload.address.trim())}`)
                         .then(function (response) {

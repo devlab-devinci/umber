@@ -38,7 +38,10 @@ const Store = new Schema({
             required: true
         }
     ],
-
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
     //set by mapquest api
     mapQuestMapPictureUrl: {type: String},
     mapQuestLat: {type: String},
