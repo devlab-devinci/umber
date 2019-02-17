@@ -2,7 +2,7 @@
   "name": "application",
   "version": "1.0.0",
   "description": "Umber mobile application for IOS and Android.",
-  "author": "sylvainSUPINTERNET <sylvain.joly@supinternet.fr>",
+  "author": "umber",
   "license": "MIT",
   "nativescript": {
     "id": "org.umber.application",
@@ -17,7 +17,6 @@
     "dev": "tns run android --bundle"
   },
   "dependencies": {
-    "axios": "^0.18.0",
     "bootstrap-social": "^5.1.1",
     "crypto": "^1.0.1",
     "geolib": "^2.0.24",
