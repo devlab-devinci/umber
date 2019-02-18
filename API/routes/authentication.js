@@ -38,7 +38,8 @@ router.post('/login/fb', function (req, res, next) {
                         if (err) {
                             console.log("ERROR API", err)
                             res.status(400).json({error: true, data: err})
-                        } else {
+                        } else  {
+                            console.log(newUser);
                             res.status(200).json({error: false, message: "user created with success", user: newUser})
                         }
                     })

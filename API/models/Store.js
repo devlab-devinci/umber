@@ -22,7 +22,7 @@ const Store = new Schema({
     pictures: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'StorePicture'
+            ref: 'Document'
         }
     ],
     products: [
@@ -34,7 +34,7 @@ const Store = new Schema({
     categories_store: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'CategoryStore',
+            ref: 'Taxonomies',
             required: true
         }
     ],

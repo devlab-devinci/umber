@@ -43,7 +43,7 @@
         methods: {
             fetchCart: function () {
                 let vm = this;
-                vm.$http.get('carts/' + vm.id)
+                vm.$http.get('api/v1/carts/' + vm.id)
                   .then(cart => {
                       vm.cart = _.cloneDeep(cart.data);
                       vm.items = _.cloneDeep(cart.data.cartEntries);
@@ -66,10 +66,15 @@
             },
             removeProduct: function (product, index) {
                 let vm = this;
+                const headers = {
+                    'fb-access-token': this.$store
+                      .getters.getAccessToken
+
+                };
                 vm.cart.price.price = vm.cart.price.price - vm.cart.cartEntries[index].price;
                 product.stock = product.stock + vm.cart.cartEntries[index].quantity;
                 vm.cart.cartEntries.splice(index, 1);
-                vm.$http.put('carts/' + vm.cart._id, vm.cart)
+                vm.$http.put('api/v1/carts/' + vm.cart._id, vm.cart, {headers: headers})
                   .then(res => {
                       vm.cart = _.cloneDeep(res.data);
                   })

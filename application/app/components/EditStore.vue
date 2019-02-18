@@ -6,25 +6,22 @@
           <StackLayout class="hr-light"></StackLayout>
         </StackLayout>
         <StackLayout class="input-field">
-          <Label text="Description" class="label font-weight-bold m-b-5" />
-          <TextField class="input" v-model="input.description" />
+          <Label text="Adresse" class="label font-weight-bold m-b-5" />
+          <TextField class="input" hint="3 Allée Autocomplete to do wiht google places ..." v-model="input.address" />
           <StackLayout class="hr-light"></StackLayout>
         </StackLayout>
         <StackLayout class="input-field">
-          <Label text="Stock" class="label font-weight-bold m-b-5" />
-          <TextField keyboardType="number" class="input" v-model="input.stock" />
+          <Label text="Ville" class="label font-weight-bold m-b-5" />
+          <TextField class="input" hint="City's name" v-model="form_city"></TextField>
           <StackLayout class="hr-light"></StackLayout>
         </StackLayout>
+
         <StackLayout class="input-field">
-          <Label text="Prix de base" class="label font-weight-bold m-b-5" />
-          <TextField keyboardType="number"class="input" v-model="input.price" />
+          <Label text="Code postal" class="label font-weight-bold m-b-5" />
+          <TextField class="input" hint="Zipcode ...." v-model="form_zipcode"></TextField>
           <StackLayout class="hr-light"></StackLayout>
         </StackLayout>
-        <StackLayout class="input-field">
-          <Label text="Promotion" class="label font-weight-bold m-b-5" />
-          <TextField keyboardType="number" class="input" v-model="input.promotion" />
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
+
         <StackLayout class="input-field">
           <Label text="Photo du produit" class="label font-weight-bold m-b-5" />
           <Button text="Take Picture" @tap="takePicture" />
@@ -35,16 +32,12 @@
           </WrapLayout>
           <StackLayout class="hr-light"></StackLayout>
         </StackLayout>
+
         <StackLayout v-if="listCategories && listCategories.length" class="input-field">
           <Label text="Categorie" class="label font-weight-bold m-b-5" />
           <ListPicker :items="listCategories" @selectedIndexChange="selectedIndexChanged" selectedIndex="indexSelectCat"/>
           <StackLayout class="hr-light"></StackLayout>
         </StackLayout>
-        <GridLayout rows="auto, auto" columns="*, *">
-          <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
-          <!-- <Button text="Load" @tap="load" class="btn btn-primary" row="0" col="1"  />
-           <Button text="Clear" @tap="clear" class="btn btn-primary" row="1" col="0" colSpan="2"  />-->
-        </GridLayout>
       </StackLayout>
 </template>
 
@@ -75,14 +68,14 @@
     },
     mounted: function () {
       if (this.id) {
-        this.fetchProduct();
+        this.fetchStore();
       }
       this.fetchCategory();
     },
     methods: {
       fetchCategory: function () {
         let vm = this;
-        vm.$http.get('taxonomies', {params: { type: 'product'}})
+        vm.$http.get('taxonomies', {params: { type: 'store'}})
           .then(cat => {
             let cats = _.cloneDeep(cat.data.data);
 
@@ -137,14 +130,14 @@
             console.log('Error requesting permission');
           });
       },
-      fetchProduct: function () {
+      fetchStore: function () {
         let vm = this;
         const headers = {
           'fb-access-token': this.$store
             .getters.getAccessToken
 
         };
-        vm.$http.get('api/v1/products/' + vm.id, {headers: headers})
+        vm.$http.get('api/v1/store/' + vm.id, {headers: headers})
           .then(product => {
             if (product.data && product.data.owner && product.data.owner._id === vm.$store.state.currentUser._id) {
               vm.input = _.cloneDeep(product.data);
@@ -162,15 +155,15 @@
 
         };
         let feedback = new Feedback();
-        let newProduct = _.cloneDeep(vm.input);
-        let method = newProduct._id ? 'put' : 'post';
-        let resource = method === 'put' ? 'products/' + newProduct._id : 'products';
+        let newStore = _.cloneDeep(vm.input);
+        let method = newStore._id ? 'put' : 'post';
+        let resource = method === 'put' ? 'store/' + newStore._id : 'store';
 
         // formData = vm.images[0] || null;
-        newProduct.cover = vm.input.cover || null;
-        newProduct.owner = vm.$store.state.currentUser;
+        newStore.cover = vm.input.cover || null;
+        newStore.owner = vm.$store.state.currentUser;
 
-        console.log(newProduct.categories);
+        console.log(newStore.categories);
 // upload configuration
         var request = {
           headers: {
@@ -181,19 +174,19 @@
 
         let errorValidation = [];
 
-        if (!newProduct.name) {
+        if (!newStore.name) {
           errorValidation.push("invalide name");
         }
 
-        if (newProduct.price <= 0) {
+        if (newStore.price <= 0) {
           errorValidation.push("invalide price");
         }
 
-        if (newProduct.stock <= 0) {
+        if (newStore.stock <= 0) {
           errorValidation.push("invalide stock");
         }
 
-        if (newProduct.promotion <= newProduct.price) {
+        if (newStore.promotion <= newStore.price) {
            errorValidation.push("invalide promotion");
         }
 
@@ -208,7 +201,7 @@
           }, 1000);
         } else {
 
-          vm.$http[method](resource, newProduct, {headers: headers})
+          vm.$http[method](resource, newStore, {headers: headers})
           //vm.$http.post('upload', {file: vm.image}, request)
             .then(product => {
               if (product.data.status === 200) {
@@ -218,7 +211,7 @@
                     title: "Félicitation !",
                     titleColor: new Color("#222222"),
                     type: FeedbackType.Custom, // this is the default type, by the way
-                    message: `Offre ajouté !`,
+                    message: `Store ajouté !`,
                     messageColor: new Color("#333333"),
                     duration: 2000,
                     backgroundColor: new Color("yellowgreen")

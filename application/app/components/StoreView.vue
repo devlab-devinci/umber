@@ -71,17 +71,17 @@
         methods: {
             fetchShop: function () {
                 let vm = this;
-                console.log(3, vm.store._id);
-                vm.$http.get('api/v1/store/' + vm.store._id)
+                const headers = {
+                    'fb-access-token': this.$store
+                      .getters.getAccessToken
+
+                };
+                vm.$http.get('api/v1/store/' + vm.store._id, {headers: headers})
                   .then(shop => {
-                      console.log(4, shop);
                       vm.shop = shop.data;
                   })
                   .then(() => {
-                      console.log(52, vm.$store.getters.getFbUser.id);
-                      console.log(5, vm.$store && vm.$store.state && vm.$store.getters.getFbUser.id && vm.$store.getters.getFbUser.id);
-                      console.log(6, vm.store._id);
-                      vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.getters.getFbUser.id, seller: vm.store._id}})
+                      vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.state.currentUser._id, seller: vm.store._id}},  {headers: headers})
                         .then(cart => {
                             console.log(7, cart);
                             vm.cart = _.cloneDeep(cart.data.data[0]);
@@ -106,9 +106,13 @@
             },
             fetchProducts: function () {
                 let vm = this;
-                vm.$http.get('api/v1/products', {params: {owner: (vm.store && vm.store._id)}})
+                const headers = {
+                    'fb-access-token': this.$store
+                      .getters.getAccessToken
+
+                };
+                vm.$http.get('api/v1/products', {params: {owner: (vm.store && vm.store._id)}},  {headers: headers})
                   .then(products => {
-                      console.log(2, products);
                       vm.items = products.data.data;
                   })
                   .catch(error => console.error(error));

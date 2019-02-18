@@ -49,20 +49,22 @@ TNSFontIcon.paths = {
 TNSFontIcon.loadCss();
 Vue.filter('fonticon', fonticon);
 
-
 Vue.prototype.$router = Router;
 
 apiConfig.url = apiConfig.api_url;
 
-Vue.prototype.$config = apiConfig;
+Vue.prototype.$config = {
+    apiConfig: apiConfig,
+    logo: './assets/images/logo.png'
+};
 
 Vue.prototype.$http = {
     request: resource => axios.request(resource),
     get: (resource, params) => axios.get(apiConfig.url + '/' + resource, params),
-    delete: resource => axios.put(apiConfig.url + '/' + resource),
-    head: resource => axios.head(apiConfig.url + '/' + resource),
+    delete: (resource, params) => axios.put(apiConfig.url + '/' + resource, params),
+    head: (resource, params) => axios.head(apiConfig.url + '/' + resource, params),
     // options: axios.options(apiConfig.url + '/' + resource),
-    path: (resource, data) => axios.patch(apiConfig.url + '/' + resource, data),
+    path: (resource, data, params) => axios.patch(apiConfig.url + '/' + resource, data, params),
     post: (resource, data, config) => axios.post(apiConfig.url + '/' + resource, data, config),
     put: (resource, data, config) => axios.put(apiConfig.url + '/' + resource, data, config)
 };

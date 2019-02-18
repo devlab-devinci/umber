@@ -41,7 +41,12 @@
     methods: {
       fetchCarts: function () {
         let vm = this;
-        vm.$http.get('carts', {params: {buyer: vm.$store.state.currentUser._id}})
+        const headers = {
+          'fb-access-token': this.$store
+            .getters.getAccessToken
+
+        };
+        vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.state.currentUser._id}}, {headers: headers})
           .then(carts => {
             vm.items = carts.data.data;
             console.log(vm.items);

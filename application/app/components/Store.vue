@@ -36,7 +36,6 @@
                 'fb-access-token': this.$store.getters.getAccessToken
             };
 
-
             axios
                 .get(`${api_config.api_url}/api/v1/store`, {headers: headers})
                 .then(function (stores) {

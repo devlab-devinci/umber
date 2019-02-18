@@ -20,7 +20,7 @@
                 <StackLayout>
                     <StackLayout class="form">
                         <Image width="140" padding="5" class="m-t-4"
-                               src="https://play.nativescript.org/dist/assets/img/NativeScript_logo.png"/>
+                               src="https://cdn.discordapp.com/attachments/502101586110185472/547162466631548960/unknown.png"/>
                         <StackLayout class="input-field">
                             <Label text="Firstname"></Label>
                             <TextField class="input" editable="true"></TextField>
@@ -57,9 +57,6 @@
 <script>
 
     import Router from "./services/Router"
-    import API_CONFIG from "../config/api_config"
-
-    const API_url = `${API_CONFIG.protocol}://${API_CONFIG.hostname}:${API_CONFIG.port}`
 
     import {tnsOauthLogin, tnsOauthLogout} from "./services/Auth";
 
@@ -99,7 +96,7 @@
                                     // TODO post on /auth/login/fb -> to create user
                                     console.log("FB USER saved, so lets set currentUser", self.$store.getters.getFbUser)
                                     axios
-                                        .post(`${API_url}/auth/login/fb`, {
+                                        .post(`${self.$config.apiConfig.api_url}/auth/login/fb`, {
                                             fullname: self.$store.getters.getFbUser.name,
                                             picture: self.$store.getters.getFbUser.picture.data.url,
                                             email: self.$store.getters.getFbUser.email
@@ -107,6 +104,7 @@
                                         .then(response => {
                                             self.$store.commit('setCurrentUser', response.data.data); // set currentUser after login fb success
                                             //this variable is to get _id
+                                            console.log(self.$store.getters.getFbUser);
                                             console.log("CURRENT_USER (made after fb login", self.$store.getters.getCurrentUser);
                                             console.log("AUTH ok.");
                                         })

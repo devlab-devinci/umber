@@ -42,28 +42,37 @@
       // this.fetchProduct();
     },
     created: function () {
-        let vm = this;
-        console.log(vm.id);
-        vm.$http.get('api/v1/products/' + vm.id)
-          .then(product => {
-            console.log(product);
-            vm.product = _.cloneDeep(product.data);
-            vm.price = vm.product.promotion || vm.product.price;
-            vm.stock = vm.product.stock - 1;
-          })
-          .then(() => {
-            vm.$http.get('carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.owner._id}})
-              .then(cart => {
-                vm.cart = _.cloneDeep(cart.data.data[0]);
-              })
-              .catch(error => console.error(error));
-          })
-          .catch(error => console.error(error));
+      let vm = this;
+      const headers = {
+        'fb-access-token': this.$store
+          .getters.getAccessToken
+
+      };
+      console.log(vm.id);
+      vm.$http.get('api/v1/products/' + vm.id,  {headers: headers})
+        .then(product => {
+          vm.product = _.cloneDeep(product.data);
+          vm.price = vm.product.promotion || vm.product.price;
+          vm.stock = vm.product.stock - 1;
+        })
+        .then(() => {
+          vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.owner._id}, headers: headers})
+            .then(cart => {
+              vm.cart = _.cloneDeep(cart.data.data[0]);
+            })
+            .catch(error => console.error(error));
+        })
+        .catch(error => console.error(error));
     },
     methods: {
       fetchProduct: function () {
         let vm = this;
-        vm.$http.get('api/v1/products/' + vm.id)
+        const headers = {
+          'fb-access-token': this.$store
+            .getters.getAccessToken
+
+        };
+        vm.$http.get('api/v1/products/' + vm.id,  {headers: headers})
           .then(product => {
             console.log(product);
             vm.product = _.cloneDeep(product.data);
@@ -71,7 +80,7 @@
             vm.stock = vm.product.stock - 1;
           })
           .then(() => {
-            vm.$http.get('carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.owner._id}})
+            vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.owner._id}, headers: headers})
               .then(cart => {
                 vm.cart = _.cloneDeep(cart.data.data[0]);
               })
@@ -82,6 +91,11 @@
       addProductCart: function () {
         let vm = this;
         let method = 'put';
+        const headers = {
+          'fb-access-token': this.$store
+            .getters.getAccessToken
+
+        };
         let newProduct = _.cloneDeep(vm.cart);
 
         if (!vm.cart) {
@@ -122,7 +136,7 @@
           newProduct.price.price = newProduct.price.price + entry.price;
         });
 
-        vm.$http[method](resource, newProduct)
+        vm.$http[method](`api/v1/${resource}`, newProduct, {headers: headers})
           .then(cart => {
             vm.cart = _.cloneDeep(cart.data);
           })

@@ -94,7 +94,7 @@ module.exports = env => {
             alias: {
                 '~': appFullPath,
                 '@': appFullPath,
-                'vue': 'nativescript-vue'
+                'vue': 'umber'
             },
             // don't resolve symlinks to symlinked modules
             symlinks: false,
