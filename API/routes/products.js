@@ -8,10 +8,10 @@ const Authentication = require('../middleware/Authentication');
 const controller = require('../controllers/product.controller');
 
 /* GET products listing. */
-router.get('/', Authentication.authChecker, controller.index);
+router.get('/', controller.index);
 
 /* GET products id listing. */
-router.get('/:id', Authentication.authChecker, controller.show);
+router.get('/:id', controller.show);
 
 /* POST product. */
 router.post('/', Authentication.authChecker, controller.create);
