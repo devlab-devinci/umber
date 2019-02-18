@@ -3,21 +3,23 @@
 const express = require('express');
 const router = express.Router();
 
+const Authentication = require('../middleware/Authentication');
+
 const controller = require('../controllers/product.controller');
 
 /* GET products listing. */
-router.get('/', controller.index);
+router.get('/', Authentication.authChecker, controller.index);
 
 /* GET products id listing. */
-router.get('/:id', controller.show);
+router.get('/:id', Authentication.authChecker, controller.show);
 
 /* POST product. */
-router.post('/', controller.create);
+router.post('/', Authentication.authChecker, controller.create);
 
 /* PUT product. */
-router.put('/:id', controller.update);
+router.put('/:id', Authentication.authChecker, controller.update);
 
 /* Delete product. */
-router.delete('/:id', controller.destroy);
+router.delete('/:id', Authentication.authChecker, controller.destroy);
 
 module.exports = router;

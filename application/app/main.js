@@ -52,6 +52,8 @@ Vue.filter('fonticon', fonticon);
 
 Vue.prototype.$router = Router;
 
+apiConfig.url = apiConfig.api_url;
+
 Vue.prototype.$config = apiConfig;
 
 Vue.prototype.$http = {

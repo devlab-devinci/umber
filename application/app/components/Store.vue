@@ -3,8 +3,10 @@
         <ListView for="store in stores" style="margin: 15px">
             <v-template>
                 <!-- Shows the list item label in the default color and style. -->
-                <StackLayout @tap="storeClicked(store._id)">
+                <StackLayout>
                     <Label :text="store.name | capitalize"></Label>
+                    <Image v-if="store.picture" :src="store.picture"></Image>
+                    <Button text="Voir le shop" @tap="storeClicked(store._id)" />
                     <Label textWrap="true">
                         <FormattedString>
                             <Span class="fa" style="color: #78e08f;" :text="'fa-map-marker' | fonticon"></Span>

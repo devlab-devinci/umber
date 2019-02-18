@@ -23,13 +23,14 @@ exports.index = function (req, res) {
 // add promise find product
   promise.push(Product
     .find(criteria)
-    .populate('owner cover category')
+    .populate('owner cover categories')
     .lean());
 
 // when promises resolve
   Promise.all(promise)
   //if not errors send json data
     .then(function (data) {
+      console.log(data);
       let result = {};
       result.data = data[0];
       result.limit = parseInt(limit);
@@ -49,7 +50,7 @@ exports.show = function (req, res) {
   // Promise find product id db
   Product.findById(req.params.id)
   // join owner with model defined in the model Product
-    .populate('owner cover category')
+    .populate('owner cover categories')
     //if not errors send json data
     .then(function (data) {
       res.status(200).json(data);
@@ -140,7 +141,7 @@ exports.update = function (req, res) {
     // Promise find id product db
     Product.findById(req.params.id)
     // join owner cover
-      .populate('owner cover category')
+      .populate('owner cover categories')
       // if none error req findById product
       // execute code
       .then(function (product) {

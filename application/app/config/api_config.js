@@ -7,6 +7,7 @@ const API_CONFIG = {
     // vuedevtools: '192.168.0.20',
     // vuedevtools: '192.168.43.204',
     protocol: "http",
+    api_url: 'https://multo.serveo.net', //e.g https://multo.serveo.net
     port: 3000
 };
 

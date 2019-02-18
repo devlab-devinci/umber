@@ -19,7 +19,7 @@ let CartSchema = new Schema({
   }],
   seller: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Store',
     index: true
   },
   price: {

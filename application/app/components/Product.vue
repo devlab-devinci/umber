@@ -39,19 +39,39 @@
       };
     },
     mounted: function () {
-      this.fetchProduct();
+      // this.fetchProduct();
     },
-    methods: {
-      fetchProduct: function () {
+    created: function () {
         let vm = this;
-        vm.$http.get('products/' + vm.id)
+        console.log(vm.id);
+        vm.$http.get('api/v1/products/' + vm.id)
           .then(product => {
+            console.log(product);
             vm.product = _.cloneDeep(product.data);
             vm.price = vm.product.promotion || vm.product.price;
             vm.stock = vm.product.stock - 1;
           })
           .then(() => {
-            vm.$http.get('carts', {params: {buyer: vm.$store.state.currentUser._id, seller: vm.product.owner._id}})
+            vm.$http.get('carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.owner._id}})
+              .then(cart => {
+                vm.cart = _.cloneDeep(cart.data.data[0]);
+              })
+              .catch(error => console.error(error));
+          })
+          .catch(error => console.error(error));
+    },
+    methods: {
+      fetchProduct: function () {
+        let vm = this;
+        vm.$http.get('api/v1/products/' + vm.id)
+          .then(product => {
+            console.log(product);
+            vm.product = _.cloneDeep(product.data);
+            vm.price = vm.product.promotion || vm.product.price;
+            vm.stock = vm.product.stock - 1;
+          })
+          .then(() => {
+            vm.$http.get('carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.owner._id}})
               .then(cart => {
                 vm.cart = _.cloneDeep(cart.data.data[0]);
               })
@@ -106,7 +126,7 @@
           .then(cart => {
             vm.cart = _.cloneDeep(cart.data);
           })
-          .then(() => {
+          /* .then(() => {
             vm.$http.put('products/' + vm.product._id, vm.product)
               .then(product => {
                 vm.product = _.cloneDeep(product.data);
@@ -115,7 +135,7 @@
                 vm.quantity = 1;
               })
               .catch(error => console.error(error));
-          })
+          })*/
           .catch(error => console.error(error));
       },
       addQuantity: function () {
