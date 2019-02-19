@@ -1,61 +1,41 @@
 <template>
     <Page>
-        <ActionBar :title="this.store.name | capitalize " android:flat="true">
+        <ActionBar :title="shop && shop.name | capitalize " android:flat="true">
             <AbsoluteLayout>
                 <Button text="pannier" left="2" top="1" width="20" height="40" backgroundColor="#550C5C"/>
                 <Button text="nb product" left="10" top="4" width="40" height="30" backgroundColor="#FAC152"/>
             </AbsoluteLayout>
-            <ActionItem v-if="cart && cart.cartEntries && cart.cartEntries.length > 0" ios.systemIcon="9" ios.position="right" :text="'Produits : ' + cart.cartEntries.length + ' Afficher le panier ' + cart.price.price" col="2" @tap="goToCartView(cart)" android.position="popup" />
+            <ActionItem v-if="cart && cart.cartEntries && cart.cartEntries.length > 0" ios.systemIcon="9" ios.position="right" :text="'Produits : ' + cart.cartEntries.length + ' Afficher le panier ' + cart.price.price" col="2" @tap="showCart(cart)" android.position="popup" />
         </ActionBar>
-
-        <StackLayout>
-            <Image v-if="this.store.picture" width="150rem" :src="this.store.picture"></Image>
-            <Label :text="this.store.name | capitalize"></Label>
-            <Label :text="this.store.city | capitalize"></Label>
-            <Label :text="this.store.address | capitalize"></Label>
-            <Label :text="this.store.zipcode | capitalize"></Label>
-            <Label v-if="items && items.length === 0" text="Pas de produits pour le moment"></Label>
-
-            <StackLayout className="mt-5" v-if="items && items.length > 0">
-                <Label text="Produits"></Label>
+        <scroll-view class="green">
+            <StackLayout flexDirection="column" v-if="shop" orientation="vertical">
+                <Image v-if="shop.picture" width="150rem" :src="shop.picture"></Image>
+                <Label :text="shop.companyName" col="1" row="0"></Label>
+                <Label text="Offres" col="1" row="0"></Label>
+                <ListView style="margin: 15px" v-if="items && items.length" flexGrow="1" for="(item, index) in items" @itemTap="" item-key="item._id"  width="100%">
+                    <v-template>
+                        <StackLayout>
+                            <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
+                            <Label :text="item.description" col="1" row="0"></Label>
+                            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
+                            <Label :text="'Prix :' + item.price" col="3" row="1"/>
+                            <Label v-if="item.promotion" :text="'Promotion :' + item.promotion" col="3" row="1"/>
+                            <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
+                        </StackLayout>
+                    </v-template>
+                </ListView>
+                <StackLayout v-else>
+                    <Label text="Aucun produit n'est disponible dans cette boutique"></Label>
+                </StackLayout>
             </StackLayout>
-            <ListView height="100%" v-if="items && items.length" flexGrow="1" for="(item, index) in items" @itemTap="" item-key="item._id"  width="100%">
-                <v-template>
-                    <StackLayout>
-                        <Label :text="'Nom :' + item.name" col="1" row="0"></Label>
-                        <Label :text="item.description" col="1" row="0"></Label>
-                        <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
-                        <Label :text="'Prix :' + item.price" col="3" row="1"/>
-                        <Label v-if="item.promotion" :text="'Promotion :' + item.promotion" col="3" row="1"/>
-                        <Button text="Voir le produit" col="2" @tap="showProduct(item)" />
-                    </StackLayout>
-                </v-template>
-            </ListView>
-
-        </StackLayout>
-
+        </scroll-view>
     </Page>
-
 </template>
 
-
 <script>
-    import axios from 'axios';
-    import {api_config} from '../api_config';
-    import {Feedback, FeedbackType} from "nativescript-feedback";
-    import {Color} from "tns-core-modules/color";
-    import Router from "./services/Router";
-    import _ from "lodash";
-
-    const Toast = require('nativescript-toast');
-
     export default {
-        name: "StoreView",
         props: {
-            store: ""
-        },
-        mounted() {
-            this.fetchProducts();
+            id: String
         },
         data: function () {
             return {
@@ -64,56 +44,40 @@
                 cart: null
             };
         },
-        mounted: function () {
-            this.fetchShop();
-            this.fetchProducts();
+        created: function () {
+            if (this.id) {
+                this.fetchProducts();
+            }
         },
         methods: {
             fetchShop: function () {
-                let vm = this;
-                const headers = {
+                let vm = this;const headers = {
                     'fb-access-token': this.$store
                       .getters.getAccessToken
 
                 };
-                vm.$http.get('api/v1/store/' + vm.store._id, {headers: headers})
+                vm.$http.get('api/v1/store/' + vm.id, {headers: headers})
                   .then(shop => {
                       vm.shop = shop.data;
+                      console.log(1, vm.shop);
                   })
                   .then(() => {
-                      vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.state.currentUser._id, seller: vm.store._id}},  {headers: headers})
+                      vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.id}})
                         .then(cart => {
-                            console.log(7, cart);
                             vm.cart = _.cloneDeep(cart.data.data[0]);
+                            console.log(1, vm.cart);
                         })
                         .catch(error => console.error(error));
                   })
                   .catch(error => console.error(error));
             },
-            showCart(cart) {
-                let vm = this;
-                this.$navigateTo(vm.$router.cart, {
-                    props: {
-                        id: cart._id
-                    },
-                    animated: true,
-                    transition: {
-                        name: "slideTop",
-                        duration: 380,
-                        curve: "easeIn"
-                    }
-                })
-            },
             fetchProducts: function () {
                 let vm = this;
-                const headers = {
-                    'fb-access-token': this.$store
-                      .getters.getAccessToken
-
-                };
-                vm.$http.get('api/v1/products', {params: {owner: (vm.store && vm.store._id)}},  {headers: headers})
+                vm.$http.get('api/v1/products', {params: {owner: vm.id}})
                   .then(products => {
                       vm.items = products.data.data;
+                      console.log(1, vm.items);
+                      vm.fetchShop();
                   })
                   .catch(error => console.error(error));
             },
@@ -131,8 +95,7 @@
                     }
                 })
             },
-            goToCartView(cart) {
-                console.log("GO TO CART LIST")
+            showCart(cart) {
                 let vm = this;
                 this.$navigateTo(vm.$router.cart, {
                     props: {
@@ -147,8 +110,7 @@
                 })
             }
         }
-
-    }
+    };
 </script>
 
 <style scoped>
