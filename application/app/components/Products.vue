@@ -53,7 +53,7 @@
         console.log(vm.seller, vm.$store.getters.getCurrentUser);
         let owner = vm.seller ? vm.$store.getters.getCurrentUser._id : vm.id;
         let feedback = new Feedback();
-        vm.$http.get('api/v1/products', vm.seller && {params: { owner: owner}, headers: headers})
+        vm.$http.get('api/v1/products', {params: { owner: owner}, headers: headers})
           .then(products => {
             vm.items = products.data.data;
           })
@@ -68,8 +68,8 @@
       },
       showProduct(productItem) {
         let vm = this;
-        let method = vm.$store.getters.getCurrentUser.userTypes === 'seller' ? '$showModal' : '$navigateTo';
-        this[method]('api/v1/'+vm.$router[vm.$store.getters.getCurrentUser.userTypes === 'seller' ? 'editProduct' : 'product'],{
+        let method = vm.seller ? '$showModal' : '$navigateTo';
+        this[method](vm.$router[vm.seller ? 'editProduct' : 'product'],{
           props: {
             id: productItem._id
           },
