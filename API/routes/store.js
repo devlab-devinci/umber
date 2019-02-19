@@ -59,13 +59,13 @@ router.post('/store', function (req, res, next) {
                         .get(`${mapquestapi.geocoding_uri}${encodeURIComponent(payload.city.trim())}, ${encodeURIComponent(payload.zipcode.trim())}, ${encodeURIComponent(payload.address.trim())}`)
                         .then(function (response) {
                             if (response.data.results) {
-                                let mapUrl = response.data.results[0].locations[0].mapUrl;
+                                /* let mapUrl = response.data.results[0].locations[0].mapUrl;
                                 let mapLat = response.data.results[0].locations[0].latLng.lat.toString();
                                 let mapLong = response.data.results[0].locations[0].latLng.lng.toString();
                                 newStore.created_at = Date.now();
                                 newStore.mapQuestMapPictureUrl = mapUrl;
                                 newStore.mapQuestLat = mapLat;
-                                newStore.mapQuestLng = mapLong;
+                                newStore.mapQuestLng = mapLong; */
                                 newStore.categories_store.push(category_id);
                                 newStore
                                     .save(function (err) {

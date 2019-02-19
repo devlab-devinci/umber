@@ -1,7 +1,7 @@
 <template>
   <StackLayout class="form">
     <StackLayout class="input-field">
-      <Label text="Nom du produit" class="label font-weight-bold m-b-5" />
+      <Label text="Nom du magasin" class="label font-weight-bold m-b-5" />
       <TextField class="input" v-model="input.name" />
       <StackLayout class="hr-light"></StackLayout>
     </StackLayout>
