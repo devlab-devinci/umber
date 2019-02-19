@@ -1,18 +1,21 @@
-#!/usr/bin/env node
+'use strict';
 
 /**
  * Module dependencies.
  */
 
-var app = require('../server');
-var debug = require('debug')('umber:server');
-var http = require('http');
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
+const config = require('../config');
+const app = require('../server');
+const debug = require('debug')(config.project + ':server');
+const http = require('http');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || config.app.port);
 app.set('port', port);
 
 /**
@@ -87,4 +90,6 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+
+  console.log('Server listening on ' + addr.port);
 }
