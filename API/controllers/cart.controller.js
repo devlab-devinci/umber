@@ -7,7 +7,7 @@ const _ = require('lodash');
 
 
 // ADD controller for route index (show list carts)
-exports.index = function (req, res) {
+exports.index = function (req, res, next) {
   let promise = [];
   let limit = req.query && req.query.limit || 0;
   let page = req.query && req.query.page || 0;

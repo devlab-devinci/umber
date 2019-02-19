@@ -54,7 +54,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/v1/products', product);
 app.use('/api/v1/carts', cart);
-app.use('/taxonomies', taxonomy);
+app.use('/api/v1/taxonomies', taxonomy);
 app.use('/documents', document);
 app.use('/upload', upload);
 app.use('/auth', authRouter);

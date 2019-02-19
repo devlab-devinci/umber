@@ -48,7 +48,7 @@
             vm.shop = shop.data;
           })
           .then(() => {
-            vm.$http.get('carts', {params: {buyer: vm.$store.state.currentUser._id, seller: vm.id}})
+            vm.$http.get('carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.id}})
               .then(cart => {
                 vm.cart = _.cloneDeep(cart.data.data[0]);
               })

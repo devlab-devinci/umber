@@ -8,17 +8,17 @@ const router = express.Router();
 
 
 /* GET carts listing. */
-router.get('/', Authentication.authChecker, Authentication.allowRole('*'), controller.index);
+router.get('/', controller.index);
 // router.get('/dashboard', controller.dashboard);
-router.get('/by-sha/:sha(*)', Authentication.authChecker, Authentication.allowRole('*'), controller.bySha);
-router.get('/:id', Authentication.authChecker, Authentication.allowRole('*'), controller.show);
+router.get('/by-sha/:sha(*)', controller.bySha);
+router.get('/:id', controller.show);
 
 /* POST cart. */
 // router.post('/remind/:id', controller.remind);
-router.post('/', Authentication.authChecker, Authentication.allowRole('*'), controller.create);
+router.post('/', controller.create);
 
 /* PUT cart. */
-router.put('/:id', Authentication.authChecker, Authentication.allowRole('*'), controller.update);
+router.put('/:id', controller.update);
 
 
 module.exports = router;

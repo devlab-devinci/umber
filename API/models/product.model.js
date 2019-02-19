@@ -18,7 +18,7 @@ let ProductSchema = new Schema({
   categories: [{
     // join categories with Taxo
     type: Schema.Types.ObjectId,
-    ref: 'Taxonomies'
+    ref: 'Taxonomy'
   }],
   price: {
     type: Number,

@@ -1,44 +1,49 @@
 <template>
-      <StackLayout class="form">
-        <StackLayout class="input-field">
-          <Label text="Nom du produit" class="label font-weight-bold m-b-5" />
-          <TextField class="input" v-model="input.name" />
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <StackLayout class="input-field">
-          <Label text="Adresse" class="label font-weight-bold m-b-5" />
-          <TextField class="input" hint="3 Allée Autocomplete to do wiht google places ..." v-model="input.address" />
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <StackLayout class="input-field">
-          <Label text="Ville" class="label font-weight-bold m-b-5" />
-          <TextField class="input" hint="City's name" v-model="form_city"></TextField>
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
+  <StackLayout class="form">
+    <StackLayout class="input-field">
+      <Label text="Nom du produit" class="label font-weight-bold m-b-5" />
+      <TextField class="input" v-model="input.name" />
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Adresse" class="label font-weight-bold m-b-5" />
+      <TextField class="input" hint="3 Allée Autocomplete to do wiht google places ..." v-model="input.address" />
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Ville" class="label font-weight-bold m-b-5" />
+      <TextField class="input" hint="City's name" v-model="input.city"></TextField>
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
 
-        <StackLayout class="input-field">
-          <Label text="Code postal" class="label font-weight-bold m-b-5" />
-          <TextField class="input" hint="Zipcode ...." v-model="form_zipcode"></TextField>
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Code postal" class="label font-weight-bold m-b-5" />
+      <TextField class="input" hint="Zipcode ...." v-model="input.zipcode"></TextField>
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
 
-        <StackLayout class="input-field">
-          <Label text="Photo du produit" class="label font-weight-bold m-b-5" />
-          <Button text="Take Picture" @tap="takePicture" />
-          <Button text="Choose Picture" @tap="selectPicture" />
-          <WrapLayout ref="images">
-            <Image v-if="image" :src="image.src" v-model="image.src" width="75" height="75" />
-            <Image v-else-if="input.cover && input.cover.name" :src="$config.url + '/upload/' + input.cover.name" data-img-alt="input.cover.name" width="75" height="75"/>
-          </WrapLayout>
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Photo du produit" class="label font-weight-bold m-b-5" />
+      <Button text="Take Picture" @tap="takePicture" />
+      <Button text="Choose Picture" @tap="selectPicture" />
+      <WrapLayout ref="images">
+        <Image v-if="image" :src="image.src" v-model="image.src" width="75" height="75" />
+        <Image v-else-if="input.cover && input.cover.name" :src="$config.url + '/upload/' + input.cover.name" data-img-alt="input.cover.name" width="75" height="75"/>
+      </WrapLayout>
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
 
-        <StackLayout v-if="listCategories && listCategories.length" class="input-field">
-          <Label text="Categorie" class="label font-weight-bold m-b-5" />
-          <ListPicker :items="listCategories" @selectedIndexChange="selectedIndexChanged" selectedIndex="indexSelectCat"/>
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-      </StackLayout>
+    <StackLayout v-if="listCategories && listCategories.length" class="input-field">
+      <Label text="Categorie" class="label font-weight-bold m-b-5" />
+      <ListPicker :items="listCategories" @selectedIndexChange="selectedIndexChanged" selectedIndex="indexSelectCat"/>
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <GridLayout rows="auto, auto" columns="*, *">
+      <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
+      <!-- <Button text="Load" @tap="load" class="btn btn-primary" row="0" col="1"  />
+       <Button text="Clear" @tap="clear" class="btn btn-primary" row="1" col="0" colSpan="2"  />-->
+    </GridLayout>
+  </StackLayout>
 </template>
 
 <script>
@@ -49,7 +54,6 @@
   import { Image } from "tns-core-modules/ui/image";
   import {LoadingIndicator} from "nativescript-loading-indicator";
 
-  const loaderOptions = require('./services/LoaderConfig').getOptions();
   const loader = new LoadingIndicator();
   import {Feedback, FeedbackType, FeedbackPosition} from "nativescript-feedback";
 
@@ -66,7 +70,7 @@
         image: null
       }
     },
-    mounted: function () {
+    created: function () {
       if (this.id) {
         this.fetchStore();
       }
@@ -75,7 +79,12 @@
     methods: {
       fetchCategory: function () {
         let vm = this;
-        vm.$http.get('taxonomies', {params: { type: 'store'}})
+        const headers = {
+          'fb-access-token': this.$store
+            .getters.getAccessToken
+
+        };
+        vm.$http.get('api/v1/taxonomies', {params: { type: 'store'}, header: headers})
           .then(cat => {
             let cats = _.cloneDeep(cat.data.data);
 
@@ -139,7 +148,7 @@
         };
         vm.$http.get('api/v1/store/' + vm.id, {headers: headers})
           .then(product => {
-            if (product.data && product.data.owner && product.data.owner._id === vm.$store.state.currentUser._id) {
+            if (product.data && product.data.owner && product.data.owner._id === vm.$store.getters.getCurrentUser._id) {
               vm.input = _.cloneDeep(product.data);
             }
           })
@@ -161,7 +170,7 @@
 
         // formData = vm.images[0] || null;
         newStore.cover = vm.input.cover || null;
-        newStore.owner = vm.$store.state.currentUser;
+        newStore.owner = vm.$store.getters.getCurrentUser;
 
         console.log(newStore.categories);
 // upload configuration
@@ -178,16 +187,12 @@
           errorValidation.push("invalide name");
         }
 
-        if (newStore.price <= 0) {
-          errorValidation.push("invalide price");
+        if (!newStore.address) {
+          errorValidation.push("invalide adress");
         }
 
-        if (newStore.stock <= 0) {
-          errorValidation.push("invalide stock");
-        }
-
-        if (newStore.promotion <= newStore.price) {
-           errorValidation.push("invalide promotion");
+        if (!newStore.city) {
+          errorValidation.push("invalide city");
         }
 
         if (errorValidation.length > 0) {
@@ -201,7 +206,7 @@
           }, 1000);
         } else {
 
-          vm.$http[method](resource, newStore, {headers: headers})
+          vm.$http[method]('api/v1/'+resource, newStore, {headers: headers})
           //vm.$http.post('upload', {file: vm.image}, request)
             .then(product => {
               if (product.data.status === 200) {

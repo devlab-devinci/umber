@@ -1,51 +1,56 @@
 <template>
-      <StackLayout class="form">
-        <StackLayout class="input-field">
-          <Label text="Nom du produit" class="label font-weight-bold m-b-5" />
-          <TextField class="input" v-model="input.name" />
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <StackLayout class="input-field">
-          <Label text="Description" class="label font-weight-bold m-b-5" />
-          <TextField class="input" v-model="input.description" />
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <StackLayout class="input-field">
-          <Label text="Stock" class="label font-weight-bold m-b-5" />
-          <TextField keyboardType="number" class="input" v-model="input.stock" />
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <StackLayout class="input-field">
-          <Label text="Prix de base" class="label font-weight-bold m-b-5" />
-          <TextField keyboardType="number"class="input" v-model="input.price" />
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <StackLayout class="input-field">
-          <Label text="Promotion" class="label font-weight-bold m-b-5" />
-          <TextField keyboardType="number" class="input" v-model="input.promotion" />
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <StackLayout class="input-field">
-          <Label text="Photo du produit" class="label font-weight-bold m-b-5" />
-          <Button text="Take Picture" @tap="takePicture" />
-          <Button text="Choose Picture" @tap="selectPicture" />
-          <WrapLayout ref="images">
-            <Image v-if="image" :src="image.src" v-model="image.src" width="75" height="75" />
-            <Image v-else-if="input.cover && input.cover.name" :src="$config.url + '/upload/' + input.cover.name" data-img-alt="input.cover.name" width="75" height="75"/>
-          </WrapLayout>
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <StackLayout v-if="listCategories && listCategories.length" class="input-field">
-          <Label text="Categorie" class="label font-weight-bold m-b-5" />
-          <ListPicker :items="listCategories" @selectedIndexChange="selectedIndexChanged" selectedIndex="indexSelectCat"/>
-          <StackLayout class="hr-light"></StackLayout>
-        </StackLayout>
-        <GridLayout rows="auto, auto" columns="*, *">
-          <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
-          <!-- <Button text="Load" @tap="load" class="btn btn-primary" row="0" col="1"  />
-           <Button text="Clear" @tap="clear" class="btn btn-primary" row="1" col="0" colSpan="2"  />-->
-        </GridLayout>
-      </StackLayout>
+  <StackLayout class="form">
+    <StackLayout class="input-field">
+      <Label text="Nom du produit" class="label font-weight-bold m-b-5" />
+      <TextField class="input" v-model="input.name" />
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Description" class="label font-weight-bold m-b-5" />
+      <TextField class="input" v-model="input.description" />
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Stock" class="label font-weight-bold m-b-5" />
+      <TextField keyboardType="number" class="input" v-model="input.stock" />
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Prix de base" class="label font-weight-bold m-b-5" />
+      <TextField keyboardType="number"class="input" v-model="input.price" />
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Promotion" class="label font-weight-bold m-b-5" />
+      <TextField keyboardType="number" class="input" v-model="input.promotion" />
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout class="input-field">
+      <Label text="Photo du produit" class="label font-weight-bold m-b-5" />
+      <Button text="Take Picture" @tap="takePicture" />
+      <Button text="Choose Picture" @tap="selectPicture" />
+      <WrapLayout ref="images">
+        <Image v-if="image" :src="image.src" v-model="image.src" width="75" height="75" />
+        <Image v-else-if="input.cover && input.cover.name" :src="$config.url + '/upload/' + input.cover.name" data-img-alt="input.cover.name" width="75" height="75"/>
+      </WrapLayout>
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout v-if="listCategories && listCategories.length" class="input-field">
+      <Label text="Categorie" class="label font-weight-bold m-b-5" />
+      <ListPicker :items="listCategories" @selectedIndexChange="selectedIndexChanged" selectedIndex="indexSelectCat"/>
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <StackLayout v-if="listStore && listStore.length" class="input-field">
+      <Label text="Categorie" class="label font-weight-bold m-b-5" />
+      <ListPicker :items="listStore" @selectedIndexChange="selectedStoreIndexChanged" selectedIndex="indexSelectCat"/>
+      <StackLayout class="hr-light"></StackLayout>
+    </StackLayout>
+    <GridLayout rows="auto, auto" columns="*, *">
+      <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
+      <!-- <Button text="Load" @tap="load" class="btn btn-primary" row="0" col="1"  />
+       <Button text="Clear" @tap="clear" class="btn btn-primary" row="1" col="0" colSpan="2"  />-->
+    </GridLayout>
+  </StackLayout>
 </template>
 
 <script>
@@ -67,22 +72,31 @@
     data: function () {
       return {
         input: {},
+        indexSelectStore: null,
         indexSelectCat: null,
         listCategories: [],
         categories: null,
+        listStore: [],
+        stores: null,
         image: null
       }
     },
-    mounted: function () {
+    created: function () {
       if (this.id) {
         this.fetchProduct();
       }
       this.fetchCategory();
+      this.fetchStore();
     },
     methods: {
       fetchCategory: function () {
         let vm = this;
-        vm.$http.get('taxonomies', {params: { type: 'product'}})
+        const headers = {
+          'fb-access-token': this.$store
+            .getters.getAccessToken
+
+        };
+        vm.$http.get('api/v1/taxonomies', {params: { type: 'product'}, headers: headers})
           .then(cat => {
             let cats = _.cloneDeep(cat.data.data);
 
@@ -93,6 +107,27 @@
               }
             });
             vm.categories = cats;
+          })
+          .catch(error => console.error(error));
+      },
+      fetchStore: function () {
+        let vm = this;
+        const headers = {
+          'fb-access-token': this.$store
+            .getters.getAccessToken
+
+        };
+        vm.$http.get('api/v1/store', {params: {owner: vm.$store.getters.getCurrentUser._id}, headers: headers})
+          .then(res => {
+            let stores = _.cloneDeep(res.data.data);
+
+            _.each(stores, function (store, index) {
+              vm.listCategories.push(store.name);
+              if (vm.input.owner && store.name === (vm.input.owner._id && vm.input.categories.name)) {
+                vm.indexSelectStore = index;
+              }
+            });
+            vm.stores = stores;
           })
           .catch(error => console.error(error));
       },
@@ -146,7 +181,7 @@
         };
         vm.$http.get('api/v1/products/' + vm.id, {headers: headers})
           .then(product => {
-            if (product.data && product.data.owner && product.data.owner._id === vm.$store.state.currentUser._id) {
+            if (product.data && product.data.owner && product.data.owner._id === vm.$store.getters.getCurrentUser._id) {
               vm.input = _.cloneDeep(product.data);
             }
           })
@@ -154,6 +189,9 @@
       },
       selectedIndexChanged: function (picker) {
         this.input.categories = this.categories[picker.object.selectedIndex];
+      },
+      selectedStoreIndexChanged: function (picker) {
+        this.input.owner = this.stores[picker.object.selectedIndex];
       },
       save: function () {
         let vm = this;const headers = {
@@ -194,7 +232,7 @@
         }
 
         if (newProduct.promotion <= newProduct.price) {
-           errorValidation.push("invalide promotion");
+          errorValidation.push("invalide promotion");
         }
 
         if (errorValidation.length > 0) {
@@ -208,7 +246,7 @@
           }, 1000);
         } else {
 
-          vm.$http[method](resource, newProduct, {headers: headers})
+          vm.$http[method]('api/v1/'+resource, newProduct, {headers: headers})
           //vm.$http.post('upload', {file: vm.image}, request)
             .then(product => {
               if (product.data.status === 200) {

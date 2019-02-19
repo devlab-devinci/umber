@@ -25,6 +25,11 @@
 
 <script>
   import _ from 'lodash';
+  import {LoadingIndicator} from "nativescript-loading-indicator";
+  const loaderOptions = require('./services/LoaderConfig').getOptions();
+  const loader = new LoadingIndicator();
+  import {Feedback, FeedbackType, FeedbackPosition} from "nativescript-feedback";
+
   export default {
     props: {
       id: String
@@ -96,6 +101,7 @@
             .getters.getAccessToken
 
         };
+        let feedback = new Feedback();
         let newProduct = _.cloneDeep(vm.cart);
 
         if (!vm.cart) {
@@ -139,6 +145,25 @@
         vm.$http[method](`api/v1/${resource}`, newProduct, {headers: headers})
           .then(cart => {
             vm.cart = _.cloneDeep(cart.data);
+            if (cart.data) {
+              loader.hide();
+              feedback
+                .success({
+                  title: "Félicitation !",
+                  titleColor: new Color("#222222"),
+                  type: FeedbackType.Custom, // this is the default type, by the way
+                  message: `Offre ajouté !`,
+                  messageColor: new Color("#333333"),
+                  duration: 2000,
+                  backgroundColor: new Color("yellowgreen")
+                });
+            } else {
+              loader.hide()
+              feedback
+                .error({
+                  message: "Une erreur survenue. Veuillez réessayer"
+                });
+            }
           })
           /* .then(() => {
             vm.$http.put('products/' + vm.product._id, vm.product)
@@ -150,7 +175,12 @@
               })
               .catch(error => console.error(error));
           })*/
-          .catch(error => console.error(error));
+          .catch((error) => {
+            console.error(error)
+            loader.hide()
+            feedback
+              .warning("Oups, une erreur est surevenue. Veuillez réessayer plus tard")
+          });
       },
       addQuantity: function () {
         if (0 < this.stock) {

@@ -16,35 +16,27 @@
                         <SegmentedBarItem title="Ajouter une offre"/>
                     </SegmentedBar>
 
-                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"
-                                   style="align-items:center; flex-direction:column;">
-                        <StackLayout>
-                            <ListView for="product in this.owner_products" v-if="this.owner_products.length > 0">
-                                <v-template>
-                                    <StackLayout @tap="onProductTap(product)">
-                                        <Label :text="product.name"/>
-                                    </StackLayout>
-                                </v-template>
-                            </ListView>
-                            <Label text="Pas de produits pour le moment" v-if="this.owner_products.length === 0">
-
-                            </Label>
-                        </StackLayout>
+                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'" style="align-items:center; flex-direction:column;">
+                      <scroll-view>
+                        <Products v-if="selectedItem === 0" :seller="true"></Products>
+                      </scroll-view>
                     </FlexboxLayout>
 
 
                     <FlexboxLayout :visibility="selectedItem === 1 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
-                       <EditStore></EditStore>
+                      <scroll-view>
+                        <EditStore v-if="selectedItem === 1"></EditStore>
+                      </scroll-view>
                     </FlexboxLayout>
 
 
                     <!-- OFFER FORM-->
                     <FlexboxLayout :visibility="selectedItem === 2 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
-                        <ScrollView>
-                            <EditProduct></EditProduct>
-                        </ScrollView>
+                      <scroll-view>
+                        <EditProduct v-if="selectedItem === 2"></EditProduct>
+                      </scroll-view>
                     </FlexboxLayout>
 
 
@@ -80,20 +72,13 @@
     </Page>
 </template>
 <script>
-    import {LoadingIndicator} from "nativescript-loading-indicator";
-
-    const loaderOptions = require('./services/LoaderConfig').getOptions();
-    const loader = new LoadingIndicator();
-
-    import Products from './Products';
     import {Feedback, FeedbackType, FeedbackPosition} from "nativescript-feedback";
     import {Color} from "tns-core-modules/color";
-
     import GeolocationService from "./services/Geolocation";
 
-    import axios from 'axios';
-    import {api_config} from '../api_config';
     import Router from "./services/Router";
+
+    import Products from './Products';
     import EditProduct from "./EditProduct";
     import EditStore from "./EditStore";
     import Profile from "./Profile";
@@ -120,33 +105,11 @@
 
 
             //categories for store loading
-            loader.show(loaderOptions);
 
-            const headers = {
-                'fb-access-token': this.$store
-                  .getters.getAccessToken
-
-            };
-
-            axios
-              .get(`${api_config.api_url}/api/v1/products`, {params: {owner: self.$store.getters.getCurrentUser._id}, headers: headers})
-              .then(function (response) {
-                  self.owner_products = response.data.data;
-
-              })
-              .catch(function (err) {
-                  loader.hide();
-                  feedback.error({
-                      title: "Oups, une erreur est survenue! réessayer plus tard",
-                      titleColor: new Color("black")
-                  });
-                  console.log("ERROR:", err);
-              })
         },
         mounted() {
             let self = this;
-            console.log("MOUNTED")
-            console.log(this.categories_product);
+             console.log("MOUNTED")
             //display status (if user choose vendor OR customer)
             //console.log("PICTURE", this.$store.getters.getFbUser.picture.data.url);
 
@@ -181,12 +144,10 @@
               .catch(err => console.log("getCurrentLocation ERROR -> ", err))
 
         },
-        component: {
-            //my component here
-        },
         data() {
             return {
-                welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + ""
+              welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
+              selectedItem: 0
             }
         },
         methods: {
@@ -197,7 +158,6 @@
                 console.log("ITEM SELECTED", this.selectedItem);
                 console.log(typeof this.selectedItem);
                 console.log(this.selectedItem === 0 ? 'visible' : 'collapsed')
-                console.log(this.categories_product_names);
             },
             onProductTap(product) {
                 this.$navigateTo(Router.product, {
@@ -211,10 +171,10 @@
 
         },
         components: {
-            EditProduct,
-            EditStore,
-            Products,
-            Profile
+          EditProduct,
+          EditStore,
+          Products,
+          Profile
         }
 
     }

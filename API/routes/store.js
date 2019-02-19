@@ -36,7 +36,7 @@ const upload_store_pictures = multer({storage: storage});
  * POST
  * Add new store
  */
-router.post('/store', Authentication.authChecker, function (req, res, next) {
+router.post('/store', function (req, res, next) {
     let payload = req.body;
     let category_id = "";
 
@@ -99,27 +99,40 @@ router.post('/store', Authentication.authChecker, function (req, res, next) {
  * GET
  * list stores
  */
-router.get('/store', Authentication.authChecker, function (req, res, next) {
-    Store
-        .find({})
-        .populate('StorePicture')
-        .exec(function (err, stores) {
-            if (err) {
-                errorManager.handler(res, err, "error find mongo")
-            } else {
-                if (stores) {
-                    res
-                        .status(200)
-                        .json({
-                            "data": stores,
-                            "message": "stores list success",
-                            "status": 200
-                        })
-                } else {
-                    errorManager.handler(res, "no stores found.", "stores is empty")
-                }
-            }
-        })
+router.get('/store', function (req, res, next) {
+
+  let promise = [];
+  let limit = req.query && req.query.limit || 0;
+  let page = req.query && req.query.page || 0;
+  let criteria = {};
+
+  if (req.query.owner) {
+    criteria.owner = req.query.owner;
+  }
+
+// add promise find product
+  promise.push(Store
+    .find(criteria)
+    .populate('owner StorePicture categories_store')
+    .lean());
+
+// when promises resolve
+  Promise.all(promise)
+  //if not errors send json data
+    .then(function (data) {
+      console.log(data);
+      let result = {};
+      result.data = data[0];
+      result.limit = parseInt(limit);
+      result.page = parseInt(page);
+      result.count = data[0].length;
+
+      res.status(200).json(result);
+    })
+    // else send error
+    .catch(function (err) {
+      return errorManager.handler(res, err, "error find mongo");
+    });
 });
 
 /**

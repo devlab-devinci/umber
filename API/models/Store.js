@@ -34,7 +34,7 @@ const Store = new Schema({
     categories_store: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'Taxonomies',
+            ref: 'Taxonomy',
             required: true
         }
     ],
