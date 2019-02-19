@@ -62,7 +62,7 @@
           vm.stock = vm.product.stock - 1;
         })
         .then(() => {
-          vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.owner._id}, headers: headers})
+          vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.store._id}, headers: headers})
             .then(cart => {
               vm.cart = _.cloneDeep(cart.data.data[0]);
             })
@@ -86,7 +86,7 @@
             vm.stock = vm.product.stock - 1;
           })
           .then(() => {
-            vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.owner._id}, headers: headers})
+            vm.$http.get('api/v1/carts', {params: {buyer: vm.$store.getters.getCurrentUser._id, seller: vm.product.store._id}, headers: headers})
               .then(cart => {
                 vm.cart = _.cloneDeep(cart.data.data[0]);
               })
@@ -108,7 +108,7 @@
         if (!vm.cart) {
           method = 'post';
           newProduct = {};
-          newProduct.seller = vm.product.owner;
+          newProduct.seller = vm.product.store;
           newProduct.buyer = vm.$store.state.currentUser;
           newProduct.cartEntries = [];
           newProduct.price = { price: 0 };

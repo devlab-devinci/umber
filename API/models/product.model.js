@@ -40,6 +40,10 @@ let ProductSchema = new Schema({
   publishedAt: Date,
   owner: {
     type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  store: {
+    type: Schema.Types.ObjectId,
     ref: 'Store'
   },
   updatedAt: {
