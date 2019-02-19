@@ -3,10 +3,10 @@
         <ListView for="store in stores" style="margin: 15px">
             <v-template>
                 <!-- Shows the list item label in the default color and style. -->
-                <StackLayout>
+                <StackLayout @tap="showShop(store)">
                     <Label :text="store.name | capitalize"></Label>
                     <Image v-if="store.picture" :src="store.picture"></Image>
-                    <Button text="Voir le shop" @tap="storeClicked(store._id)" />
+                    <Button text="Voir le shop" @tap="showShop(store)" />
                     <Label textWrap="true">
                         <FormattedString>
                             <Span class="fa" style="color: #78e08f;" :text="'fa-map-marker' | fonticon"></Span>
@@ -54,38 +54,16 @@
             }
         },
         methods: {
-            storeClicked: function (id_store) {
-                let self = this;
-                const headers = {
-                    'fb-access-token': this.$store
-                        .getters.getAccessToken
-
-                };
-                axios
-                    .get(`${api_config.api_url}/api/v1/store/${id_store}`, {headers: headers})
-                    .then(function (store) {
-                        //Send variable
-                        self.$navigateTo(Router.storeView, {
-                            transition: {},
-                            transitionIOS: {},
-                            transitionAndroid: {},
-                            props: {
-                                store: store.data.data
-                            }
-                        });
-                        /*
-                        self.$navigateTo(Router.storeView, {
-                            transition: {},
-                            transitionIOS: {},
-                            transitionAndroid: {},
-                            props: {
-                                store: store.data.data
-                            }
-                        });
-                        */
-                    })
-                    .catch(err => console.log("ERROR HIT", err));
-                console.log("item clicked", id_store)
+            showShop(shopItem) {
+                let vm = this;
+                this.$navigateTo(Router.storeView, {
+                    transition: {},
+                    transitionIOS: {},
+                    transitionAndroid: {},
+                    props: {
+                        id: shopItem._id
+                    }
+                })
             },
             /**
              * Pull and refresh
