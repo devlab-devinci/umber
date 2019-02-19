@@ -1,5 +1,8 @@
 <template>
   <StackLayout class="form">
+    <GridLayout rows="auto, auto" columns="*, *">
+      <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
+    </GridLayout>
     <StackLayout class="input-field">
       <Label text="Nom du produit" class="label font-weight-bold m-b-5" />
       <TextField class="input" v-model="input.name" />
@@ -181,9 +184,8 @@
         };
         vm.$http.get('api/v1/products/' + vm.id, {headers: headers})
           .then(product => {
-            if (product.data && product.data.owner && product.data.owner._id === vm.$store.getters.getCurrentUser._id) {
+            console.log(product);
               vm.input = _.cloneDeep(product.data);
-            }
           })
           .catch(error => console.error(error));
       },
@@ -249,7 +251,7 @@
           vm.$http[method]('api/v1/'+resource, newProduct, {headers: headers})
           //vm.$http.post('upload', {file: vm.image}, request)
             .then(product => {
-              if (product.data.status === 200) {
+              if (product) {
                 loader.hide();
                 feedback
                   .success({

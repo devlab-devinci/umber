@@ -1,7 +1,11 @@
 <template>
   <StackLayout class="form">
+
+    <GridLayout rows="auto, auto" columns="*, *">
+      <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
+    </GridLayout>
     <StackLayout class="input-field">
-      <Label text="Nom du produit" class="label font-weight-bold m-b-5" />
+      <Label text="Nom du magasin" class="label font-weight-bold m-b-5" />
       <TextField class="input" v-model="input.name" />
       <StackLayout class="hr-light"></StackLayout>
     </StackLayout>
@@ -90,7 +94,7 @@
 
             _.each(cats, function (cat, index) {
               vm.listCategories.push(cat.name);
-              if (cat.name === (vm.input.categories && vm.input.categories.name)) {
+              if (cat.name === (vm.input.categories_store && vm.input.categories_store.name)) {
                 vm.indexSelectCat = index;
               }
             });
@@ -146,23 +150,25 @@
             .getters.getAccessToken
 
         };
-        vm.$http.get('api/v1/store/' + vm.id, {headers: headers})
+        vm.$http.get('api/v1/store/' + vm.id)
           .then(product => {
-            if (product.data && product.data.owner && product.data.owner._id === vm.$store.getters.getCurrentUser._id) {
+            if (product.data && product.data.owner && product.data.owner._id === vm.id) {
               vm.input = _.cloneDeep(product.data);
             }
           })
           .catch(error => console.error(error));
       },
       selectedIndexChanged: function (picker) {
-        this.input.categories = this.categories[picker.object.selectedIndex];
+        this.input.categories_store = this.categories[picker.object.selectedIndex];
       },
       save: function () {
-        let vm = this;const headers = {
+        let vm = this;
+        const headers = {
           'fb-access-token': this.$store
             .getters.getAccessToken
 
         };
+
         let feedback = new Feedback();
         let newStore = _.cloneDeep(vm.input);
         let method = newStore._id ? 'put' : 'post';
@@ -172,7 +178,6 @@
         newStore.cover = vm.input.cover || null;
         newStore.owner = vm.$store.getters.getCurrentUser;
 
-        console.log(newStore.categories);
 // upload configuration
         var request = {
           headers: {
@@ -208,8 +213,8 @@
 
           vm.$http[method]('api/v1/'+resource, newStore, {headers: headers})
           //vm.$http.post('upload', {file: vm.image}, request)
-            .then(product => {
-              if (product.data.status === 200) {
+            .then(store => {
+              if (store) {
                 loader.hide();
                 feedback
                   .success({
