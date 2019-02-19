@@ -1,9 +1,5 @@
 <template>
   <StackLayout class="form">
-
-    <GridLayout rows="auto, auto" columns="*, *">
-      <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
-    </GridLayout>
     <StackLayout class="input-field">
       <Label text="Nom du magasin" class="label font-weight-bold m-b-5" />
       <TextField class="input" v-model="input.name" />
@@ -52,6 +48,7 @@
 
 <script>
   import _ from 'lodash';
+  import {Color} from "tns-core-modules/color";
   import * as camera from "nativescript-camera";
   import * as imagepicker from "nativescript-imagepicker";
 

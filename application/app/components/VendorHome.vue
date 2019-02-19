@@ -17,9 +17,7 @@
                     </SegmentedBar>
 
                     <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'" style="align-items:center; flex-direction:column;">
-                      <scroll-view>
                         <Products v-if="selectedItem === 0" :seller="true"></Products>
-                      </scroll-view>
                     </FlexboxLayout>
 
 
@@ -98,7 +96,7 @@
                   message: `Vous êtes connecté`,
                   messageColor: new Color("#333333"),
                   duration: 2000,
-                  backgroundColor: new Color("yellowgreen")
+                  backgroundColor: new Color("#000000")
               });
 
             //console.log("HOME - > USER STATUS : ", this.$store.getters.getUserStatus);
