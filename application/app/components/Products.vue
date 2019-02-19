@@ -24,7 +24,6 @@
 <script>
   import {LoadingIndicator} from "nativescript-loading-indicator";
   const loader = new LoadingIndicator();
-
   import {Feedback, FeedbackType, FeedbackPosition} from "nativescript-feedback";
   import {Color} from "tns-core-modules/color";
   export default {

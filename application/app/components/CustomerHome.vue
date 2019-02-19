@@ -94,7 +94,6 @@
     import axios from 'axios';
     import {api_config} from '../api_config';
 
-    import Shops from './Shop';
     import Store from './Store';
     import {Feedback, FeedbackType} from "nativescript-feedback";
     import {Color} from "tns-core-modules/color";
@@ -278,7 +277,6 @@
 
         },
         components: {
-            Shops,
             Store
         }
 

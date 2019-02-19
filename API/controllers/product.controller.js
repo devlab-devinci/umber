@@ -30,7 +30,6 @@ exports.index = function (req, res) {
   Promise.all(promise)
   //if not errors send json data
     .then(function (data) {
-      console.log(data);
       let result = {};
       result.data = data[0];
       result.limit = parseInt(limit);

@@ -1,8 +1,6 @@
 <template>
+  <scroll-view>
   <StackLayout class="form">
-    <GridLayout rows="auto, auto" columns="*, *">
-      <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
-    </GridLayout>
     <StackLayout class="input-field">
       <Label text="Nom du produit" class="label font-weight-bold m-b-5" />
       <TextField class="input" v-model="input.name" />
@@ -44,7 +42,7 @@
       <StackLayout class="hr-light"></StackLayout>
     </StackLayout>
     <StackLayout v-if="listStore && listStore.length" class="input-field">
-      <Label text="Categorie" class="label font-weight-bold m-b-5" />
+      <Label text="Magasins" class="label font-weight-bold m-b-5" />
       <ListPicker :items="listStore" @selectedIndexChange="selectedStoreIndexChanged" selectedIndex="indexSelectCat"/>
       <StackLayout class="hr-light"></StackLayout>
     </StackLayout>
@@ -54,13 +52,14 @@
        <Button text="Clear" @tap="clear" class="btn btn-primary" row="1" col="0" colSpan="2"  />-->
     </GridLayout>
   </StackLayout>
+  </scroll-view>
 </template>
 
 <script>
   import _ from 'lodash';
   import * as camera from "nativescript-camera";
   import * as imagepicker from "nativescript-imagepicker";
-
+  import {Color} from "tns-core-modules/color";
   import { Image } from "tns-core-modules/ui/image";
   import {LoadingIndicator} from "nativescript-loading-indicator";
 
@@ -125,10 +124,8 @@
             let stores = _.cloneDeep(res.data.data);
 
             _.each(stores, function (store, index) {
-              vm.listCategories.push(store.name);
-              if (vm.input.owner && store.name === (vm.input.owner._id && vm.input.categories.name)) {
-                vm.indexSelectStore = index;
-              }
+              vm.listStore.push(store.name);
+              console.log(store);
             });
             vm.stores = stores;
           })
@@ -203,6 +200,7 @@
         };
         let feedback = new Feedback();
         let newProduct = _.cloneDeep(vm.input);
+        console.log(vm.input);
         let method = newProduct._id ? 'put' : 'post';
         let resource = method === 'put' ? 'products/' + newProduct._id : 'products';
 
@@ -222,18 +220,22 @@
         let errorValidation = [];
 
         if (!newProduct.name) {
+          console.log(1);
           errorValidation.push("invalide name");
         }
 
         if (newProduct.price <= 0) {
+          console.log(2);
           errorValidation.push("invalide price");
         }
 
         if (newProduct.stock <= 0) {
+          console.log(3);
           errorValidation.push("invalide stock");
         }
 
-        if (newProduct.promotion <= newProduct.price) {
+        if (newProduct.promotion >= newProduct.price) {
+          console.log(newProduct.promotion >= newProduct.price);
           errorValidation.push("invalide promotion");
         }
 
@@ -248,7 +250,7 @@
           }, 1000);
         } else {
 
-          vm.$http[method]('api/v1/'+resource, newProduct, {headers: headers})
+          vm.$http[method](`api/v1/${resource}`, newProduct, {headers: headers})
           //vm.$http.post('upload', {file: vm.image}, request)
             .then(product => {
               if (product) {

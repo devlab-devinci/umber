@@ -1,23 +1,34 @@
 <template>
-    <StackLayout flexDirection="column" v-if="cart && cart.seller && cart.buyer" orientation="vertical">
-        <Image v-if="cart.seller.picture" width="150rem" :src="cart.seller.picture"></Image>
-        <Label :text="cart.seller.companyName" col="1" row="0"></Label>
-        <Label text="Offres" col="1" row="0"></Label>
-        <ListView height="100%" v-if="items && items.length" flexGrow="1" for="(item, index) in items" @itemTap="" item-key="item._id"  width="100%">
-            <v-template>
-                <StackLayout>
-                    <Button text="-" col="2" @tap="removeProduct(item.product, index)" />
-                    <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
-                    <Label :text="'Nom :' + item.product.name" col="1" row="0"></Label>
-                    <Label :text="'Prix :' + item.price" col="3" row="1"/>
-                    <Button text="Voir le produit" col="2" @tap="showProduct(item.product)" />
+    <Page>
+        <ActionBar :title="cart && cart.name | capitalize " android:flat="true">
+            <AbsoluteLayout>
+                <Button text="pannier" left="2" top="1" width="20" height="40" backgroundColor="#550C5C"/>
+                <Button text="nb product" left="10" top="4" width="40" height="30" backgroundColor="#FAC152"/>
+            </AbsoluteLayout>
+        </ActionBar>
+        <scroll-view class="green">
+
+            <StackLayout flexDirection="column" v-if="cart && cart.seller && cart.buyer" orientation="vertical">
+                <Image v-if="cart.seller.picture" width="150rem" :src="cart.seller.picture"></Image>
+                <Label :text="cart.seller.companyName" col="1" row="0"></Label>
+                <Label text="Offres" col="1" row="0"></Label>
+                <ListView style="margin: 15px" v-if="items && items.length" flexGrow="1" for="(item, index) in items" @itemTap="" item-key="item._id"  width="100%">
+                    <v-template>
+                        <StackLayout>
+                            <Button text="-" col="2" @tap="removeProduct(item.product, index)" />
+                            <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
+                            <Label :text="'Nom :' + item.product.name" col="1" row="0"></Label>
+                            <Label :text="'Prix :' + item.price" col="3" row="1"/>
+                            <Button text="Voir le produit" col="2" @tap="showProduct(item.product)" />
+                        </StackLayout>
+                    </v-template>
+                </ListView>
+                <StackLayout v-else>
+                    <Label text="Aucun produit n'est disponible dans ce pannier"></Label>
                 </StackLayout>
-            </v-template>
-        </ListView>
-        <StackLayout v-else>
-            <Label text="Aucun produit n'est disponible dans ce pannier"></Label>
-        </StackLayout>
-    </StackLayout>
+            </StackLayout>
+        </scroll-view>
+    </Page>
 </template>
 
 <script>

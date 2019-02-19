@@ -26,6 +26,7 @@
 <script>
   import _ from 'lodash';
   import {LoadingIndicator} from "nativescript-loading-indicator";
+  import {Color} from "tns-core-modules/color";
   const loaderOptions = require('./services/LoaderConfig').getOptions();
   const loader = new LoadingIndicator();
   import {Feedback, FeedbackType, FeedbackPosition} from "nativescript-feedback";

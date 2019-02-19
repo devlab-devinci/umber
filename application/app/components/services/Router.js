@@ -10,8 +10,6 @@ import Products from '../Products';
 import VendorHome from "../VendorHome";
 import CustomerHome from "../CustomerHome";
 import Product from '../Product';
-import Shop from '../Shop';
-import Shops from '../Shops';
 import EditProduct from "../EditProduct";
 import Store from '../Store';
 import StoreView from '../StoreView';
@@ -26,8 +24,6 @@ const Router = {
     editProduct: EditProduct,
     vendorHome: VendorHome,
     customerHome: CustomerHome,
-    shop: Shop,
-    shops: Shops,
     product: Product,
     products: Products,
     storeView: StoreView,
