@@ -96,7 +96,7 @@
                   message: `Vous êtes connecté`,
                   messageColor: new Color("#333333"),
                   duration: 2000,
-                  backgroundColor: new Color("#000000")
+                  backgroundColor: new Color("green")
               });
 
             //console.log("HOME - > USER STATUS : ", this.$store.getters.getUserStatus);

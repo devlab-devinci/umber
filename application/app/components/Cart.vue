@@ -18,7 +18,7 @@
                             <Button text="-" col="2" @tap="removeProduct(item.product, index)" />
                             <Image v-if="item.cover && item.cover.name" col="0" row="0" :src="$config.url + '/upload/' + item.cover.name"></Image>
                             <Label :text="'Nom :' + item.product.name" col="1" row="0"></Label>
-                            <Label :text="'Prix :' + item.price" col="3" row="1"/>
+                            <Label v-if="item.price" :text="'Prix :' + item.price" col="3" row="1"/>
                             <Button text="Voir le produit" col="2" @tap="showProduct(item.product)" />
                         </StackLayout>
                     </v-template>

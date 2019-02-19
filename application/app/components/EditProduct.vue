@@ -190,7 +190,7 @@
         this.input.categories = this.categories[picker.object.selectedIndex];
       },
       selectedStoreIndexChanged: function (picker) {
-        this.input.owner = this.stores[picker.object.selectedIndex];
+        this.input.store = this.stores[picker.object.selectedIndex];
       },
       save: function () {
         let vm = this;const headers = {
