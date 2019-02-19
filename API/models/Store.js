@@ -47,10 +47,23 @@ const Store = new Schema({
     mapQuestLat: {type: String},
     mapQuestLng: {type: String},
 
-    created_at: {
+    createdAt: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        required: true,
+        default: Date.now
     }
+});
+
+Store.pre('save', function () {
+    let that = this;
+
+    that.wasNew = that.isNew;
+    that.updatedAt = new Date();
 });
 
 module.exports = mongoose.model('Store', Store);

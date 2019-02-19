@@ -58,7 +58,7 @@ app.use('/api/v1/taxonomies', taxonomy);
 app.use('/documents', document);
 app.use('/upload', upload);
 app.use('/auth', authRouter);
-app.use('/api/v1', store);
+app.use('/api/v1/store', store);
 app.use('/api/v1', position);
 
 // catch 404 and forward to error handler
