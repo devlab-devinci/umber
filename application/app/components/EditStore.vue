@@ -1,5 +1,9 @@
 <template>
   <StackLayout class="form">
+
+    <GridLayout rows="auto, auto" columns="*, *">
+      <Button text="Save" @tap="save" class="btn btn-primary" row="0" col="0" />
+    </GridLayout>
     <StackLayout class="input-field">
       <Label text="Nom du magasin" class="label font-weight-bold m-b-5" />
       <TextField class="input" v-model="input.name" />
@@ -207,10 +211,10 @@
           }, 1000);
         } else {
 
-          vm.$http[method]('api/v1/'+resource, newStore)
+          vm.$http[method]('api/v1/'+resource, newStore, {headers: headers})
           //vm.$http.post('upload', {file: vm.image}, request)
-            .then(product => {
-              if (product.data.status === 200) {
+            .then(store => {
+              if (store) {
                 loader.hide();
                 feedback
                   .success({
