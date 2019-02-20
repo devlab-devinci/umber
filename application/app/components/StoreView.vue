@@ -5,7 +5,7 @@
                 <Button text="pannier" left="2" top="1" width="20" height="40" backgroundColor="#550C5C"/>
                 <Button text="nb product" left="10" top="4" width="40" height="30" backgroundColor="#FAC152"/>
             </AbsoluteLayout>
-            <ActionItem v-if="cart && cart.cartEntries && cart.cartEntries.length > 0 && cart.price && cart.price.price" ios.systemIcon="9" ios.position="right" :text="'Produits : ' + cart.cartEntries.length + ' Afficher le panier ' + cart.price.price" col="2" @tap="showCart(cart)" android.position="popup" />
+            <ActionItem v-if="cart && cart.cartEntries && cart.cartEntries.length > 0" ios.systemIcon="9" ios.position="right" :text="'Produits : ' + cart.cartEntries.length + ' Afficher le panier ' + (cart.price && cart.price.price)" col="2" @tap="showCart(cart)" android.position="popup" />
         </ActionBar>
         <scroll-view class="green">
             <StackLayout flexDirection="column" v-if="shop" orientation="vertical">
