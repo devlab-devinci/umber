@@ -1,11 +1,38 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+</head>
+<body class="container">
+<div>
+    <p class="display-4 text-center"><%= title %></p>
+    <div class="text-right">
+        <a target="_blank"
+           href="https://stripe.com/fr?&utm_campaign=paid_brand&utm_medium=cpc&utm_source=google&ad_content=267418206160&utm_term=stripe&utm_matchtype=e&utm_adposition1t1&utm_device=c&gclid=Cj0KCQiAtbnjBRDBARIsAO3zDl9ZKbK3L-viqx_n8xtGwYvPyYKFZCteMKMDsf9yjU9EOyfrtCe1AjIaAj9UEALw_wcB">powered
+            by Stripe</a>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script src="https://checkout.stripe.com/checkout.js"
+        class="stripe-button"
+        data-key="<%- publish_key %>"
+        data-amount="2000"
+        data-name="Umber"
+        data-description="cart : TODO reference here"
+        data-image="/images/cart.png">
+</script>
+</body>
 </html>

@@ -10,9 +10,10 @@
     import {api_config} from '../api_config';
 
     export default {
+
         data() {
             return {
-                payment_server_url: api_config.payment_server_url
+                payment_server_url: `${api_config.payment_server_url}${this.$store.getters.getAccessToken}/${this.$store.getters.getCurrentUser._id}`
             }
         },
         methods: {}

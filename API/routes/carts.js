@@ -3,6 +3,8 @@
 const express = require('express');
 const router = express.Router();
 
+const AuthChecker = require('../middleware/Authentication');
+
 const controller = require('../controllers/cart.controller');
 
 /* GET carts listing. */
@@ -13,7 +15,7 @@ router.get('/:id', controller.show);
 
 /* POST cart. */
 // router.post('/remind/:id', controller.remind);
-router.post('/', controller.create);
+router.post('/', AuthChecker.authChecker, controller.create);
 
 /* PUT cart. */
 router.put('/:id', controller.update);

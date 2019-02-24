@@ -79,9 +79,14 @@
                             backgroundColor: new Color("#78e08f")
                         });
 
-
+                    console.log("store name",this.store.name);
                     this.$store.commit('setProductCart', product);
-
+                    //TODO urgent
+                    // en gros il faut pas pouvoir ajouter un article d'un autre magasin dans le cart d'un magasin
+                    // ->sinon faire un message du style vous avez déjà un autre panier en cours voulez vous le remplacer ?
+                    // -> si oui on creer le nouveau currentCart remove l'ancien et ajoute l'article
+                    // sinon on on redirige vers le panier resume
+                    //coté api enlever pour le paiment le checking du panier déjà existant (ca na pas de sens en fait)
 
                     //console.log(" $$$$$$$$ CURRENT CART $$$$$$$ : ", this.$store.getters.getCurrentCart);
                     //console.log("HOME - > USER STATUS : ", this.$store.getters.getUserStatus);
