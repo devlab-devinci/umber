@@ -16,7 +16,11 @@
     </div>
 </div>
 
-
+<!--
+<code>
+    <%= JSON.stringify(cart) %>
+</code>
+-->
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
@@ -26,13 +30,16 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-<script src="https://checkout.stripe.com/checkout.js"
-        class="stripe-button"
-        data-key="<%- publish_key %>"
-        data-amount="2000"
-        data-name="Umber"
-        data-description="cart : TODO reference here"
-        data-image="/images/cart.png">
-</script>
+<form action="<%- success_redirect_URL %>" method="post">
+    <script src="https://checkout.stripe.com/checkout.js"
+            class="stripe-button"
+            data-key="<%- publish_key %>"
+            data-amount="<%- cart.total_bill * 100%>"
+            data-name="Umber"
+            data-description="Votre panier"
+            data-currency="eur"
+            data-image="/images/cart.png">
+    </script>
+</form>
 </body>
 </html>

@@ -51,6 +51,7 @@ router.get('/payment/cart/:user_id/:user_name_fb', function (req, res, next) {
                                     .sort({
                                         'createdAt': -1
                                     })
+                                    .populate('products')
                                     .then(function (carts) {
                                         if (carts) {
                                             let current_cart = carts[0];
