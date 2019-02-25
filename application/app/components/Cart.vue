@@ -60,7 +60,7 @@
         data: function () {
             return {
                 current_cart: null,
-                formated: null,
+                formatted: null,
                 total_bill: 0,
                 quantity_formatted: 0,
                 payment_url: api_config.payment_server_url
@@ -80,6 +80,7 @@
                         return item.name
                     }).filter((value, index, self) => self.indexOf(value) === index);
 
+
                     let products = [];
                     for (let item in formatted) {
                         products.push({
@@ -90,13 +91,68 @@
                         })
                     }
 
+                    //TODO - WIP
+                    //TODO le bug en fait 'est juste que current_cart on a genre 2 fois le mpême element mais avec la quantité duplicate putin
+                    //console.log("current_cart", this.current_cart)
+                    //console.log("current cart quantity ?", this.current_cart)
+                    console.log("real quantity is count  item in curren t_cart", this.current_cart.length)
+
+                    //TODO -> promotion !!!!
+
+                    let product_names = [];
+
+                    this.current_cart.forEach(function (element) {
+                        product_names.push(element.name);
+                        console.log(element.name + " : " + element.quantity + " qt" + element.price + " eur")
+                    });
+
+
+
+                    function compressArray(original) {
+
+                        var compressed = [];
+                        // make a copy of the input array
+                        var copy = original.slice(0);
+
+                        // first loop goes over every element
+                        for (var i = 0; i < original.length; i++) {
+
+                            var myCount = 0;
+                            // loop over every element in the copy and see if it's the same
+                            for (var w = 0; w < copy.length; w++) {
+                                if (original[i] == copy[w]) {
+                                    // increase amount of times duplicate is found
+                                    myCount++;
+                                    // sets item to undefined
+                                    delete copy[w];
+                                }
+                            }
+
+                            if (myCount > 0) {
+                                var a = new Object();
+                                a.value= original[i];
+                                a[original[i]] = myCount;
+                                compressed.push(a);
+                            }
+                        }
+
+                        return compressed;
+                    };
+
+                    let quantities = compressArray(product_names);
+                    console.log(quantities);
+                    //todo -> pour chaque name on doit creer un array du style
+                    // name:{array_found.length}
+                    //array found c'est le tableau do'ccurnce
+
+
                     for (let y in this.current_cart) {
                         for (let x in products) {
+                            console.log("QUANTITY",quantities[0][products[x].name]);
                             if (this.current_cart[y].name == products[x].name) {
-                                products[x].quantity += this.current_cart[y].quantity
-                                products[x].price = parseFloat(this.current_cart[y].price)
-                                products[x].total += (parseFloat(this.current_cart[y].price) * this.current_cart[y].quantity)
-
+                                products[x].quantity = parseFloat(quantities[0][products[x].name]);
+                                products[x].price += parseFloat(this.current_cart[y].price)
+                                products[x].total += (parseFloat(this.current_cart[y].price) * parseFloat(quantities[0][products[x].name]))
                             }
                         }
                     }

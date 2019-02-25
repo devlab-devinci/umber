@@ -79,8 +79,28 @@
                             backgroundColor: new Color("#78e08f")
                         });
 
-                    console.log("store name",this.store.name);
-                    this.$store.commit('setProductCart', product);
+                    let existingQuantity = 0;
+                    let payload = {
+                        quantity: quantity,
+                        product: product
+                    };
+
+                    if(this.$store.getters.getCurrentCart !== null){
+                        existingQuantity = this.$store.getters.getCurrentCart.length
+                    }
+
+                    payload.existingQuantity = existingQuantity;
+
+                    /*
+                    console.log("before : ",payload.quantity)
+                    if(this.$store.getters.getCurrentCart !== null){
+                        payload.quantity = parseInt(payload.quantity) + this.$store.getters.getCurrentCart.length
+                    }
+
+                    console.log("after",payload.quantity)
+                    */
+                    this.$store.commit('setProductCart', payload);
+
                     //TODO urgent
                     // en gros il faut pas pouvoir ajouter un article d'un autre magasin dans le cart d'un magasin
                     // ->sinon faire un message du style vous avez déjà un autre panier en cours voulez vous le remplacer ?

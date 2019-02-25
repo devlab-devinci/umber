@@ -233,15 +233,31 @@ const mutations = {
      * @param userStatus
      */
     setUserStatus(state, userStatus) {
-        console.log("USER TO SET du store fdp", userStatus)
+        console.log("USER TO SET du store", userStatus)
         state.user_status = userStatus;
     },
 
-    setProductCart(state, product) {
+    setProductCart(state, payload) {
+        console.log("SET PRODUCT CART IS CALLED");
         if (!state.currentCart) {
             state.currentCart = []
         }
-        state.currentCart.push(product)
+
+        let quantity = parseInt(payload.quantity);
+        let product = payload.product;
+        let existingQuantity = payload.existingQuantity;
+        let realQuantity = quantity+ existingQuantity;
+
+        console.log("user added", quantity)
+        console.log("but ecisting", existingQuantity);
+        console.log("donc il en a", quantity+ existingQuantity)
+        while (realQuantity > existingQuantity) {
+            state.currentCart.push(product);
+            realQuantity -= 1
+        }
+
+        console.log("CURRENT CART",state.currentCart.length)
+
     },
 
     removeProductCart(state, {productIndex}) {
