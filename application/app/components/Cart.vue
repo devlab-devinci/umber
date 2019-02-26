@@ -15,6 +15,7 @@
                             <Label>
                                 <FormattedString>
                                     <Span :text="product.price | currency('€')"></Span>
+                                    <Span :text="product.price_promo | currency('€')"></Span>
                                     <Span text=" x "></Span>
                                     <Span :text="product.quantity"></Span>
                                     <Span text=" = "></Span>
@@ -107,10 +108,10 @@
                     });
 
 
+                    function compressObj(original) {
 
-                    function compressArray(original) {
-
-                        var compressed = [];
+                        //var compressed = [];
+                        var obj  = {}
                         // make a copy of the input array
                         var copy = original.slice(0);
 
@@ -121,7 +122,7 @@
                             // loop over every element in the copy and see if it's the same
                             for (var w = 0; w < copy.length; w++) {
                                 if (original[i] == copy[w]) {
-                                    // increase amount of times duplicate is found
+                                    // increase amount of times dplicate is found
                                     myCount++;
                                     // sets item to undefined
                                     delete copy[w];
@@ -129,18 +130,19 @@
                             }
 
                             if (myCount > 0) {
-                                var a = new Object();
-                                a.value= original[i];
-                                a[original[i]] = myCount;
-                                compressed.push(a);
+                                //var a = new Object();
+                                //obj.value = original[i];
+                                obj[original[i]] = myCount;
+                                console.log("OBJECT",obj)
+                                //compressed.push(a);
                             }
                         }
 
-                        return compressed;
+                        return obj;
                     };
 
-                    let quantities = compressArray(product_names);
-                    console.log(quantities);
+                    let quantities = compressObj(product_names);
+                    console.log("compress quantities", quantities[0]);
                     //todo -> pour chaque name on doit creer un array du style
                     // name:{array_found.length}
                     //array found c'est le tableau do'ccurnce
@@ -148,11 +150,18 @@
 
                     for (let y in this.current_cart) {
                         for (let x in products) {
-                            console.log("QUANTITY",quantities[0][products[x].name]);
+                            console.log("QUANTITY", quantities[products[x].name]);
+                            console.log(parseFloat(this.current_cart[y].promotion))
+                            console.log(typeof parseFloat(this.current_cart[y].promotion))
+
+                            //TODO -> bug du NaN
                             if (this.current_cart[y].name == products[x].name) {
-                                products[x].quantity = parseFloat(quantities[0][products[x].name]);
-                                products[x].price += parseFloat(this.current_cart[y].price)
-                                products[x].total += (parseFloat(this.current_cart[y].price) * parseFloat(quantities[0][products[x].name]))
+                                products[x].quantity = parseFloat(quantities[products[x].name]);
+                                console.log("quantity loop", quantities[products[x].name], " :: ", products[x].name)
+                                products[x].price_promo = parseFloat(this.current_cart[y].price) - parseFloat(this.current_cart[y].promotion)
+                                products[x].price = parseFloat(this.current_cart[y].price)
+                                products[x].total = (parseFloat(products[x].price_promo) * parseFloat(quantities[products[x].name]))
+                                products[x].store_access_name = this.current_cart[y].store_access_name;
                             }
                         }
                     }

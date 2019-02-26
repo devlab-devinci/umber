@@ -24,10 +24,11 @@
                     <StackLayout orientation="vertical">
                         <Label :text="product.name | capitalize"></Label>
                         <Label :text="product.price | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"></Label>
+                        <Label :text="product.promotion | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"></Label>
                         <TextView :text="product.description"></TextView>
                         <TextField keyboardType="number" hint="Quantité" v-model="product.key">
                         </TextField>
-                        <Button text="Add to cart" @tap="addToCart(product, product.key)"></Button>
+                        <Button text="Add to cart" @tap="addToCart(product, product.key, product.promotion)"></Button>
                     </StackLayout>
                 </v-template>
             </ListView>
@@ -61,7 +62,7 @@
             return {}
         },
         methods: {
-            addToCart(product, quantity) {
+            addToCart(product, quantity, promotion) {
                 if (!quantity) {
                     const errorQuantityToast = Toast.makeText('Choisissez une quantité', 'short');
                     errorQuantityToast.show();
@@ -82,7 +83,8 @@
                     let existingQuantity = 0;
                     let payload = {
                         quantity: quantity,
-                        product: product
+                        product: product,
+                        promotion: promotion
                     };
 
                     if(this.$store.getters.getCurrentCart !== null){

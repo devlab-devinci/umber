@@ -251,6 +251,7 @@ const mutations = {
         console.log("user added", quantity)
         console.log("but ecisting", existingQuantity);
         console.log("donc il en a", quantity+ existingQuantity)
+        product.promotion = payload.promotion
         while (realQuantity > existingQuantity) {
             state.currentCart.push(product);
             realQuantity -= 1

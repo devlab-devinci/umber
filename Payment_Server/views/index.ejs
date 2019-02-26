@@ -7,6 +7,25 @@
     <link rel='stylesheet' href='/stylesheets/style.css'/>
 </head>
 <body class="container">
+<style>
+    .loader {
+        border: 16px solid #f3f3f3; /* Light grey */
+        border-top: 16px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
 <div>
     <p class="display-4 text-center"><%= title %></p>
     <div class="text-right">
@@ -14,6 +33,10 @@
            href="https://stripe.com/fr?&utm_campaign=paid_brand&utm_medium=cpc&utm_source=google&ad_content=267418206160&utm_term=stripe&utm_matchtype=e&utm_adposition1t1&utm_device=c&gclid=Cj0KCQiAtbnjBRDBARIsAO3zDl9ZKbK3L-viqx_n8xtGwYvPyYKFZCteMKMDsf9yjU9EOyfrtCe1AjIaAj9UEALw_wcB">powered
             by Stripe</a>
     </div>
+</div>
+
+<div class="d-flex justify-content-center">
+    <div class="loader"></div>
 </div>
 
 <!--
@@ -34,7 +57,7 @@
     <script src="https://checkout.stripe.com/checkout.js"
             class="stripe-button"
             data-key="<%- publish_key %>"
-            data-amount="<%- cart.total_bill * 100%>"
+            data-amount="<%- cart.total_bill * 100 %>"
             data-name="Umber"
             data-description="Votre panier"
             data-currency="eur"

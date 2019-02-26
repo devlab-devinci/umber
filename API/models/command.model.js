@@ -3,39 +3,31 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+/**
+ * Quand un panier est validé puis payé, la logique est la suivate:
+ *  -> si pas d'erreur on remove le currentCart (db + local)
+ *  -> regrouper chaque articles du panier en fonction de l'entreprise owner
+ *  -> creer une commande pour chaque entreprises et génère son QR code
+ */
 
 let CommandSchema = new Schema({
-    status: {
-        type: String,
-        enum: ['paid_active', 'paid_finish' ],
-        default: 'active'
-    },
-    cart: {
-        type: Schema.Types.ObjectId,
-        ref: 'Cart'
-    },
+    products: [
+        {
+            type: mongoose.Types.ObjectId,
+            ref: "Product"
+        }
+    ],
     buyer: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         index: true
     },
-    vendor: [ // les produits peuvent provenir de divers vendeurs du coup penser à mettre tous les vendeur dans cet array pour leur envoyé à chacun un QR code
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
-        }
-    ],
     createdAt: {
         type: Date,
         required: true,
         default: Date.now
     },
-    updatedAt: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-    amount: {
+    amount_cart: { // ceci est le panier entier ne prenant pas en compte le spread des produtis en fonction des entreprises
         type: Number,
         required: true
     },
@@ -43,7 +35,7 @@ let CommandSchema = new Schema({
         type: String,
         required: true
     },
-    card_type: {type: String, required: true},
+    card_brand: {type: String, required: true},
     currency: {
         type: String,
         required: true
@@ -51,6 +43,34 @@ let CommandSchema = new Schema({
     reference: { //uuid4
         type: String,
         required: true
+    },
+    country: {
+        type: String,
+        required: true
+    },
+    stripe_customer: {
+        type: String,
+        required: true
+    },
+    stripe_fingerprint: {
+        type:String,
+        required:true
+    },
+    stripe_id: {
+     type:String,
+     required:true
+    },
+    exp_month: {
+        type: String,
+        required: true
+    },
+    exp_year: {
+        type: String,
+        required: true
+    },
+    //TODO
+    qr_code: {
+        type: String
     }
 });
 
