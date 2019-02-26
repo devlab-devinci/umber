@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@sylvainneung/qr-code-generator": "^1.2.4",
     "axios": "^0.18.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
@@ -15,6 +16,7 @@
     "http-errors": "~1.6.2",
     "jsonwebtoken": "^8.5.0",
     "morgan": "~1.9.0",
-    "stripe": "^6.25.1"
+    "stripe": "^6.25.1",
+    "uuid": "^3.3.2"
   }
 }

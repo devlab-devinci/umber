@@ -7,6 +7,11 @@ const axios = require('axios');
 
 const api_config = require('../config/api_config');
 
+const qrGenerator = require('@sylvainneung/qr-code-generator');
+const uuidv4 = require('uuid/v4');
+
+const path = require('path');
+
 /* Payment */
 router.get('/umber/payment/:fb_access_token/:user_id', function (req, res, next) {
     let user_fb_access_token = req.params.fb_access_token;
@@ -50,11 +55,18 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
     let headers = {
         'fb-access-token': fb_user_access_token
     };
+    let payload = {
+        cart: "",
+        user: "",
+        source: "",
+        charge: ""
+    };
 
+    let self = this;
     axios.get(`${api_config.api_url}/api/v1/payment/cart/${user_id}/${fb_user_name}`)
         .then(function (response) {
-            let cart = response.data.data;
-
+            payload.cart = response.data.data;
+            payload.user = response.data.current_user;
             Stripe.customers.create({
                 email: req.body.stripeEmail
             }).then((customer) => {
@@ -62,63 +74,96 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                     source: 'tok_visa'
                 });
             }).then((source) => {
+                payload.source = source;
+                console.log("PAY", payload)
                 return Stripe.charges.create({
-                    amount: cart.total_bill * 100,
+                    amount: payload.cart.total_bill * 100,
                     currency: 'eur',
-                    customer: source.customer
+                    customer: payload.source.customer
                 });
             }).then((charge) => {
-                axios.get(`${api_config.api_url}/api/v1/payment/cart/${user_id}/${fb_user_name}`)
-                    .then(function (response) {
-                        let cart = response.data.data;
-                        let body = {}; // for post
 
-                        // definie possibilities of stoes _id
-                        let store_ids = [];
-                        for (let i in cart.products) {
-                            store_ids.push(cart.products[i].store)
+                console.log("payload", payload)
+                payload.charge = charge;
+
+                let body = {};
+
+                // definie possibilities of stoes _id
+                let store_ids = [];
+                for (let i in payload.cart.products) {
+                    store_ids.push(payload.cart.products[i].store)
+                }
+                let store_id_possibilities = [...new Set(store_ids)];
+
+                // attribute to the right store, his products
+                let storesSorted = {};
+                store_id_possibilities.forEach(function (_id) {
+                    storesSorted[_id] = payload.cart.products.filter(function (product) {
+                        if (_id === product.store) {
+                            return product;
                         }
-                        let store_id_possibilities = [...new Set(store_ids)];
+                    });
 
-                        // attribute to the right store, his products
-                        let storesSorted = {};
-                        store_id_possibilities.forEach(function (_id) {
-                            storesSorted[_id] = cart.products.filter(function (product) {
-                                if (_id === product.store) {
-                                    return product;
-                                }
-                            });
-                            //todo -> ajuster le calcul avec la quantité et la remise ..
-                            // todo -> ajuster aussi avec la remise sur Cart.vue
-                            let quantity_product = storesSorted[_id].length;
+                    let quantity_product = storesSorted[_id].length;
 
-                            if (quantity_product > 1) {
-                                storesSorted[_id].total_for_store = storesSorted[_id].reduce((a, b) => (a.price + b.price - storesSorted[_id][0].promotion) * quantity_product)
-                            } else {
-                                storesSorted[_id].total_for_store = storesSorted[_id][0].price - storesSorted[_id][0].promotion
-                            }
-                        });
+                    if (quantity_product > 1) {
+                        storesSorted[_id].total_for_store = storesSorted[_id].reduce((a, b) => (a.price + b.price - storesSorted[_id][0].promotion) * quantity_product)
+                    } else {
+                        storesSorted[_id].total_for_store = storesSorted[_id][0].price - storesSorted[_id][0].promotion
+                    }
+
+                    console.log("end sorted promo done ?")
+                    //console.log(storesSorted);
+                });
+
+                body.products = payload.cart.products.map(product => product._id); // array of objectId product
+                body.buyer = payload.user._id;
+                body.createdAt = new Date();
+                body.amount_cart = parseFloat(Math.round(payload.charge.amount) / 100).toFixed(2);
+                body.email_facturation = payload.user.email;
+                body.last4 = payload.source.last4;
+                body.card_brand = payload.source.brand;
+                body.currency = payload.charge.currency;
+                body.stripe_customer = payload.source.customer;
+                body.stripe_fingerprint = payload.source.fingerprint;
+                body.balance_transaction = payload.charge.balance_transaction;
+                body.exp_month = payload.source.exp_month;
+                body.exp_year = payload.source.exp_year;
+                body.refund_url = payload.charge.refunds.url;
+                body.country = payload.source.country;
+                body.reference = uuidv4();
 
 
-                        //console.log("Possibility stores_id:", store_id_possibilities);
-                        console.log("stores with their products : ", storesSorted);
+                //todo -> qr CODE GENERATE AND SET HERE
+                qrGenerator
+                    .generateQrImageAsync(body.amount_cart, body.reference, "png")
+                    .then(function (response) {
+                        console.log("response : ", response)
+                        if (response.error === null) {
+                            // TODO ->API push command // update quantity du produit
+                            let picFileName = path.parse(response.pic_path).base;
+                            body.qr_code = picFileName;
+                            console.log("PUSH THIS IN DB with API", body);
+                            res.json("ok");
+                        } else {
+                            res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
+                        }
 
-
-                        //todo -> dans le cart recuperer chaque produits
-                        res.json("wip")
                     })
-                    .catch(function (err) {
-                        res.render('error', {message: err});
-                    })
-                //Story
-                // user payment successfull
-                // pour chaque products stock -1
-                // add la command en tant paid
-                // New charge created on a new customer
-                // todo -> add command.model puis save une ici (update stock -1 pour chaque product)
-                // PUIS
-                // TODO -> template success
-                //res.json(charge);
+                    .catch(err => console.log("err =>", err));
+
+                /*
+                ** TEST **
+                console.log("READY - TO - FORMAT - BODY FOR COMMAND ADD");
+                console.log("USER,", payload.user)
+                console.log("CHARGE,", payload.charge);
+                console.log("SOURCE,", payload.source);
+                console.log("SORTED", storesSorted)
+                console.log("----- BODY ----")
+                console.log(body);
+                console.log("----- BODY ----")
+                */
+                //res.json("ok")
             }).catch((err) => {
                 res.render('error', {message: err})
             });
