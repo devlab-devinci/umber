@@ -144,7 +144,14 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                             let picFileName = path.parse(response.pic_path).base;
                             body.qr_code = picFileName;
                             console.log("PUSH THIS IN DB with API", body);
-                            res.json("ok");
+
+                            axios
+                                .post(`${api_config.api_url}/api/v1/commands`, body, {headers : headers})
+                                .then(function(response){
+                                    console.log("RESPONSE AXIOS: ", response)
+                                    res.json("ok");
+                                })
+                                .catch(err => console("axios command err", err))
                         } else {
                             res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
                         }
