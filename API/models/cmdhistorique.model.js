@@ -3,22 +3,16 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-/**
- * Quand un panier est validé puis payé, la logique est la suivate:
- *  -> si pas d'erreur on remove le currentCart (db + local)
- *  -> regrouper chaque articles du panier en fonction de l'entreprise owner
- *  -> creer une commande pour chaque entreprises et génère son QR code
- */
 
-let CommandSchema = new Schema({
+let CmdHistoriqueSchema = new Schema({
     status: {
         type: String,
         enum: ['prepare', 'ready'],
-        default: 'prepare'
+        default: 'ready'
     },
     ready_at: { // fill  when the command is noticed as ready by the vendor
         type:Date,
-        default: null
+        required: true
     },
     identifier: {
       type:String,
@@ -97,4 +91,4 @@ let CommandSchema = new Schema({
 });
 
 
-module.exports = mongoose.model('Command', CommandSchema);
+module.exports = mongoose.model('CmdHistorique', CmdHistoriqueSchema);

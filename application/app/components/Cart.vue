@@ -12,6 +12,7 @@
                         <StackLayout>
                             <Label :text="product.name | capitalize"></Label>
                             <Label :text="product.store_access_name | capitalize"></Label>
+                            <Button text="remove"></Button>
                             <Label>
                                 <FormattedString>
                                     <Span :text="product.price | currency('€')"></Span>
@@ -212,6 +213,9 @@
                     .catch(function (err) {
                         console.log(err)
                     });
+            },
+            removeProduct(product_id){
+                console.log("PRODUCT TO REMOVE", product_id);
             },
             delete_cart() {
                 //TODO

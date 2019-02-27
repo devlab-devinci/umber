@@ -132,10 +132,12 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                 body.refund_url = payload.charge.refunds.url;
                 body.country = payload.source.country;
                 body.reference = uuidv4();
-
+                body.status = 'prepare';
+                body.identifier = Math.random().toString(36).substring(7);
+                body.buyer_quick_access = payload.user._id;
 
                 qrGenerator
-                    .generateQrImageAsync(body.amount_cart, body.reference, "png")
+                    .generateQrImageAsync(body.identifier, body.reference, "png")
                     .then(function (response) {
                         console.log("response : ", response)
                         if (response.error === null) {

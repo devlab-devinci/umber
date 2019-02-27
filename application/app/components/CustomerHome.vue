@@ -20,7 +20,39 @@
                 </StackLayout>
             </TabViewItem>
             <TabViewItem title="Reçues">
-                <Label text="reçues"></Label>
+                <StackLayout style="margin:10px;">
+                    <SegmentedBar @selectedIndexChange="onSelectedIndexChange" v-model="selectedItem">
+                        <SegmentedBarItem title="En cours"/>
+                        <SegmentedBarItem title="Historique"/>
+                    </SegmentedBar>
+
+                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"
+                                   style="align-items:center; flex-direction:column;">
+                        <StackLayout>
+                            <ListView for="command_c in this.prepare_commands" v-if="this.prepare_commands.length > 0">
+                                <v-template>
+                                    <StackLayout>
+                                        <label :text="command_c.identifier"></label>
+                                        <label :text="command_c.createdAt"></label>
+                                        <Label :text="command_c.status"></Label>
+                                        <label :text="command_c.amount_cart"></label>
+                                        <Button text="Voir comment y aller"></Button>
+                                    </StackLayout>
+                                </v-template>
+                            </ListView>
+                            <Label text="Pas de produits pour le moment" v-if="this.prepare_commands.length === 0">
+
+                            </Label>
+                        </StackLayout>
+
+                    </FlexboxLayout>
+
+
+                    <FlexboxLayout :visibility="selectedItem === 1 ? 'visible' : 'collapsed'"
+                                   style="align-items:center; flex-direction:column;">
+                    </FlexboxLayout>
+
+                </StackLayout>
             </TabViewItem>
             <TabViewItem title="Compte" iconSource="">
                 <StackLayout>
@@ -112,6 +144,12 @@
         name: "CustomerHome",
 //callback lifecyclme (vuejs)
         beforeCreate() {
+            let self = this;
+            const headers = {
+                'fb-access-token': this.$store
+                    .getters.getAccessToken
+            };
+
             let feedback = new Feedback();
             feedback
                 .success({
@@ -126,6 +164,27 @@
 
             console.log("HOME - > USER STATUS : ", this.$store.getters.getUserStatus);
 
+            loader.show(loaderOptions);
+            console.log("URL", `${api_config.api_url}/api/v1/commands/${this.$store.getters.getCurrentUser._id}/prepare`)
+            console.log("headers", headers);
+            axios
+                .get(`${api_config.api_url}/api/v1/commands/${this.$store.getters.getCurrentUser._id}/prepare`, {headers: headers})
+                .then(function (response) {
+                    console.log("RESP", response);
+                    self.prepare_commands = response.data.data;
+                    console.log("prepare commands", self.prepare_commands);
+                    setTimeout(function () {
+                        loader.hide();
+                    }, 1000);
+                })
+                .catch(function (err) {
+                    console.log("prepare commands", err);
+                    loader.hide();
+                    feedback.error({
+                        title: "Oups, une erreur est survenue! réessayer plus tard",
+                        titleColor: new Color("black")
+                    });
+                });
         },
         mounted() {
             let self = this;
@@ -170,10 +229,18 @@
             return {
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
                 searchByLocationValue: "",
+                selectedItem: 0,
+
+                //prepare commands section
+                prepare_commands: ""
             }
         },
         methods: {
-
+            onSelectedIndexChange() {
+                console.log("ITEM SELECTED", this.selectedItem);
+                console.log(typeof this.selectedItem);
+                console.log(this.selectedItem === 0 ? 'visible' : 'collapsed')
+            },
             searchByLocation(event) {
 
                 console.log("SEARCH LOCATION : ", this.searchByLocationValue)

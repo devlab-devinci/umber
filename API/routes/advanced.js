@@ -14,6 +14,7 @@ const ProductCategory = require('../models/ProductCategory.model');
 const Authentication = require('../middleware/Authentication');
 const Cart = require('../models/cart.model');
 const Command = require('../models/command.model');
+const CmdHistorique = require('../models/cmdhistorique.model');
 
 const uuidv1 = require('uuid/v1');
 
@@ -432,24 +433,24 @@ router.post('/products/ajusted', function (req, res, next) {
                 //todo -> remove and check if quantity is under 0 -> return 400 avec erreur
 
                 let objIds = compressObj(data.products); // return {_id of product: quantity}
-                for(let index in objIds){
+                for (let index in objIds) {
                     let quantityTaken = objIds[index];
                     Product
-                        .findOne({_id: mongoose.Types.ObjectId(index)}, function(err, product){
-                            if(err){
+                        .findOne({_id: mongoose.Types.ObjectId(index)}, function (err, product) {
+                            if (err) {
                                 error = true;
                             } else {
                                 let current_stock = product.stock;
                                 console.log("CURRENT STOCK : ", current_stock);
                                 console.log("QUANTITY TAKEN : ", quantityTaken);
-                                if((current_stock - quantityTaken) < 0){
+                                if ((current_stock - quantityTaken) < 0) {
                                     console.log("CURRENT STOCK - QUANTITY TAKEN ERROR");
                                     error = true;
                                 } else {
                                     product.stock = current_stock - quantityTaken;
 
-                                    product.save(function(err){
-                                        if(err){
+                                    product.save(function (err) {
+                                        if (err) {
                                             error = true;
                                         }
                                     })
@@ -459,7 +460,7 @@ router.post('/products/ajusted', function (req, res, next) {
                 }
 
                 console.log("ERROR HIT ?", error);
-                if(error){
+                if (!error) {
                     res.status(200).json({
                         "data": "ajusted with success",
                         "status": 200
@@ -476,10 +477,104 @@ router.post('/products/ajusted', function (req, res, next) {
         });
 });
 
+
+/**
+ * GET return list "commands en cours" for buyer only
+ */
+router.get('/commands/:user_id/prepare', Authentication.authChecker,function (req, res, next) {
+    let user_id = req.params.user_id;
+    errorManager
+        .isValidId(user_id)
+        .then(function (response) {
+            if (response.error) {
+                errorManager.handler(res, response.data, "error is validId")
+            } else {
+                let userId = mongoose.Types.ObjectId(user_id); // formmated iD
+                User
+                    .findOne({_id: userId}, function (err, user) {
+                        if (err) {
+                            errorManager.handler(res, err, "error user findOne")
+                        } else {
+                            if (user) {
+                                Command
+                                    .find({buyer_quick_access: userId, status: "prepare", ready_at: null})
+                                    .populate('user products')
+                                    .then(function (commands) {
+                                            if (commands) {
+                                                res.status(200).json({
+                                                    "data": commands,
+                                                    "status": 200
+                                                })
+                                            } else {
+                                                errorManager.handler(res, "commands empty", "no commands.")
+                                            }
+                                    })
+                                    .catch(function (err) {
+                                        errorManager.handler(res, err, "find commands error")
+                                    })
+                            } else {
+                                error.handler(res, "user not found.", "no user for this _id given")
+                            }
+                        }
+                    })
+            }
+        })
+        .catch(function (err) {
+            errorManager.handler(res, err, "isValidId error")
+        });
+});
+
+/**
+ * GET commands historique for custommer
+ */
+router.get('/commands/:user_id/historic', Authentication.authChecker,function (req, res, next) {
+    let user_id = req.params.user_id;
+    errorManager
+        .isValidId(user_id)
+        .then(function (response) {
+            if (response.error) {
+                errorManager.handler(res, response.data, "error is validId")
+            } else {
+                let userId = mongoose.Types.ObjectId(user_id); // formmated iD
+                User
+                    .findOne({_id: userId}, function (err, user) {
+                        if (err) {
+                            errorManager.handler(res, err, "error user findOne")
+                        } else {
+                            if (user) {
+                                CmdHistorique
+                                    .find({buyer_quick_access: userId, status: "ready"})
+                                    .populate('user products')
+                                    .then(function (commandsHistoriques) {
+                                        if (commandsHistoriques) {
+                                            res.status(200).json({
+                                                "data": commandsHistoriques,
+                                                "status": 200
+                                            })
+                                        } else {
+                                            errorManager.handler(res, "commands historique empty", "no commands historique.")
+                                        }
+                                    })
+                                    .catch(function (err) {
+                                        errorManager.handler(res, err, "find commands historique error")
+                                    })
+                            } else {
+                                error.handler(res, "user not found.", "no user for this _id given")
+                            }
+                        }
+                    })
+            }
+        })
+        .catch(function (err) {
+            errorManager.handler(res, err, "isValidId error")
+        });
+});
+
+
 function compressObj(original) {
 
     //var compressed = [];
-    var obj  = {}
+    var obj = {}
     // make a copy of the input array
     var copy = original.slice(0);
 
@@ -501,7 +596,7 @@ function compressObj(original) {
             //var a = new Object();
             //obj.value = original[i];
             obj[original[i]] = myCount;
-            console.log("OBJECT",obj)
+            console.log("OBJECT", obj)
             //compressed.push(a);
         }
     }
