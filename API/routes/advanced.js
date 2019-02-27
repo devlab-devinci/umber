@@ -13,6 +13,7 @@ const StoreCategory = require('../models/CategoryStore');
 const ProductCategory = require('../models/ProductCategory.model');
 const Authentication = require('../middleware/Authentication');
 const Cart = require('../models/cart.model');
+const Command = require('../models/command.model');
 
 const uuidv1 = require('uuid/v1');
 
@@ -57,6 +58,7 @@ router.get('/payment/cart/:user_id/:user_name_fb', function (req, res, next) {
                                             let current_cart = carts[0];
                                             res.status(200).json({
                                                 data: current_cart,
+                                                current_user: user,
                                                 status: 200
                                             })
                                         } else {
@@ -391,6 +393,26 @@ router.post('/cart', function (req, res, next) {
                 .handler(res, err, "isValidId error")
         })
 
+});
+
+
+router.post('/commands', Authentication.authChecker, function (req, res, nest) {
+    let payload = req.body;
+    let newCommand = new Command(payload);
+    newCommand
+        .save(function (err) {
+            if (err) {
+                errorManager
+                    .handler(res, err, "error save new command");
+            } else {
+                res
+                    .status(200)
+                    .json({
+                        "data": newCommand,
+                        "status": 200
+                    })
+            }
+        });
 });
 
 module.exports = router;

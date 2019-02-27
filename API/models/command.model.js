@@ -13,7 +13,7 @@ const Schema = mongoose.Schema;
 let CommandSchema = new Schema({
     products: [
         {
-            type: mongoose.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "Product"
         }
     ],
@@ -56,9 +56,9 @@ let CommandSchema = new Schema({
         type:String,
         required:true
     },
-    stripe_id: {
-     type:String,
-     required:true
+    balance_transaction: {
+        type:String,
+        required:true
     },
     exp_month: {
         type: String,
@@ -68,11 +68,17 @@ let CommandSchema = new Schema({
         type: String,
         required: true
     },
-    //TODO
+    last4: {
+        type:String
+    },
+    refund_url : {
+        type:String,
+        required:true
+    },
     qr_code: {
         type: String
     }
 });
 
 
-module.exports = mongoose.model('CommandSchema', CommandSchema);
+module.exports = mongoose.model('Command', CommandSchema);

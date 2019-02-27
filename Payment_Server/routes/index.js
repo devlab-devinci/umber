@@ -143,15 +143,21 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                             // TODO ->API push command // update quantity du produit
                             let picFileName = path.parse(response.pic_path).base;
                             body.qr_code = picFileName;
-                            console.log("PUSH THIS IN DB with API", body);
-
                             axios
                                 .post(`${api_config.api_url}/api/v1/commands`, body, {headers : headers})
                                 .then(function(response){
-                                    console.log("RESPONSE AXIOS: ", response)
-                                    res.json("ok");
+                                    console.log("DATA ---- ", response.data);
+                                    /*
+                                    if(response.status !== 200){
+                                        res.json(error) // TODO template error instead
+                                    } else {
+                                        console.log("RESPONSE AXIOS: ", response)
+                                        res.json(response); // todo template success
+                                    }
+                                    */
+
                                 })
-                                .catch(err => console("axios command err", err))
+                                .catch(err => console.log("axios command err", err))
                         } else {
                             res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
                         }
