@@ -460,7 +460,9 @@
                     errorValidation.push("invalide stock");
                 }
 
-                if (this.form_offer_promotion < this.form_offer_price) {
+                console.log("TEST THIS : ",(this.form_offer_price - this.form_offer_promotion) <= 0)
+                //console.log("asset test", this.form_offer_promotion - this.form_offer_price);
+                if ( !(this.form_offer_price - this.form_offer_promotion) <= 0 ) {
                     inputOffer.promotion = this.form_offer_promotion;
                 } else {
                     console.log("PROMOTION", this.form_offer_promotion)
@@ -469,6 +471,7 @@
                 }
 
                 inputOffer.description = this.form_offer_description;
+                inputOffer.stock_total = this.form_offer_stock;
 
                 if (errorValidation.length > 0) {
                     console.log("VALIDATION FORM OFFER : ", errorValidation);

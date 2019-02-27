@@ -23,6 +23,7 @@
                 <v-template>
                     <StackLayout orientation="vertical">
                         <Label :text="product.name | capitalize"></Label>
+                        <Label :text="displayStock(product.stock)"></Label>
                         <Label :text="product.price | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"></Label>
                         <Label :text="product.promotion | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"></Label>
                         <TextView :text="product.description"></TextView>
@@ -118,6 +119,9 @@
             goToCartView() {
                 console.log("GO TO CART LIST")
                 this.$navigateTo(Router.cart);
+            },
+            displayStock(product_stock){
+                return `stock : ${product_stock}`;
             }
         }
 

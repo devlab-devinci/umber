@@ -27,6 +27,10 @@ let ProductSchema = new Schema({
     promotion: {
         type: Number
     },
+    stock_total: { // stock de départ
+        type:Number,
+        required:true
+    },
     stock: {
         type: Number,
         required: true
