@@ -134,36 +134,44 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                 body.reference = uuidv4();
 
 
-                //todo -> qr CODE GENERATE AND SET HERE
                 qrGenerator
                     .generateQrImageAsync(body.amount_cart, body.reference, "png")
                     .then(function (response) {
                         console.log("response : ", response)
                         if (response.error === null) {
-                            // TODO ->API push command // update quantity du produit
                             let picFileName = path.parse(response.pic_path).base;
                             body.qr_code = picFileName;
                             axios
-                                .post(`${api_config.api_url}/api/v1/commands`, body, {headers : headers})
-                                .then(function(response){
+                                .post(`${api_config.api_url}/api/v1/commands`, body, {headers: headers})
+                                .then(function (response) {
                                     console.log("DATA ---- ", response.data);
-                                    /*
-                                    if(response.status !== 200){
-                                        res.json(error) // TODO template error instead
+                                    if (response.status !== 200) {
+                                        res.render('error', {message: response.error})
                                     } else {
-                                        console.log("RESPONSE AXIOS: ", response)
-                                        res.json(response); // todo template success
+                                        //TODO API route for update quantity
+                                        //TODO api route to list command with QR code for user
+                                        //TODO api route to list command for commercant (voir pour un refund)
+                                        axios
+                                            .post(`${api_config.api_url}/api/v1/products/ajusted`, body, {headers: headers})
+                                            .then(function (response) {
+                                                console.log("AJUSTED RESPONSE",response);
+                                                if(response.status !== 200){
+                                                    res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
+                                                } else {
+                                                    res.render('success', {message: 'Félicitation votre paiment à bien été pris en compte. Vous pouvez vous rendre dans vos commandes / historiques pour voir le suivis de votre commande'});
+                                                }
+                                            })
+                                            .catch(err => res.render('error', {message: err.message}));
                                     }
-                                    */
 
                                 })
-                                .catch(err => console.log("axios command err", err))
+                                .catch(err => res.render('error', {message: "Une erreur est survenue, veuillez rééessayer plus tard"}))
                         } else {
                             res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
                         }
 
                     })
-                    .catch(err => console.log("err =>", err));
+                    .catch(err => res.render('error', {message: "Une erreur est survenue, veuillez rééessayer plus tard"}));
 
                 /*
                 ** TEST **

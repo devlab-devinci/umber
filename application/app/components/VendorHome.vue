@@ -460,15 +460,18 @@
                     errorValidation.push("invalide stock");
                 }
 
-                if (this.form_offer_promotion > this.form_offer_price) {
+                if (this.form_offer_promotion < this.form_offer_price) {
                     inputOffer.promotion = this.form_offer_promotion;
                 } else {
+                    console.log("PROMOTION", this.form_offer_promotion)
+                    console.log("PRICE", this.form_offer_price);
                     errorValidation.push("invalide promotion");
                 }
 
                 inputOffer.description = this.form_offer_description;
 
                 if (errorValidation.length > 0) {
+                    console.log("VALIDATION FORM OFFER : ", errorValidation);
                     //error
                     setTimeout(function () {
                         feedback
@@ -481,7 +484,7 @@
                 } else {
                     //console.log("current_user _id", this.$store.getters.getCurrentUser._id);
                     //console.log("payload", inputOffer)
-                    console.log("STORE ID",inputOffer.owner_store_id);
+                    console.log("STORE ID", inputOffer.owner_store_id);
                     axios
                         .post(`${api_config.api_url}/api/v1/offer`, inputOffer, {headers: headers})
                         .then(function (response) {

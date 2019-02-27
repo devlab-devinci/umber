@@ -17,6 +17,7 @@ const Command = require('../models/command.model');
 
 const uuidv1 = require('uuid/v1');
 
+const _ = require('lodash');
 
 //API -> passer l'user id dans l'url
 // recuperer tous les stores, les populate avec owner et recuperer que ce de l'user
@@ -414,5 +415,98 @@ router.post('/commands', Authentication.authChecker, function (req, res, nest) {
             }
         });
 });
+
+// ajust quantity of products when command is confirmed and paid
+router.post('/products/ajusted', function (req, res, next) {
+    let data = req.body;
+
+    let error = false;
+
+    errorManager
+        .isValidIds(data.products)
+        .then(function (response) {
+            if (response.error) {
+                errorManager
+                    .handler(res, response.data, "error isValidIds, invalid id found in array")
+            } else {
+                //todo -> remove and check if quantity is under 0 -> return 400 avec erreur
+
+                let objIds = compressObj(data.products); // return {_id of product: quantity}
+                for(let index in objIds){
+                    let quantityTaken = objIds[index];
+                    Product
+                        .findOne({_id: mongoose.Types.ObjectId(index)}, function(err, product){
+                            if(err){
+                                error = true;
+                            } else {
+                                let current_stock = product.stock;
+                                console.log("CURRENT STOCK : ", current_stock);
+                                console.log("QUANTITY TAKEN : ", quantityTaken);
+                                if((current_stock - quantityTaken) < 0){
+                                    console.log("CURRENT STOCK - QUANTITY TAKEN ERROR");
+                                    error = true;
+                                } else {
+                                    product.stock = current_stock - quantityTaken;
+
+                                    product.save(function(err){
+                                        if(err){
+                                            error = true;
+                                        }
+                                    })
+                                }
+                            }
+                        })
+                }
+
+                console.log("ERROR HIT ?", error);
+                if(error){
+                    res.status(200).json({
+                        "data": "ajusted with success",
+                        "status": 200
+                    });
+                } else {
+                    errorManager
+                        .handler(res, "error during ajusting quantity", "quantity updated has failed.")
+                }
+            }
+        })
+        .catch(err => {
+            errorManager
+                .handler(res, err, "error isvalidIds")
+        });
+});
+
+function compressObj(original) {
+
+    //var compressed = [];
+    var obj  = {}
+    // make a copy of the input array
+    var copy = original.slice(0);
+
+    // first loop goes over every element
+    for (var i = 0; i < original.length; i++) {
+
+        var myCount = 0;
+        // loop over every element in the copy and see if it's the same
+        for (var w = 0; w < copy.length; w++) {
+            if (original[i] == copy[w]) {
+                // increase amount of times dplicate is found
+                myCount++;
+                // sets item to undefined
+                delete copy[w];
+            }
+        }
+
+        if (myCount > 0) {
+            //var a = new Object();
+            //obj.value = original[i];
+            obj[original[i]] = myCount;
+            console.log("OBJECT",obj)
+            //compressed.push(a);
+        }
+    }
+
+    return obj;
+};
 
 module.exports = router;
