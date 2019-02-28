@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const stripe = require('../config/Stripe');
 const Stripe = require("stripe")(stripe.secret_key);
+const mongoose = require('mongoose');
 
 const axios = require('axios');
 
@@ -116,7 +117,8 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                     //console.log(storesSorted);
                 });
 
-                body.products = payload.cart.products.map(product => product._id); // array of objectId product
+                body.store_id = store_id_possibilities[0]; //ALERT ----> on traite qu'un panier par un finalement
+                body.products = payload.cart.products.map(product => mongoose.Types.ObjectId(product._id)); // array of objectId product
                 body.buyer = payload.user._id;
                 body.createdAt = new Date();
                 body.amount_cart = parseFloat(Math.round(payload.charge.amount) / 100).toFixed(2);

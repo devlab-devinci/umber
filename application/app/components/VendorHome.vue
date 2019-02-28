@@ -114,7 +114,42 @@
                 </StackLayout>
             </TabViewItem>
             <TabViewItem title="Commandes">
-                <Label text="commandes"></Label>
+                <StackLayout style="margin:10px;">
+                    <SegmentedBar @selectedIndexChange="onSelectedIndexCommandChange" v-model="selectedCommandItem">
+                        <SegmentedBarItem title="En cours"/>
+                        <SegmentedBarItem title="Historique"/>
+                    </SegmentedBar>
+
+                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"
+                                   style="align-items:center; flex-direction:column;">
+                        <StackLayout>
+                            <ListView for="command_c in this.prepare_commands" v-if="this.prepare_commands.length > 0">
+                                <v-template>
+                                    <StackLayout>
+                                        <label :text="command_c.identifier"></label>
+                                        <label :text="command_c.createdAt"></label>
+                                        <Label :text="command_c.status"></Label>
+                                        <label :text="command_c.amount_cart"></label>
+                                        <Button text="Prêt !"></Button>
+                                    </StackLayout>
+                                </v-template>
+                            </ListView>
+                            <Label text="Aucune commandes en cours pour le moment" v-if="this.prepare_commands.length === 0">
+
+                            </Label>
+                        </StackLayout>
+                    </FlexboxLayout>
+
+
+                    <FlexboxLayout :visibility="selectedCommandItem === 1 ? 'visible' : 'collapsed'"
+                                   style="align-items:center; flex-direction:column;">
+                        <StackLayout>
+                            <Label text="Pas de commandes dans votre historique pour le moment">
+                            </Label>
+                        </StackLayout>
+                    </FlexboxLayout>
+
+                </StackLayout>
             </TabViewItem>
             <TabViewItem title="Statistiques">
                 <Label text="statistiques"></Label>
@@ -267,7 +302,29 @@
                         titleColor: new Color("black")
                     });
                     console.log("ERROR:", err);
+                });
+
+
+            //Get commands en cours status: prepare with ready_at:null)
+            axios
+                .get(`${api_config.api_url}/api/v1/commands/${this.$store.getters.getCurrentUser._id}/vendor/prepare`, {headers: headers})
+                .then(function (response) {
+                    console.log("RESP", response);
+                    self.prepare_commands = response.data.data;
+                    console.log("prepare commands", self.prepare_commands);
+                    setTimeout(function () {
+                        loader.hide();
+                    }, 1000);
                 })
+                .catch(function (err) {
+                    console.log("prepare commands", err);
+                    loader.hide();
+                    feedback.error({
+                        title: "Oups, une erreur est survenue! réessayer plus tard",
+                        titleColor: new Color("black")
+                    });
+                });
+
         },
         mounted() {
             let self = this;
@@ -319,6 +376,17 @@
                 owner_products: [],
                 owner_products_index: 0,
 
+
+                //command nav
+                selectedCommandItem:0,
+
+                //prepare commands section
+                prepare_commands: "",
+
+                //historic commands section
+                historic_commands: "",
+
+
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
                 categories_store: [],
                 categories_store_names: [],
@@ -349,7 +417,11 @@
                 console.log(this.selectedItem === 0 ? 'visible' : 'collapsed')
                 console.log(this.categories_product_names);
             },
-
+            onSelectedIndexCommandChange(){
+                console.log("ITEM COMMAND SELECTED", this.selectedCommandItem);
+                console.log(typeof this.selectedCommandItem);
+                console.log(this.selectedCommandItem === 0 ? 'visible' : 'collapsed')
+            },
             submit() {
                 let feedback = new Feedback();
                 let self = this;
@@ -460,9 +532,9 @@
                     errorValidation.push("invalide stock");
                 }
 
-                console.log("TEST THIS : ",(this.form_offer_price - this.form_offer_promotion) <= 0)
+                console.log("TEST THIS : ", (this.form_offer_price - this.form_offer_promotion) <= 0)
                 //console.log("asset test", this.form_offer_promotion - this.form_offer_price);
-                if ( !(this.form_offer_price - this.form_offer_promotion) <= 0 ) {
+                if (!(this.form_offer_price - this.form_offer_promotion) <= 0) {
                     inputOffer.promotion = this.form_offer_promotion;
                 } else {
                     console.log("PROMOTION", this.form_offer_promotion)

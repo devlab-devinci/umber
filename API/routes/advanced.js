@@ -400,21 +400,36 @@ router.post('/cart', function (req, res, next) {
 
 router.post('/commands', Authentication.authChecker, function (req, res, nest) {
     let payload = req.body;
-    let newCommand = new Command(payload);
-    newCommand
-        .save(function (err) {
-            if (err) {
+    let store_id = req.body.store_id;
+
+    Store
+        .findOne({_id: mongoose.Types.ObjectId(store_id)})
+        .populate('owner')
+        .exec(function (err,store) {
+            if(err){
+                console.log(err);
                 errorManager
-                    .handler(res, err, "error save new command");
+                    .handler(res, err, "error")
             } else {
-                res
-                    .status(200)
-                    .json({
-                        "data": newCommand,
-                        "status": 200
-                    })
+                payload.vendor = store.owner._id;
+                let newCommand = new Command(payload);
+                newCommand
+                    .save(function (err) {
+                        if (err) {
+                            errorManager
+                                .handler(res, err, "error save new command");
+                        } else {
+                            res
+                                .status(200)
+                                .json({
+                                    "data": newCommand,
+                                    "status": 200
+                                })
+                        }
+                    });
             }
-        });
+
+        })
 });
 
 // ajust quantity of products when command is confirmed and paid
@@ -481,7 +496,7 @@ router.post('/products/ajusted', function (req, res, next) {
 /**
  * GET return list "commands en cours" for buyer only
  */
-router.get('/commands/:user_id/prepare', Authentication.authChecker,function (req, res, next) {
+router.get('/commands/:user_id/prepare', Authentication.authChecker, function (req, res, next) {
     let user_id = req.params.user_id;
     errorManager
         .isValidId(user_id)
@@ -500,14 +515,14 @@ router.get('/commands/:user_id/prepare', Authentication.authChecker,function (re
                                     .find({buyer_quick_access: userId, status: "prepare", ready_at: null})
                                     .populate('user products')
                                     .then(function (commands) {
-                                            if (commands) {
-                                                res.status(200).json({
-                                                    "data": commands,
-                                                    "status": 200
-                                                })
-                                            } else {
-                                                errorManager.handler(res, "commands empty", "no commands.")
-                                            }
+                                        if (commands) {
+                                            res.status(200).json({
+                                                "data": commands,
+                                                "status": 200
+                                            })
+                                        } else {
+                                            errorManager.handler(res, "commands empty", "no commands.")
+                                        }
                                     })
                                     .catch(function (err) {
                                         errorManager.handler(res, err, "find commands error")
@@ -527,7 +542,7 @@ router.get('/commands/:user_id/prepare', Authentication.authChecker,function (re
 /**
  * GET commands historique for custommer
  */
-router.get('/commands/:user_id/historic', Authentication.authChecker,function (req, res, next) {
+router.get('/commands/:user_id/historic', Authentication.authChecker, function (req, res, next) {
     let user_id = req.params.user_id;
     errorManager
         .isValidId(user_id)
@@ -570,6 +585,124 @@ router.get('/commands/:user_id/historic', Authentication.authChecker,function (r
         });
 });
 
+/**
+ * GET retourne la liste des panier d'un vendor en cours
+ */
+router.get('/commands/:user_id/vendor/prepare', Authentication.authChecker, function (req, res, next) {
+    let user_id = req.params.user_id;
+    errorManager
+        .isValidId(user_id)
+        .then(function (response) {
+            if (response.error) {
+                errorManager.handler(res, response.data, "error is validId")
+            } else {
+                let userId = mongoose.Types.ObjectId(user_id); // formmated iD
+                User
+                    .findOne({_id: userId}, function (err, user) {
+                        if (err) {
+                            errorManager.handler(res, err, "error user findOne")
+                        } else {
+                            if (user) {
+                                Command
+                                    .find({vendor: userId, status: "prepare", ready_at: null})
+                                    .populate('user products')
+                                    .then(function (commands) {
+                                        if (commands) {
+                                            res.status(200).json({
+                                                "data": commands,
+                                                "status": 200
+                                            })
+                                        } else {
+                                            errorManager.handler(res, "commands empty", "no commands.")
+                                        }
+                                    })
+                                    .catch(function (err) {
+                                        errorManager.handler(res, err, "find commands error")
+                                    })
+                            } else {
+                                error.handler(res, "user not found.", "no user for this _id given")
+                            }
+                        }
+                    })
+            }
+        })
+        .catch(function (err) {
+            errorManager.handler(res, err, "isValidId error")
+        });
+});
+
+/*
+router.get('/commands/:user_id/vendor/prepare', Authentication.authChecker, function (req, res, next) {
+    let user_id = req.params.user_id;
+    errorManager
+        .isValidId(user_id)
+        .then(function (response) {
+            if (response.error) {
+                errorManager
+                    .handler(res, response.data, "error is validId")
+            } else {
+                let userId = mongoose.Types.ObjectId(user_id);
+                Store //get all offer created by this user (available in his stores)
+                    .find({owner: userId})
+                    .then(function (stores) {
+                        let initAllProductsId = [];
+                        let allProductsId = [];
+                        for (let x in stores) {
+                            if (x == 0) {
+                                initAllProductsId = stores[x].products;
+                            } else {
+                                allProductsId = initAllProductsId.concat(stores[x].products)
+                            }
+                        }
+
+                        let owner_products = [];
+                        Command
+                            .find({ready_at: null, status: 'prepare'})
+                            .populate('products')
+                            .then(function (commands) {
+                                //console.log("cmds", commands);
+                                //console.log("cmds _ lt", commands.length);
+                                //console.log("user id ", userId)
+                                // console.log(typeof user_id)
+                                for (let x in commands) {
+                                    //console.log("x : i ", x, i)
+                                    //console.log("-------- x --------", x)
+                                    for (let idx = 0; idx < commands[x].products.length; idx++) {
+                                        //console.log(userId instanceof mongoose.Types.ObjectId)
+                                        if (commands[x].products[idx].owner == user_id) {
+                                            //quantities[commands[x].products[idx].owner]['quantity'] += 1;
+                                            //console.log("ID : ", commands[x].products[idx]._id)
+                                            //owner_products.push(commands[x].products[idx]._id)
+                                            owner_products.push(commands[x].products[idx])
+                                        }
+                                    }
+
+                                    //console.log("--------------------------")
+                                }
+
+                                //console.log(owner_products);
+                                res
+                                    .status(200)
+                                    .json({
+                                        "data": owner_products,
+                                        "status": 200});
+                            })
+                            .catch(err => errorManager.handler(res, err, "error find commmand"))
+
+                    })
+                    .catch(function (err) {
+                        errorManager
+                            .handler(res, err, "error find all stores");
+                    });
+            }
+        })
+        .catch(function (err) {
+            errorManager
+                .handler(res, err, "error isValidId");
+        });
+
+});
+*/
 
 function compressObj(original) {
 

@@ -32,11 +32,15 @@ let CommandSchema = new Schema({
     ],
     buyer: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
         index: true
     },
     buyer_quick_access:{
         type: Schema.Types.ObjectId,
+    },
+    vendor: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     createdAt: {
         type: Date,
