@@ -120,7 +120,7 @@
                         <SegmentedBarItem title="Historique"/>
                     </SegmentedBar>
 
-                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"
+                    <FlexboxLayout :visibility="selectedCommandItem === 0 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
                         <StackLayout>
                             <ListView for="command_c in this.prepare_commands" v-if="this.prepare_commands.length > 0">
@@ -130,7 +130,7 @@
                                         <label :text="command_c.createdAt"></label>
                                         <Label :text="command_c.status"></Label>
                                         <label :text="command_c.amount_cart"></label>
-                                        <Button text="Prêt !"></Button>
+                                        <Button text="Prêt !" @tap="ready(command_c)"></Button>
                                     </StackLayout>
                                 </v-template>
                             </ListView>
@@ -144,7 +144,18 @@
                     <FlexboxLayout :visibility="selectedCommandItem === 1 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
                         <StackLayout>
-                            <Label text="Pas de commandes dans votre historique pour le moment">
+                            <ListView for="command_h in this.historic_commands" v-if="this.historic_commands.length > 0">
+                                <v-template>
+                                    <StackLayout>
+                                        <label :text="command_h.identifier"></label>
+                                        <label :text="command_h.createdAt"></label>
+                                        <Label :text="command_h.status"></Label>
+                                        <label :text="command_h.amount_cart"></label>
+                                        <Button text="Donner une note"></Button>
+                                    </StackLayout>
+                                </v-template>
+                            </ListView>
+                            <Label text="Aucune commande dans votre historique pour le moment" v-if="this.historic_commands.length === 0">
                             </Label>
                         </StackLayout>
                     </FlexboxLayout>
@@ -318,6 +329,26 @@
                 })
                 .catch(function (err) {
                     console.log("prepare commands", err);
+                    loader.hide();
+                    feedback.error({
+                        title: "Oups, une erreur est survenue! réessayer plus tard",
+                        titleColor: new Color("black")
+                    });
+                });
+
+            //Get commands historic (status: ready with ready_at not null)
+            axios
+                .get(`${api_config.api_url}/api/v1/commands/${this.$store.getters.getCurrentUser._id}/vendor/historic`, {headers: headers})
+                .then(function (response) {
+                    console.log("RESP", response);
+                    self.historic_commands = response.data.data;
+                    console.log("prepare commands historic", self.historic_commands);
+                    setTimeout(function () {
+                        loader.hide();
+                    }, 1000);
+                })
+                .catch(function (err) {
+                    console.log("prepare commands historic", err);
                     loader.hide();
                     feedback.error({
                         title: "Oups, une erreur est survenue! réessayer plus tard",
@@ -600,6 +631,56 @@
                 });
 
 
+            },
+            ready(command){
+                console.log(command._id);
+                loader.show(loaderOptions);
+                const headers = {
+                    'fb-access-token': this.$store
+                        .getters.getAccessToken
+
+                };
+                let body = {
+                    command: command
+                };
+
+                console.log("body id send", body.command._id);
+                let feedback = new Feedback();
+
+                axios.put(`${api_config.api_url}/api/v1/commands/archived`, body, {headers: headers})
+                    .then(function (response) {
+                        console.log("repppp",response);
+                        console.log(response.status);
+                        if (response.status === 200) {
+                            loader.hide();
+                            feedback
+                                .success({
+                                    title: "Archivé",
+                                    titleColor: new Color("#222222"),
+                                    type: FeedbackType.Custom, // this is the default type, by the way
+                                    message: `Ajouté à votre historique.`,
+                                    messageColor: new Color("#333333"),
+                                    duration: 2000,
+                                    backgroundColor: new Color("yellowgreen")
+                                });
+
+                            //TODO refresh list des commandes
+                        } else {
+                            loader.hide();
+                            feedback
+                                .warning({
+                                    message: "Erreur lors de l'ajout du store !"
+                                });
+                        }
+                    })
+                    .catch(function (err) {
+                        loader.hide();
+                        feedback.warning({
+                            message: "Erreur dans les champs !"
+                        });
+                    });
+
+                console.log("@TAP READY : ", command);
             }
 
         },

@@ -24,6 +24,11 @@ let CmdHistoriqueSchema = new Schema({
             ref: "Product"
         }
     ],
+    vendor: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     buyer: {
         type: Schema.Types.ObjectId,
         ref: 'User',

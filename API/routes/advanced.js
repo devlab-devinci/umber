@@ -405,8 +405,8 @@ router.post('/commands', Authentication.authChecker, function (req, res, nest) {
     Store
         .findOne({_id: mongoose.Types.ObjectId(store_id)})
         .populate('owner')
-        .exec(function (err,store) {
-            if(err){
+        .exec(function (err, store) {
+            if (err) {
                 console.log(err);
                 errorManager
                     .handler(res, err, "error")
@@ -630,6 +630,159 @@ router.get('/commands/:user_id/vendor/prepare', Authentication.authChecker, func
             errorManager.handler(res, err, "isValidId error")
         });
 });
+
+
+/**
+ * GET commands historique for vendor
+ */
+router.get('/commands/:user_id/vendor/historic', Authentication.authChecker, function (req, res, next) {
+    let user_id = req.params.user_id;
+    errorManager
+        .isValidId(user_id)
+        .then(function (response) {
+            if (response.error) {
+                errorManager.handler(res, response.data, "error is validId")
+            } else {
+                let userId = mongoose.Types.ObjectId(user_id); // formmated iD
+                User
+                    .findOne({_id: userId}, function (err, user) {
+                        if (err) {
+                            errorManager.handler(res, err, "error user findOne")
+                        } else {
+                            if (user) {
+                                CmdHistorique
+                                    .find({vendor: userId, status: "ready"})
+                                    .populate('user products')
+                                    .then(function (commandsHistoriques) {
+                                        console.log("CMD HISTORIQUE FOR VENDOR", commandsHistoriques)
+                                        if (commandsHistoriques) {
+                                            res.status(200).json({
+                                                "data": commandsHistoriques,
+                                                "status": 200
+                                            })
+                                        } else {
+                                            errorManager.handler(res, "commands historique empty", "no commands historique.")
+                                        }
+                                    })
+                                    .catch(function (err) {
+                                        errorManager.handler(res, err, "find commands historique error")
+                                    })
+                            } else {
+                                error.handler(res, "user not found.", "no user for this _id given")
+                            }
+                        }
+                    })
+            }
+        })
+        .catch(function (err) {
+            errorManager.handler(res, err, "isValidId error")
+        });
+});
+
+
+/**
+ * Add to hsitoric the command (vendor or user)
+ */
+router.put('/commands/archived', function (req, res, next) {
+    let payload = req.body;
+    let date = new Date(); // ready at
+    console.log(payload.command._id);
+    errorManager
+        .isValidId(payload.command._id)
+        .then(function (response) {
+            if (response.error) {
+                console.log(response.data)
+                errorManager
+                    .handler(res, response.data, "error _id validation")
+            } else {
+                let commandId = mongoose.Types.ObjectId(payload.command._id);
+                console.log(commandId);
+                Command
+                    .updateOne({_id: commandId}, {$set: {ready_at: date, status: 'ready'}})
+                    .then(function (message) {
+                        let newCmdHist = new CmdHistorique(payload.command);
+                        newCmdHist.ready_at = date;
+                        newCmdHist.status = 'ready';
+                        newCmdHist.vendor = payload.command.vendor;
+                        newCmdHist.save(function (err) {
+                            if (err) {
+                                console.log("CMD HIST ", err)
+                                errorManager
+                                    .handler(res, err, "error save cmdHist")
+                            } else {
+                                Command
+                                    .findOne({_id: commandId}, function (err, command) {
+                                        if (err) {
+                                            console.log("COMMAND find one", err)
+                                            errorManager
+                                                .handler(res, err, "error find one command")
+                                        } else {
+                                            command.remove(function (err, removedCommand) {
+                                                if (err) {
+                                                    console.log("COMMAND REMOVE", err)
+                                                    errorManager
+                                                        .handler(res, err, "error remove command")
+                                                } else {
+                                                    res
+                                                        .status(200)
+                                                        .json({
+                                                            'data': 'Updated with success',
+                                                            'status': 200
+                                                        })
+                                                }
+                                            })
+                                        }
+                                    })
+                            }
+                        })
+
+                    })
+                    .catch(err => errorManager
+                        .handler(res, err, "error update"))
+            }
+        })
+        .catch(err => errorManager.handler(res, err, "error"))
+    /*
+    console.log('_id',payload.command._id);
+    console.log(payload.command.identifier)
+    errorManager
+        .isValidId(payload.command._id)
+        .then(function (response) {
+            if (response.error) {
+                console.log("eaz",response.error);
+                errorManager.handler(res, response.data, "error isvalidid")
+            } else {
+                let commandId = mongoose.Types.ObjectId(payload._id);
+                let date = new Date();
+                const status = "ready";
+                console.log(commandId);
+                Command.findOne({_id: commandId}, function (err, command) {
+                    console.log("ex",err);
+                    console.log("cmd", command)
+                    command.ready_at = date;
+                    command.status = status;
+                    command.save(function (err) {
+                        if (err) {
+                            console.log("ERRR", err);
+                            errorManager
+                                .handler(res, err, "error save command")
+                        } else {
+                            res
+                                .status(200)
+                                .json({
+                                    data: command,
+                                    status: 200
+                                })
+                        }
+                    });
+                });
+            }
+        })
+        .catch(err => errorManager.handler(res, err, "error"))
+        */
+
+});
+
 
 /*
 router.get('/commands/:user_id/vendor/prepare', Authentication.authChecker, function (req, res, next) {
