@@ -2,17 +2,14 @@
     <Page>
         <ActionBar class="action-bar" title="Votre panier">
         </ActionBar>
-        <scroll-view class="green" v-if="this.current_cart !== null">
+        <scroll-view class="green" v-if="this.current_cart !== null && this.total_bill !== 0.00">
             <StackLayout>
-                <StackLayout>
-                    <Label text="Supprimer ce panier" @tap="delete_cart"></Label>
-                </StackLayout>
-                <ListView for="product in formatted">
+                <ListView for="product in this.formatted">
                     <v-template>
                         <StackLayout>
                             <Label :text="product.name | capitalize"></Label>
                             <Label :text="product.store_access_name | capitalize"></Label>
-                            <Button text="remove"></Button>
+                            <Button text="remove" @tap="removeProduct(product)"></Button>
                             <Label>
                                 <FormattedString>
                                     <Span :text="product.price | currency('€')"></Span>
@@ -46,6 +43,7 @@
 <script>
 
     import Router from "./services/Router";
+    import {LoadingIndicator} from "nativescript-loading-indicator";
 
     const _ = require('lodash');
 
@@ -56,6 +54,9 @@
     //feedback
     import {Feedback, FeedbackType} from "nativescript-feedback";
     import {Color} from "tns-core-modules/color";
+
+    const loaderOptions = require('./services/LoaderConfig').getOptions();
+    const loader = new LoadingIndicator();
 
     export default {
         props: {},
@@ -112,7 +113,7 @@
                     function compressObj(original) {
 
                         //var compressed = [];
-                        var obj  = {}
+                        var obj = {}
                         // make a copy of the input array
                         var copy = original.slice(0);
 
@@ -134,7 +135,7 @@
                                 //var a = new Object();
                                 //obj.value = original[i];
                                 obj[original[i]] = myCount;
-                                console.log("OBJECT",obj)
+                                console.log("OBJECT", obj)
                                 //compressed.push(a);
                             }
                         }
@@ -214,13 +215,124 @@
                         console.log(err)
                     });
             },
-            removeProduct(product_id){
-                console.log("PRODUCT TO REMOVE", product_id);
-            },
-            delete_cart() {
-                //TODO
-                console.log("delete db + delete variable");
-                console.log("TODO, delete", this.current_cart)
+            removeProduct(product) {
+                loader.show(loaderOptions);
+                //array of removed products
+                let removed = _.remove(this.current_cart, {
+                    name: product.name
+                });
+
+                for (let x in this.current_cart) {
+                    console.log(this.current_cart[x].name);
+                }
+
+                let formatted = this.current_cart.map(function (item) {
+                    return item.name
+                }).filter((value, index, self) => self.indexOf(value) === index);
+
+
+                let products = [];
+                for (let item in formatted) {
+                    products.push({
+                        name: formatted[item],
+                        quantity: 0,
+                        total: 0,
+                        price: 0,
+                    })
+                }
+
+                let product_names = [];
+
+                this.current_cart.forEach(function (element) {
+                    product_names.push(element.name);
+                    console.log(element.name + " : " + element.quantity + " qt" + element.price + " eur")
+                });
+
+
+                function compressObj(original) {
+
+                    //var compressed = [];
+                    var obj = {}
+                    // make a copy of the input array
+                    var copy = original.slice(0);
+
+                    // first loop goes over every element
+                    for (var i = 0; i < original.length; i++) {
+
+                        var myCount = 0;
+                        // loop over every element in the copy and see if it's the same
+                        for (var w = 0; w < copy.length; w++) {
+                            if (original[i] == copy[w]) {
+                                // increase amount of times dplicate is found
+                                myCount++;
+                                // sets item to undefined
+                                delete copy[w];
+                            }
+                        }
+
+                        if (myCount > 0) {
+                            //var a = new Object();
+                            //obj.value = original[i];
+                            obj[original[i]] = myCount;
+                            console.log("OBJECT", obj)
+                            //compressed.push(a);
+                        }
+                    }
+
+                    return obj;
+                };
+
+                let quantities = compressObj(product_names);
+                console.log("compress quantities", quantities[0]);
+                //todo -> pour chaque name on doit creer un array du style
+                // name:{array_found.length}
+                //array found c'est le tableau do'ccurnce
+
+
+                for (let y in this.current_cart) {
+                    for (let x in products) {
+                        console.log("QUANTITY", quantities[products[x].name]);
+                        console.log(parseFloat(this.current_cart[y].promotion))
+                        console.log(typeof parseFloat(this.current_cart[y].promotion))
+
+                        //TODO -> bug du NaN
+                        if (this.current_cart[y].name == products[x].name) {
+                            products[x].quantity = parseFloat(quantities[products[x].name]);
+                            console.log("quantity loop", quantities[products[x].name], " :: ", products[x].name)
+                            products[x].price_promo = parseFloat(this.current_cart[y].price) - parseFloat(this.current_cart[y].promotion)
+                            products[x].price = parseFloat(this.current_cart[y].price)
+                            products[x].total = (parseFloat(products[x].price_promo) * parseFloat(quantities[products[x].name]))
+                            products[x].store_access_name = this.current_cart[y].store_access_name;
+                        }
+                    }
+                }
+
+                if (products.length > 0) {
+                    this.total_bill = products.map((product) => product.total).reduce((prev, next) => {
+                        return prev + next
+                    });
+                } else {
+                    this.total_bill = 0.00;
+                }
+
+                console.log("FORMATTED", products);
+                this.formatted = products;
+                setTimeout(function () {
+                    loader.hide();
+                    let feedback = new Feedback();
+                    feedback
+                        .success({
+                            title: "Produit supprimé",
+                            titleColor: new Color("#222222"),
+                            type: FeedbackType.Custom, // this is the default type, by the way
+                            message: `${product.name} supprimé de votre panier`,
+                            messageColor: new Color("#333333"),
+                            duration: 2000,
+                            backgroundColor: new Color("yellowgreen")
+                        })
+                }, 500);
+
+
             }
         }
     }
