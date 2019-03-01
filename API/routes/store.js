@@ -42,6 +42,7 @@ const upload_store_pictures = multer({storage: storage});
 router.post('/store', Authentication.authChecker, function (req, res, next) {
     let payload = req.body;
     let category_id = "";
+    payload.name = payload.name.toLowerCase(); //lower case for research
 
     if (!payload.city || !payload.address || !payload.zipcode) {
         errorManager
@@ -582,6 +583,8 @@ router.get('/:name/category/store', function (req, res, next) {
         })
 
 });
+
+
 
 
 router.post('/test/pic', upload_store_pictures.single('file'), function (req, res, next) {

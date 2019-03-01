@@ -18,9 +18,17 @@
             </TabViewItem>
             <TabViewItem title="Recherche">
                 <StackLayout>
-                    <SearchBar hint="Localisation ..." text="" textFieldBackgroundColor="#b2bec3"
-                               v-model="searchByLocationValue"
-                               @textChange="onTextChanged" @submit="searchByLocation"/>
+                    <SearchBar hint="Recherche ..." text="" textFieldBackgroundColor="#b2bec3"
+                               v-model="searchVal"
+                               @textChange="onTextChanged" @submit="searchByValue"/>
+                    <ListView for="store in this.search_stores" v-if="this.search_stores.length > 0">
+                        <Label :text="formatSearchIndicator(this.search_stores.length)"></Label>
+                        <v-template>
+                            <StackLayout @tap="storeClicked(store._id)">
+                                <label :text="store.name"></label>
+                            </StackLayout>
+                        </v-template>
+                    </ListView>
                 </StackLayout>
             </TabViewItem>
             <TabViewItem title="Reçues">
@@ -225,6 +233,11 @@
                         titleColor: new Color("black")
                     });
                 });
+
+
+            //init search
+            this.search_stores = [];
+
         },
         mounted() {
             let self = this;
@@ -268,33 +281,73 @@
         data() {
             return {
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
-                searchByLocationValue: "",
+                searchVal: "",
                 selectedItem: 0,
 
                 //prepare commands section
                 prepare_commands: "",
 
                 //historic commands section
-                historic_commands: ""
+                historic_commands: "",
+
+
+                //search stores
+                search_stores : "",
             }
         },
         methods: {
+            formatSearchIndicator(length) {
+                if(length > 1){
+                    return `Résultats pour ${this.searchVal} : ${length}`
+                } else {
+                    return `Résultat pour ${this.searchVal} : ${length}`
+                }
+            },
             onSelectedIndexChange() {
                 console.log("ITEM SELECTED", this.selectedItem);
                 console.log(typeof this.selectedItem);
                 console.log(this.selectedItem === 0 ? 'visible' : 'collapsed')
             },
-            searchByLocation(event) {
-
-                console.log("SEARCH LOCATION : ", this.searchByLocationValue)
+            searchByValue(event) {
+                let self = this;
                 loader.show(loaderOptions);
-                setTimeout(function () {
-                    loader.hide();
-                }, 1000);
+                console.log("SEARCH value : ", this.searchVal)
+
+                const headers = {
+                    'fb-access-token': this.$store
+                        .getters.getAccessToken
+
+                };
+                let body = {
+                    search_value: this.searchVal.toLowerCase() // lowercase for search
+                };
+
+                axios
+                    .post(`${api_config.api_url}/api/v1/search`, body, {headers:headers})
+                    .then(function(response){
+                        let storesFilter = response.data.data;
+                        console.log(response.data);
+                        console.log("STORE FILTER ", storesFilter);
+                        setTimeout(function () {
+                            self.search_stores = storesFilter;
+                            loader.hide();
+                        }, 1000);
+                    })
+                    .catch(function(err){
+                        setTimeout(function () {
+                            console.log("error store filter : ", err)
+                            loader.hide();
+                            feedback.error({
+                                title: "Oups, une erreur est survenue! réessayer plus tard",
+                                titleColor: new Color("black")
+                            });
+                        }, 1000);
+                    })
+
             },
             onTextChanged() {
                 console.log("change texted")
-                console.log(this.searchByLocationValue)
+                console.log(this.searchVal)
             },
 
             choiceLocationMenu() {
@@ -383,7 +436,42 @@
                         }
 
                     });
-            }
+            },
+            storeClicked: function (id_store) {
+                let self = this;
+                const headers = {
+                    'fb-access-token': this.$store
+                        .getters.getAccessToken
+
+                };
+                axios
+                    .get(`${api_config.api_url}/api/v1/store/${id_store}`, {headers: headers})
+                    .then(function (store) {
+                        //Send variable
+                        self.$navigateTo(Router.storeView, {
+                            transition: {},
+                            transitionIOS: {},
+                            transitionAndroid: {},
+                            props: {
+                                store: store.data.data
+                            }
+                        });
+                        /*
+                        self.$navigateTo(Router.storeView, {
+                            transition: {},
+                            transitionIOS: {},
+                            transitionAndroid: {},
+                            props: {
+                                store: store.data.data
+                            }
+                        });
+                        */
+                    })
+                    .catch(err => console.log("ERROR HIT", err));
+                console.log("item clicked", id_store)
+            },
+
+
 
 
         },

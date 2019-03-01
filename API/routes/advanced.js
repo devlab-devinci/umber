@@ -683,7 +683,7 @@ router.get('/commands/:user_id/vendor/historic', Authentication.authChecker, fun
 /**
  * Add to hsitoric the command (vendor or user)
  */
-router.put('/commands/archived', function (req, res, next) {
+router.put('/commands/archived', Authentication.authChecker,function (req, res, next) {
     let payload = req.body;
     let date = new Date(); // ready at
     console.log(payload.command._id);
@@ -856,6 +856,66 @@ router.get('/commands/:user_id/vendor/prepare', Authentication.authChecker, func
 
 });
 */
+
+router.post('/search', Authentication.authChecker,function (req, res, next) {
+    let payload = req.body;
+
+    let search_value = payload.search_value;
+
+    let replace = search_value;
+    let reg = new RegExp(replace, "g");
+
+    let categoriesResult = [];
+
+    Store
+        .find({"name": {$regex: '.*' + search_value + '.*'}})
+        .exec(function (err, stores) {
+            if (err) {
+                console.log(err);
+                errorManager
+                    .handler(res, err, "error find all with $regex")
+            } else {
+                Store
+                    .find({})
+                    .populate('categories_store products')
+                    .exec(function (err, storesGlobal) {
+                        if (err) {
+                            console.log(err);
+                            errorManager
+                                .handler(res, err, "error find all with $regex")
+                        } else {
+                            //search stores by categories name
+                            for (let idx in storesGlobal) {
+                                if (storesGlobal[idx].categories_store[0].name.match(reg)) {
+                                    categoriesResult.push(storesGlobal[idx]);
+                                }
+                            }
+                            let merge = [].concat(stores, categoriesResult);
+                            let removeDuplicate =removeDuplicates(merge, '_id')
+                            res.status(200).json({
+                                "data": removeDuplicate,
+                                "status": 200
+                            });
+                        }
+                    });
+            }
+        });
+});
+
+
+function removeDuplicates(originalArray, prop) {
+    var newArray = [];
+    var lookupObject  = {};
+
+    for(var i in originalArray) {
+        lookupObject[originalArray[i][prop]] = originalArray[i];
+    }
+
+    for(i in lookupObject) {
+        newArray.push(lookupObject[i]);
+    }
+    return newArray;
+}
 
 function compressObj(original) {
 

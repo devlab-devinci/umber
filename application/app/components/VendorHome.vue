@@ -163,8 +163,12 @@
                 </StackLayout>
             </TabViewItem>
             <TabViewItem title="Statistiques">
-                <Label text="statistiques"></Label>
-            </TabViewItem>
+                <FlexboxLayout style="align-items:center; flex-direction:column;">
+                    <StackLayout>
+                        <Label text="STATS"></Label>
+                    </StackLayout>
+                </FlexboxLayout>
+‹            </TabViewItem>
             <TabViewItem title="Compte" iconSource="">
                 <StackLayout>
                     <card-view margin="10" elevation="100" radius="1" ripple="true" shadowRadius="10"

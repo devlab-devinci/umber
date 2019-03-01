@@ -3,7 +3,7 @@ const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 const Store = new Schema({
-    name: {
+    name: { // LOWERCASE FOR RESEARCH .
         type: String,
         required: true
     },
