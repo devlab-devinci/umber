@@ -15,6 +15,7 @@ const Authentication = require('../middleware/Authentication');
 const Cart = require('../models/cart.model');
 const Command = require('../models/command.model');
 const CmdHistorique = require('../models/cmdhistorique.model');
+const StoreLike = require('../models/storeLike.model');
 
 const uuidv1 = require('uuid/v1');
 
@@ -683,7 +684,7 @@ router.get('/commands/:user_id/vendor/historic', Authentication.authChecker, fun
 /**
  * Add to hsitoric the command (vendor or user)
  */
-router.put('/commands/archived', Authentication.authChecker,function (req, res, next) {
+router.put('/commands/archived', Authentication.authChecker, function (req, res, next) {
     let payload = req.body;
     let date = new Date(); // ready at
     console.log(payload.command._id);
@@ -857,7 +858,7 @@ router.get('/commands/:user_id/vendor/prepare', Authentication.authChecker, func
 });
 */
 
-router.post('/search', Authentication.authChecker,function (req, res, next) {
+router.post('/search', Authentication.authChecker, function (req, res, next) {
     let payload = req.body;
 
     let search_value = payload.search_value;
@@ -891,7 +892,7 @@ router.post('/search', Authentication.authChecker,function (req, res, next) {
                                 }
                             }
                             let merge = [].concat(stores, categoriesResult);
-                            let removeDuplicate =removeDuplicates(merge, '_id')
+                            let removeDuplicate = removeDuplicates(merge, '_id')
                             res.status(200).json({
                                 "data": removeDuplicate,
                                 "status": 200
@@ -903,15 +904,66 @@ router.post('/search', Authentication.authChecker,function (req, res, next) {
 });
 
 
+router.post('/like', Authentication.authChecker, function (req, res, next) {
+    let payload = req.body;
+    errorManager
+        .isValidIds([payload.store_id, payload.user_id])
+        .then(function (response) {
+            if (response.error) {
+                errorManager
+                    .handler(res, response.data, "error isValidIds")
+            } else {
+                let storeId = mongoose.Types.ObjectId(payload.store_id);
+                let userId = mongoose.Types.ObjectId(payload.user_id);
+
+                StoreLike
+                    .findOne({user: userId, store: storeId}, function (err, storeLike) {
+                        if (err) {
+                            console.log("ERR", err)
+                            errorManager
+                                .handler(res, err, "error")
+                        } else {
+                            if (storeLike !== null) {
+                                //deja liké le store par l'user
+                                console.log("OK 200 but dosnt add -> alredy exist")
+                                res
+                                    .status(200)
+                                    .json({"data": "Déjà liké !", "exist": true,  "status": 200})
+                            } else {
+                                let newStoreLike = new StoreLike({user: userId, store: storeId, created_at: new Date()})
+                                newStoreLike.save(function (err) {
+                                    if (err) {
+                                        console.log("ERR save", err);
+                                        errorManager
+                                            .handler(res, err, "error newstorelike")
+                                    } else {
+                                        res
+                                            .status(200)
+                                            .json({"data": newStoreLike, "exist" :false, "status": 200})
+                                    }
+                                })
+                            }
+                        }
+                    })
+            }
+        })
+        .catch(function (err) {
+            console.log(err)
+            errorManager
+                .handler(res, err, "error is validIds")
+        })
+});
+
+
 function removeDuplicates(originalArray, prop) {
     var newArray = [];
-    var lookupObject  = {};
+    var lookupObject = {};
 
-    for(var i in originalArray) {
+    for (var i in originalArray) {
         lookupObject[originalArray[i][prop]] = originalArray[i];
     }
 
-    for(i in lookupObject) {
+    for (i in lookupObject) {
         newArray.push(lookupObject[i]);
     }
     return newArray;

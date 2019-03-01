@@ -67,7 +67,7 @@
                                         <label :text="command_h.createdAt"></label>
                                         <Label :text="command_h.status"></Label>
                                         <label :text="command_h.amount_cart"></label>
-                                        <Button text="Donner une note"></Button>
+                                        <Button text="Soutenir le magasin" @tap="like(command_h.products[0].store)"></Button>
                                     </StackLayout>
                                 </v-template>
                             </ListView>
@@ -470,7 +470,58 @@
                     .catch(err => console.log("ERROR HIT", err));
                 console.log("item clicked", id_store)
             },
+            like(store_id){
 
+                loader.show(loaderOptions);
+                //on fait un command.products[O], car on part sur le principe que les products VIENNET d'un unique mangasin
+                const headers = {
+                    'fb-access-token': this.$store
+                        .getters.getAccessToken
+                };
+                const body = {
+                    user_id: this.$store.getters.getCurrentUser._id,
+                    store_id: store_id
+                };
+                let feedback = new Feedback();
+
+                console.log("LIKE : ", store_id);
+
+                axios
+                    .post(`${api_config.api_url}/api/v1/like`, body,{headers: headers})
+                    .then(function(response){
+                        console.log("resssss", response);
+                        if(response.data.status ===200){
+                            if(response.data.exist === true){
+                                loader.hide()
+                                feedback.warning({
+                                    title: "Magasin déjà liké !",
+                                    titleColor: new Color("black")
+                                });
+                            } else {
+                                loader.hide()
+                                feedback.success({
+                                    title: "Merci pour votre soutien !",
+                                    titleColor: new Color("black")
+                                });
+                            }
+                        } else {
+                            loader.hide()
+                            feedback.error({
+                                title: "Oups, une erreur est survenue! réessayer plus tard",
+                                titleColor: new Color("black")
+                            });
+                        }
+                    })
+                    .catch(function(err){
+                        console.log("errrr", err)
+                        loader.hide()
+                        feedback.error({
+                            title: "Oups, une erreur est survenue! réessayer plus tard",
+                            titleColor: new Color("black")
+                        });
+                    });
+
+            },
 
 
 
