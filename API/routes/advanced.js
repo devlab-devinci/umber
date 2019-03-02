@@ -18,6 +18,7 @@ const CmdHistorique = require('../models/cmdhistorique.model');
 const StoreLike = require('../models/storeLike.model');
 
 const uuidv1 = require('uuid/v1');
+let Moment = require('moment');
 
 const _ = require('lodash');
 
@@ -928,7 +929,7 @@ router.post('/like', Authentication.authChecker, function (req, res, next) {
                                 console.log("OK 200 but dosnt add -> alredy exist")
                                 res
                                     .status(200)
-                                    .json({"data": "Déjà liké !", "exist": true,  "status": 200})
+                                    .json({"data": "Déjà liké !", "exist": true, "status": 200})
                             } else {
                                 let newStoreLike = new StoreLike({user: userId, store: storeId, created_at: new Date()})
                                 newStoreLike.save(function (err) {
@@ -939,7 +940,7 @@ router.post('/like', Authentication.authChecker, function (req, res, next) {
                                     } else {
                                         res
                                             .status(200)
-                                            .json({"data": newStoreLike, "exist" :false, "status": 200})
+                                            .json({"data": newStoreLike, "exist": false, "status": 200})
                                     }
                                 })
                             }
@@ -954,6 +955,160 @@ router.post('/like', Authentication.authChecker, function (req, res, next) {
         })
 });
 
+
+router.get('/stats/:time', Authentication.authChecker, function (req, res, next) {
+    let time = req.params.time;
+
+    //today
+    let startOfDay = Moment().startOf('day');
+    let endOfDay = Moment().endOf('day');
+
+    //week
+    let startOfWeek = Moment().startOf('isoWeek');
+    let endOfWeek = Moment().endOf('isoWeek');
+
+    //month
+    let startOfMonth = Moment().startOf('month');
+    let endOfMonth = Moment().endOf('month');
+
+    //year
+    let startOfYear = Moment().startOf('year');
+    let endOfYear = Moment().endOf('year');
+
+    if (time === "today") {
+        StoreLike
+            .find({
+                created_at: {
+                    $gte: startOfDay,
+                    $lt: endOfDay
+                }
+            })
+            .then(function (storelikes) {
+                CmdHistorique
+                    .find({
+                        ready_at: {
+                            $gte: startOfDay,
+                            $lt: endOfDay
+                        }
+                    })
+                    .then(function(cmdhistorics){
+                        res.status(200).json({
+                            "data": {
+                                stats_like :storelikes,
+                                stats_command: cmdhistorics
+                            },
+                            "status": 200
+                        })
+                    })
+                    .catch(function (err) {
+                        errorManager.handler(res, err, "find command")
+                    });
+            })
+            .catch(function (err) {
+                console.log("error", err);
+                errorManager.handler(res, err, "error find storelike")
+            })
+    } else if (time === "week") {
+        StoreLike
+            .find({
+                created_at: {
+                    $gte: startOfWeek,
+                    $lt: endOfWeek
+                }
+            })
+            .then(function (storelikes) {
+                CmdHistorique
+                    .find({
+                        ready_at: {
+                            $gte: startOfWeek,
+                            $lt: endOfWeek
+                        }
+                    })
+                    .then(function(cmdhistorics){
+                        res.status(200).json({
+                            "data": {
+                                stats_like :storelikes,
+                                stats_command: cmdhistorics
+                            },
+                            "status": 200
+                        })
+                    })
+                    .catch(function (err) {
+                        errorManager.handler(res, err, "find command")
+                    });
+            })
+            .catch(function (err) {
+                console.log("error", err);
+                errorManager.handler(res, err, "error find storelike")
+            })
+    } else if (time === "month") {
+        StoreLike
+            .find({
+                created_at: {
+                    $gte: startOfMonth,
+                    $lt: endOfMonth
+                }
+            })
+            .then(function (storelikes) {
+                CmdHistorique
+                    .find({
+                        ready_at: {
+                            $gte: startOfMonth,
+                            $lt: endOfMonth
+                        }
+                    })
+                    .then(function(cmdhistorics){
+                        res.status(200).json({
+                            "data": {
+                                stats_like :storelikes,
+                                stats_command: cmdhistorics
+                            },
+                            "status": 200
+                        })
+                    })
+                    .catch(function (err) {
+                        errorManager.handler(res, err, "find command")
+                    });
+            })
+            .catch(function (err) {
+                console.log("error", err);
+                errorManager.handler(res, err, "error find storelike")
+            })
+    } else if (time === "year") {
+        StoreLike
+            .find({
+                created_at: {
+                    $gte: startOfYear,
+                    $lt: endOfYear
+                }
+            })
+            .then(function (storelikes) {
+                CmdHistorique
+                    .find({
+                        ready_at: {
+                            $gte: startOfYear,
+                            $lt: endOfYear
+                        }
+                    })
+                    .then(function(cmdhistorics){
+                        res.status(200).json({
+                            "data": {
+                                stats_like :storelikes,
+                                stats_command: cmdhistorics
+                            },
+                            "status": 200
+                        })
+                    })
+                    .catch(function (err) {
+                        errorManager.handler(res, err, "find command")
+                    });
+            })
+            .catch(function (err) {
+                console.log("error", err);
+                errorManager.handler(res, err, "error find storelike")
+            })
+    }
+});
 
 function removeDuplicates(originalArray, prop) {
     var newArray = [];

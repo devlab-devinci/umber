@@ -134,7 +134,8 @@
                                     </StackLayout>
                                 </v-template>
                             </ListView>
-                            <Label text="Aucune commandes en cours pour le moment" v-if="this.prepare_commands.length === 0">
+                            <Label text="Aucune commandes en cours pour le moment"
+                                   v-if="this.prepare_commands.length === 0">
 
                             </Label>
                         </StackLayout>
@@ -144,7 +145,8 @@
                     <FlexboxLayout :visibility="selectedCommandItem === 1 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
                         <StackLayout>
-                            <ListView for="command_h in this.historic_commands" v-if="this.historic_commands.length > 0">
+                            <ListView for="command_h in this.historic_commands"
+                                      v-if="this.historic_commands.length > 0">
                                 <v-template>
                                     <StackLayout>
                                         <label :text="command_h.identifier"></label>
@@ -155,7 +157,8 @@
                                     </StackLayout>
                                 </v-template>
                             </ListView>
-                            <Label text="Aucune commande dans votre historique pour le moment" v-if="this.historic_commands.length === 0">
+                            <Label text="Aucune commande dans votre historique pour le moment"
+                                   v-if="this.historic_commands.length === 0">
                             </Label>
                         </StackLayout>
                     </FlexboxLayout>
@@ -165,10 +168,12 @@
             <TabViewItem title="Statistiques">
                 <FlexboxLayout style="align-items:center; flex-direction:column;">
                     <StackLayout>
-                        <Label text="STATS"></Label>
+                        <Label :text="'stats like : ' + this.stats_like.length"></Label>
+                        <Label :text="'stats commands honorés : ' + this.stats_command.length"></Label>
+                        <ListPicker :items="this.stats_items" @selectedIndexChange="selectedIndexStatsChanged" selectedIndex="0"></ListPicker>
                     </StackLayout>
                 </FlexboxLayout>
-‹            </TabViewItem>
+            </TabViewItem>
             <TabViewItem title="Compte" iconSource="">
                 <StackLayout>
                     <card-view margin="10" elevation="100" radius="1" ripple="true" shadowRadius="10"
@@ -360,6 +365,25 @@
                     });
                 });
 
+            //Load stats (default day)
+            axios
+                .get(`${api_config.api_url}/api/v1/stats/day`, {headers: headers})
+                .then(function (response) {
+                    self.stats = response.data.data;
+                    self.stats_command = response.data.data.stats_command;
+                    self.stats_like = response.data.data.stats_like;
+                    setTimeout(function () {
+                        loader.hide();
+                    }, 1000);
+                })
+                .catch(function (err) {
+                    console.log("STATS FOR DAY", err);
+                    loader.hide();
+                    feedback.error({
+                        title: "Oups, une erreur est survenue! réessayer plus tard",
+                        titleColor: new Color("black")
+                    });
+                });
         },
         mounted() {
             let self = this;
@@ -413,7 +437,7 @@
 
 
                 //command nav
-                selectedCommandItem:0,
+                selectedCommandItem: 0,
 
                 //prepare commands section
                 prepare_commands: "",
@@ -421,6 +445,15 @@
                 //historic commands section
                 historic_commands: "",
 
+
+                //stats (default loader for the current day)
+                stats: "",
+                //(pour manipulation rapide)
+                stats_command: "",
+                stats_like: "",
+                stats_test: "",
+                stats_items: ['Aujourd\'hui','Semaine','Mois', 'Année'],
+                stats_item_picked: "",
 
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
                 categories_store: [],
@@ -446,13 +479,18 @@
             onTextChanged() {
                 console.log("change texted")
             },
+            selectedIndexStatsChanged(picker){
+                //TODO -> get index of picker list then refresh list en fonction de la value pick
+                console.log("OK");
+                console.log("ITEM SELECTED");
+            },
             onSelectedIndexChange() {
                 console.log("ITEM SELECTED", this.selectedItem);
                 console.log(typeof this.selectedItem);
                 console.log(this.selectedItem === 0 ? 'visible' : 'collapsed')
                 console.log(this.categories_product_names);
             },
-            onSelectedIndexCommandChange(){
+            onSelectedIndexCommandChange() {
                 console.log("ITEM COMMAND SELECTED", this.selectedCommandItem);
                 console.log(typeof this.selectedCommandItem);
                 console.log(this.selectedCommandItem === 0 ? 'visible' : 'collapsed')
@@ -636,7 +674,7 @@
 
 
             },
-            ready(command){
+            ready(command) {
                 console.log(command._id);
                 loader.show(loaderOptions);
                 const headers = {
@@ -653,7 +691,7 @@
 
                 axios.put(`${api_config.api_url}/api/v1/commands/archived`, body, {headers: headers})
                     .then(function (response) {
-                        console.log("repppp",response);
+                        console.log("repppp", response);
                         console.log(response.status);
                         if (response.status === 200) {
                             loader.hide();
