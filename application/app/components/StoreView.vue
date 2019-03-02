@@ -36,7 +36,7 @@
                 <StackLayout class="hr-light m-10" width="320"></StackLayout>
 
                 <FlexboxLayout v-if="this.store.products.length === 0"
-                               style="align-items:center; flex-direction:column;">
+                               style="align-items:center; flex-direction:column;" justifyContent="space-around">
                     <Label class="body" text="Aucunes offres disponible"></Label>
                 </FlexboxLayout>
 

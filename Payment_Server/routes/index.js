@@ -24,11 +24,6 @@ router.get('/umber/payment/:fb_access_token/:user_id', function (req, res, next)
 
             axios.get(`${api_config.api_url}/api/v1/payment/cart/${user_id}/${fb_user_data.name}`)
                 .then(function (response) {
-                    // todo -> call api pour avoir l'user last cart active
-                    //TODO -> total_bill (apply format si besoin)
-                    //todo -> get reference (for description)
-                    //decode fb token -> get last active card from this user
-                    // take data like price etc and set in checkout
                     res.render('index', {
                         title: 'Payer votre commande en toute sécurité',
                         publish_key: stripe.publish_key,
@@ -162,7 +157,8 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                                                 if(response.status !== 200){
                                                     res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
                                                 } else {
-                                                    res.render('success', {message: 'Félicitation votre paiment à bien été pris en compte. Vous pouvez vous rendre dans vos commandes / historiques pour voir le suivis de votre commande'});
+                                                    
+                                                    res.render('success', {message: 'Votre paiment à bien été pris en compte, vous pouvez vous rendre dans vos commandes / historiques pour suivre l\'état de votre commande'});
                                                 }
                                             })
                                             .catch(err => res.render('error', {message: err.message}));

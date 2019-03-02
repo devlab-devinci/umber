@@ -17,6 +17,6 @@
 // ngrok http [api_port_here_3000_default]
 const api_config = {
     api_url: 'https://multo.serveo.net', //e.g https://multo.serveo.net,
-    payment_server_url: 'https://50fd1c8c.ngrok.io/umber/payment/' // jwt_token en param à la fin
+    payment_server_url: 'https://f00756be.ngrok.io/umber/payment/' // jwt_token en param à la fin
 };
 module.exports = api_config;

@@ -5,38 +5,73 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 </head>
 <body class="container">
 <style>
-    .loader {
-        border: 16px solid #f3f3f3; /* Light grey */
-        border-top: 16px solid #3498db; /* Blue */
-        border-radius: 50%;
-        width: 120px;
-        height: 120px;
-        animation: spin 2s linear infinite;
+    .turquoise-flat-button {
+        position: relative;
+        vertical-align: top;
+        width: 100%;
+        height: 60px;
+        padding: 0;
+        font-size: 22px;
+        color: white;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+        background: #1abc9c;
+        border: 0;
+        border-bottom: 2px solid #12ab8d;
+        cursor: pointer;
+        -webkit-box-shadow: inset 0 -2px #12ab8d;
+        box-shadow: inset 0 -2px #12ab8d;
+    }
+    .turquoise-flat-button:active {
+        top: 1px;
+        outline: none;
+        -webkit-box-shadow: none;
+        box-shadow: none;
     }
 
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
 </style>
 <div>
-    <p class="display-4 text-center"><%= title %></p>
+    <div class="jumbotron">
+        <h4 class=""><%= title %></h4>
+        <p class="lead">Afin de sécuriser votre paiement nos paiements sont effectués par <a target="_blank"
+                                                                           href="https://stripe.com/fr?&utm_campaign=paid_brand&utm_medium=cpc&utm_source=google&ad_content=267418206160&utm_term=stripe&utm_matchtype=e&utm_adposition1t1&utm_device=c&gclid=Cj0KCQiAtbnjBRDBARIsAO3zDl9ZKbK3L-viqx_n8xtGwYvPyYKFZCteMKMDsf9yjU9EOyfrtCe1AjIaAj9UEALw_wcB">Stripe</a>
+            .</p>
+        <hr class="my-4">
+        <p>Ainsi aucune données bancaires ne seront pas enregistrés sur nos systèmes, et seront intégralement traitées de
+            manière confidentielles.</p>
+        <div class="lead">
+            <form action="<%- success_redirect_URL %>" method="post">
+                <script src="https://checkout.stripe.com/checkout.js"
+                        class="stripe-button"
+                        data-key="<%- publish_key %>"
+                        data-amount="<%- cart.total_bill * 100 %>"
+                        data-name="Umber"
+                        data-description="Votre panier"
+                        data-currency="eur"
+                        data-image="/images/cart.png">
+                </script>
+                <script>
+                    // Hide default stripe button, be careful there if you
+                    // have more than 1 button of that class
+                    document.getElementsByClassName("stripe-button-el")[0].style.display = 'none';
+                </script>
+                <div class="text-center">
+                    <button type="submit" class="turquoise-flat-button">Payer <%= cart.total_bill%>€ <i class="fa fa-credit-card"></i></button>
+                </div>
+            </form>
+            </p>
+        </div>
+    </div>
+
     <div class="text-right">
         <a target="_blank"
            href="https://stripe.com/fr?&utm_campaign=paid_brand&utm_medium=cpc&utm_source=google&ad_content=267418206160&utm_term=stripe&utm_matchtype=e&utm_adposition1t1&utm_device=c&gclid=Cj0KCQiAtbnjBRDBARIsAO3zDl9ZKbK3L-viqx_n8xtGwYvPyYKFZCteMKMDsf9yjU9EOyfrtCe1AjIaAj9UEALw_wcB">powered
             by Stripe</a>
     </div>
-</div>
-
-<div class="d-flex justify-content-center">
-    <div class="loader"></div>
 </div>
 
 <!--
@@ -53,16 +88,5 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-<form action="<%- success_redirect_URL %>" method="post">
-    <script src="https://checkout.stripe.com/checkout.js"
-            class="stripe-button"
-            data-key="<%- publish_key %>"
-            data-amount="<%- cart.total_bill * 100 %>"
-            data-name="Umber"
-            data-description="Votre panier"
-            data-currency="eur"
-            data-image="/images/cart.png">
-    </script>
-</form>
 </body>
 </html>

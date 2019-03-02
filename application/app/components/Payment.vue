@@ -1,6 +1,6 @@
 <template>
     <Page class="page">
-        <ActionBar class="action-bar" title="Payment Stripe">
+        <ActionBar class="action-bar" title="Paiement">
         </ActionBar>
         <WebView :src="this.payment_server_url"></WebView>
     </Page>

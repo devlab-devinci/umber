@@ -1,7 +1,37 @@
 <template>
     <Page>
-        <ActionBar class="action-bar" title="Votre panier">
+        <ActionBar class="action-bar" title="Panier">
+            <!-- <Button text="Paiement" class="btn btn-primary" @tap="goToPaiement" :disabled="true"></Button> -->
+            <ActionItem @tap="goToPaiement" ios.position="right" text="Payer" android.position="popup" v-if="this.current_cart!== null && this.total_bill !== 0.00"/>
         </ActionBar>
+
+            <ListView for="product in this.formatted" class="list-group" v-if="this.current_cart !== null && this.total_bill !== 0.00">
+                <v-template>
+                    <GridLayout class="list-group-item" rows="*,*,*,*,*,*" columns="150, 150">
+                        <Label row="0" col="0" :text="product.name | capitalize"></Label>
+                        <Image row="0" col="2"
+                               src="https://www.nootica.fr/media/catalog/product/cache/1/small_image/9df78eab33525d08d6e5fb8d27136e95/placeholder/default/no-image_1.png"
+                               class="thumb img-circle"></Image>
+                        <Label class="body" row="1" col="0" :text="product.store_access_name | capitalize"></Label>
+                        <label class="body" row="2" col="0" :text="product.price_promo | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  }) + ' de remise'"></label>
+
+                        <Label row="3" col="0" class="body" textWrap="true">
+                            <Span :text="product.price | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"></Span>
+                            <Span text=" x "></Span>
+                            <Span :text="product.quantity"></Span>
+                            <Span text=" = "></Span>
+                            <Span :text="product.total"></Span>
+                        </Label>
+
+                        <label row="4" col="0" :text="total_bill | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })" class="body"></label>
+                        <Button row="5" col="3" text="Supprimer" class="btn btn-primary btn-war" @tap="removeProduct(product)"></Button>
+                    </GridLayout>
+                </v-template>
+            </ListView>
+
+
+
+        <!--
         <scroll-view class="green" v-if="this.current_cart !== null && this.total_bill !== 0.00">
             <StackLayout>
                 <ListView for="product in this.formatted">
@@ -30,13 +60,17 @@
                     <Button text="Paiement" @tap="goToPaiement" :disabled="true"></Button>
                 </StackLayout>
             </StackLayout>
+        </scroll-view>
+        <-- -->
 
-        </scroll-view>
+
+        <!-- empty cart -->
         <scroll-view class="green" v-else>
-            <StackLayout>
-                <Label text="Panier not exist"></Label>
-            </StackLayout>
+            <FlexboxLayout style="align-items:center; flex-direction:column;" justifyContent="space-around" class="m-5">
+                <Label class="body" text="Votre panier est vide."></Label>
+            </FlexboxLayout>
         </scroll-view>
+        <!-- -->
     </Page>
 </template>
 
@@ -338,3 +372,11 @@
     }
     ;
 </script>
+
+<style scoped>
+
+    .btn-war {
+        background-color: #eb4d4b;
+    }
+</style>
+
