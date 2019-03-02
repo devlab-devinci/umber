@@ -1,12 +1,18 @@
 <template>
     <Page>
-        <GridLayout columns="auto" rows="auto, auto" width="auto" height="auto"
-                    backgroundColor="#2ABB9B">
-            <Button row="0" col="0" class="btn btn-md btn-primary btn-rounded-md" @tap="goToHomeVendor">Commercant
-            </Button>
-            <Button row="1" col="0" class="btn btn-md btn-primary btn-rounded-md" @tap="goToHomeCustomer">Consomateur
-            </Button>
-        </GridLayout>
+        <ActionBar title="Continuer en ..." android:flat="true">
+            <!--
+            <NavigationButton text="Back" visibility="hidden"/>
+            -->
+        </ActionBar>
+        <FlexboxLayout style="align-items:center; flex-direction:column; margin-top:20%">
+            <Label class="h2" text="Vous êtes ..."></Label>
+            <Button text="Acheteur" width="70%" class="btn btn-primary btn-rounded-lg classic-btn" @tap="goToHomeCustomer"
+                    textWrap="true"/>
+            <StackLayout class="hr-light m-10" width="320"></StackLayout>
+            <Button text="Vendeur" width="70%" class="btn btn-primary btn-rounded-lg classic-btn fb-btn" @tap="goToHomeVendor"
+                    textWrap="true"/>
+        </FlexboxLayout>
     </Page>
 </template>
 
@@ -85,10 +91,12 @@
         color: #ffffff;
     }
 
-    .message {
-        vertical-align: center;
-        text-align: center;
-        font-size: 20;
-        color: #333333;
+
+    .classic-btn {
+        background-color: #22a6b3;
+        color: white;
+    }
+    .btn-outline {
+        color: #22a6b3;
     }
 </style>

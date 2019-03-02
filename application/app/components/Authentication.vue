@@ -1,56 +1,34 @@
 <template>
     <Page>
-        <ActionBar title="Authentication" android:flat="true">
-            <ActionItem @tap="$navigateTo($router.products)" ios.systemIcon="17" ios.position="right" text="Produits"
-                        android.position="popup"/>
-            <ActionItem @tap="$navigateTo($router.cart)" ios.systemIcon="16" ios.position="right" text="Panier"
-                        android.position="popup"/>
-            <ActionItem @tap="$navigateTo($router.editProduct)" ios.systemIcon="16" ios.position="right"
-                        text="edit product" android.position="popup"/>
-            <ActionItem @tap="$navigateTo($router.shops)" ios.systemIcon="16" ios.position="right" text="Shop"
-                        android.position="popup"/>
+        <ActionBar title="Mon Compte" android:flat="true">
         </ActionBar>
 
-        <TabView android:tabBackgroundColor="#53ba82"
-                 android:tabTextColor="#c4ffdf"
-                 android:selectedTabTextColor="#ffffff"
-                 androidSelectedTabHighlightColor="#ffffff">
-
-            <TabViewItem title="S'inscrire">
-                <StackLayout>
-                    <StackLayout class="form">
-                        <Image width="140" padding="5" class="m-t-4"
-                               src="https://play.nativescript.org/dist/assets/img/NativeScript_logo.png"/>
-                        <StackLayout class="input-field">
-                            <Label text="Firstname"></Label>
-                            <TextField class="input" editable="true"></TextField>
-                        </StackLayout>
-
-                        <StackLayout class="input-field">
-                            <TextField class="input"></TextField>
-                        </StackLayout>
-                        <Button text="Log In" class="btn btn-primary"></Button>
+        <FlexboxLayout style="align-items:center; flex-direction:column;" justifyContent="space-around">
+            <StackLayout class="form">
+                <StackLayout class="input-field form">
+                    <StackLayout class="input-field" width="250">
+                        <Label text="Email" class="label font-weight-bold m-b-5" />
+                        <TextField class="input"/>
+                        <StackLayout class="hr-light"></StackLayout>
                     </StackLayout>
-                    <Button text="Connectez-vous avec Facebook" class="btn btn-primary btn-rounded-lg" @tap="login"
+                    <StackLayout class="input-field" width="250">
+                        <Label text="Mot de passe" class="label font-weight-bold m-b-5" />
+                        <TextField class="input" />
+                        <StackLayout class="hr-light"></StackLayout>
+                    </StackLayout>
+                    <Button text="Connexion" width="70%" class="btn btn-outline"></Button>
+                    <StackLayout class="hr-light m-10" width="320"></StackLayout>
+                    <Button text="Connectez-vous avec Facebook" class="btn btn-primary btn-rounded-lg classic-btn fb-btn" @tap="login"
+                            textWrap="true"/>
+                    <Button text="S'inscrire" class="btn classic-btn" @tap="login"
                             textWrap="true"/>
                 </StackLayout>
-            </TabViewItem>
 
-            <TabViewItem title="Se connecter">
-                <StackLayout class="form">
-                    <StackLayout class="input-field">
-                        <TextField class="input"></TextField>
-                    </StackLayout>
-
-                    <StackLayout class="input-field">
-                        <TextField class="input"></TextField>
-                    </StackLayout>
-                    <Button text="Log In" class="btn btn-primary"></Button>
+                <StackLayout class="input-field">
+                    <TextField class="input"></TextField>
                 </StackLayout>
-            </TabViewItem>
-
-        </TabView>
-
+            </StackLayout>
+        </FlexboxLayout>
     </Page>
 </template>
 
@@ -64,6 +42,9 @@
     import {tnsOauthLogin, tnsOauthLogout} from "./services/Auth";
 
     import axios from 'axios';
+
+    import {Feedback, FeedbackType} from "nativescript-feedback";
+    import {Color} from "tns-core-modules/color";
 
 
     export default {
@@ -85,7 +66,7 @@
                             self.$store
                                 .dispatch('findFbUser', response.accessToken) //dispatch == action  (return promise)
                                 .then(function (userData) {
-
+                                    console.log(userData);
                                     self.$store
                                         .commit('setFbUser', userData); // update user we get
 
@@ -111,6 +92,10 @@
                                             console.log("AUTH ok.");
                                         })
                                         .catch(error => {
+                                            feedback.error({
+                                                title: "Oups, une erreur est survenue! réessayer plus tard",
+                                                titleColor: new Color("black")
+                                            });
                                             console.log("ERRORRRRRRR API", error);
                                             console.log(error);
                                             console.log("ROOT", API_url)
@@ -122,6 +107,10 @@
                                 //TODO -> return modal here
                                 .catch(err => {
                                     console.log("LOGIN FAILED", err)
+                                    feedback.error({
+                                        title: "Oups, une erreur est survenue! réessayer plus tard",
+                                        titleColor: new Color("black")
+                                    });
                                 })
 
                         }
@@ -139,10 +128,15 @@
         color: #ffffff;
     }
 
-    .message {
-        vertical-align: center;
-        text-align: center;
-        font-size: 20;
-        color: #333333;
+    .btn-outline {
+        color: #22a6b3;
+    }
+
+    .classic-btn {
+        background-color: #22a6b3;
+        color: white;
+    }
+    .fb-btn {
+        background-color: #3b5998;
     }
 </style>

@@ -3,12 +3,10 @@
 
         <ActionBar title="Commerces">
             <ActionItem @tap="choiceLocationMenu"
-                        ios.systemIcon="3" ios.position="left"
-                        android.systemIcon="ic_menu_share" android.position="actionBar"/>
-            <SegmentedBar @selectedIndexChange="onSelectedIndexChange" v-model="selectedItem">
-                <SegmentedBarItem title="En cours"/>
-                <SegmentedBarItem title="Historique"/>
-            </SegmentedBar>
+                        ios.systemIcon="res://markLocation" ios.position="left"
+                        android.systemIcon="ic_menu_mylocation" android.position="actionBar"/>
+            <ActionItem @tap="goToCartView" ios.systemIcon="9" ios.position="right"
+                        android.position="popup"/>
         </ActionBar>
 
 
@@ -33,8 +31,10 @@
             </TabViewItem>
             <TabViewItem title="Reçues">
                 <StackLayout style="margin:10px;">
-
-
+                    <SegmentedBar @selectedIndexChange="onSelectedIndexChange" v-model="selectedItem">
+                        <SegmentedBarItem title="En cours"/>
+                        <SegmentedBarItem title="Historique"/>
+                    </SegmentedBar>
                     <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
                         <StackLayout>
@@ -522,7 +522,10 @@
                     });
 
             },
-
+            goToCartView() {
+                console.log("GO TO CART LIST")
+                this.$navigateTo(Router.cart);
+            },
 
 
         },

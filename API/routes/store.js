@@ -106,7 +106,7 @@ router.post('/store', Authentication.authChecker, function (req, res, next) {
 router.get('/store', Authentication.authChecker, function (req, res, next) {
     Store
         .find({})
-        .populate('StorePicture')
+        .populate('pictures categories_store')
         .exec(function (err, stores) {
             if (err) {
                 errorManager.handler(res, err, "error find mongo")

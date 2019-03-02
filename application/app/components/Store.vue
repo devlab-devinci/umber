@@ -1,8 +1,32 @@
 <template>
     <PullToRefresh @refresh="refreshList">
-        <ListView for="store in stores" style="margin: 15px">
+        <ListView for="store in stores" class="list-group">
             <v-template>
-                <!-- Shows the list item label in the default color and style. -->
+                <GridLayout class="list-group-item" rows="*,*,*,*" columns="150, 150" @tap="storeClicked(store._id)">
+                    <Label row="0" col="0" :text="store.name | capitalize"></Label>
+                    <Image row="0" col="2"
+                           src="https://www.nootica.fr/media/catalog/product/cache/1/small_image/9df78eab33525d08d6e5fb8d27136e95/placeholder/default/no-image_1.png"
+                           class="thumb img-circle"></Image>
+                    <Label row="1" col="0" class="body" textWrap="true">
+                        <FormattedString>
+                            <Span class="fa color-gad" :text="'fa-map-marker' | fonticon"></Span>
+                            <Span text=" "></Span>
+                            <Span :text="store.city"/>
+                        </FormattedString>
+                    </Label>
+                    <Label row="2" col="0" class="body" :text="store.categories_store[0].name | capitalize"></Label>
+                    <Label row="3" col="0" class="body color-gad" textWrap="true">
+                        <FormattedString>
+                            <Span class="fa" :text="'fa-tags' | fonticon"></Span>
+                            <Span text=" "></Span>
+                            <Span :text="store.products.length + ' offres disponibles'"/>
+                        </FormattedString>
+                    </Label>
+                </GridLayout>
+            </v-template>
+
+            <!--
+            <v-template>
                 <StackLayout @tap="storeClicked(store._id)">
                     <Label :text="store.name | capitalize"></Label>
                     <Label textWrap="true">
@@ -15,6 +39,8 @@
                     <Label :text="store.city"></Label>
                 </StackLayout>
             </v-template>
+        -->
+
         </ListView>
     </PullToRefresh>
 </template>
@@ -117,6 +143,16 @@
 
             },
 
+
         }
     }
 </script>
+
+
+<style scoped>
+
+    .color-gad {
+        color: #22a6b3;;
+    }
+
+</style>

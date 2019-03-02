@@ -15,6 +15,7 @@
             <Image v-if="item.picture" col="0" row="0" :src="item.picture"></Image>
             <Label :text="item.companyName" col="1" row="0"></Label>
             <Button text="Voir le shop" col="2" @tap="showShop(item)" />
+            <Button class="btn btn-outline" text="Border + Transparent Background"></Button>
           </GridLayout>
         </v-template>
       </ListView>

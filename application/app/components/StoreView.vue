@@ -1,40 +1,63 @@
 <template>
     <Page>
         <ActionBar :title="this.store.name | capitalize " android:flat="true">
-            <AbsoluteLayout>
-                <Button text="pannier" left="2" top="1" width="20" height="40" backgroundColor="#550C5C"/>
-                <Button text="nb product" left="10" top="4" width="40" height="30" backgroundColor="#FAC152"/>
-            </AbsoluteLayout>
             <ActionItem @tap="goToCartView" ios.systemIcon="9" ios.position="right" text="edit product"
                         android.position="popup"/>
         </ActionBar>
 
         <StackLayout>
-            <Label :text="this.store.name | capitalize"></Label>
-            <Label :text="this.store.city | capitalize"></Label>
-            <Label :text="this.store.address | capitalize"></Label>
-            <Label :text="this.store.zipcode | capitalize"></Label>
-            <Label v-if="this.store.products.length === 0" text="Pas de produits pour le moment"></Label>
 
-            <StackLayout className="mt-5" v-if="this.store.products.length > 0">
-                <Label text="Produits"></Label>
+            <StackLayout>
+                <Image
+                        src="https://www.athenaspahotel.com/media/cache/jadro_resize/rc/Tv22O4rW1550816149/jadroRoot/medias/_a1a8429.jpg"></Image>
             </StackLayout>
-            <ListView v-if="this.store.products.length > 0" for="(product, key, index) in this.store.products">
-                <v-template>
-                    <StackLayout orientation="vertical">
-                        <Label :text="product.name | capitalize"></Label>
-                        <Label :text="displayStock(product.stock)"></Label>
-                        <Label :text="product.price | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"></Label>
-                        <Label :text="product.promotion | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"></Label>
-                        <TextView :text="product.description"></TextView>
-                        <TextField keyboardType="number" hint="Quantité" v-model="product.key">
-                        </TextField>
-                        <Button text="Add to cart" @tap="addToCart(product, product.key, product.promotion)"></Button>
-                    </StackLayout>
-                </v-template>
-            </ListView>
 
+            <StackLayout class="m-5">
+                <Label textWrap="true">
+                    <FormattedString>
+                        <Span :text="this.store.name|capitalize"/>
+                        <Span text=" - "/>
+                        <Span :text="this.store.city|capitalize"/>
+                    </FormattedString>
+                </Label>
+                <Label textWrap="true" class="body">
+                    <FormattedString>
+                        <Span :text="this.store.address|capitalize"/>
+                        <Span text=", "/>
+                        <Span :text="this.store.city |capitalize"/>
+                        <Span text=" - "/>
+                        <Span :text="this.store.zipcode"></Span>
+                    </FormattedString>
+                </Label>
+
+                <label :text="store.categories_store[0].name | capitalize"></label>
+
+                <!-- offres -->
+                <StackLayout class="hr-light m-10" width="320"></StackLayout>
+
+                <FlexboxLayout v-if="this.store.products.length === 0"
+                               style="align-items:center; flex-direction:column;">
+                    <Label class="body" text="Aucunes offres disponible"></Label>
+                </FlexboxLayout>
+
+                <ListView v-if="this.store.products.length > 0" for="(product, key, index) in this.store.products" class="m-5">
+                    <v-template>
+                        <StackLayout orientation="vertical">
+                            <Label class="body" :text="product.name | capitalize"></Label>
+                            <Label class="body" :text="displayStock(product.stock)"></Label>
+                            <Label class="body" :text="displayTruePrice(product.price, product.promotion) | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  }) + ' (' + product.promotion + ' de remise)'"></Label>
+                            <Label class="body" :text="product.description"></Label>
+                            <TextField keyboardType="number" hint="Quantité" v-model="product.key">
+                            </TextField>
+                            <Button text="Ajouter au panier"
+                                    @tap="addToCart(product, product.key, product.promotion)"></Button>
+                        </StackLayout>
+                    </v-template>
+                </ListView>
+
+            </StackLayout>
         </StackLayout>
+
 
     </Page>
 
@@ -88,7 +111,7 @@
                         promotion: promotion
                     };
 
-                    if(this.$store.getters.getCurrentCart !== null){
+                    if (this.$store.getters.getCurrentCart !== null) {
                         existingQuantity = this.$store.getters.getCurrentCart.length
                     }
 
@@ -120,8 +143,22 @@
                 console.log("GO TO CART LIST")
                 this.$navigateTo(Router.cart);
             },
-            displayStock(product_stock){
-                return `stock : ${product_stock}`;
+            displayStock(product_stock) {
+
+                if (product_stock < 0 || product_stock === 0) {
+                    return `Indisponible`
+                } else if (product_stock === 1) {
+                    return `Plus que 1 produit disponible`
+                } else if (product_stock === 2) {
+                    return `Plus que 2 produit disponible`
+                } else if (product_stock === 3) {
+                    return `Plus que 3 produit disponible`
+                } else {
+                    return `Disponible`
+                }
+            },
+            displayTruePrice(product_price, product_promotion) {
+                return (product_price - product_promotion);
             }
         }
 
