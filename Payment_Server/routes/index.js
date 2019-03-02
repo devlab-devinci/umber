@@ -157,7 +157,7 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                                                 if(response.status !== 200){
                                                     res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
                                                 } else {
-                                                    
+
                                                     res.render('success', {message: 'Votre paiment à bien été pris en compte, vous pouvez vous rendre dans vos commandes / historiques pour suivre l\'état de votre commande'});
                                                 }
                                             })

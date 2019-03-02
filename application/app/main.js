@@ -31,6 +31,8 @@ if (TNS_ENV !== 'production') {
     apiConfig.url = `${apiConfig.protocol}://${apiConfig.vuedevtools}:${apiConfig.port}`;
 }
 Vue.use(Vue2Filters);
+Vue.use(require('vue-moment'));
+
 
 // Prints Vue logs when --env.production is *NOT* set while building
 Vue.config.silent = (TNS_ENV === 'production');

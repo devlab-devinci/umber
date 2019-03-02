@@ -16,17 +16,39 @@
             </TabViewItem>
             <TabViewItem title="Recherche">
                 <StackLayout>
-                    <SearchBar hint="Recherche ..." text="" textFieldBackgroundColor="#b2bec3"
+                    <SearchBar hint="Recherche ..." text="" class="m-5" style="border-radius: 10px;"
+                               textFieldBackgroundColor="#b2bec3"
                                v-model="searchVal"
                                @textChange="onTextChanged" @submit="searchByValue"/>
+
                     <ListView for="store in this.search_stores" v-if="this.search_stores.length > 0">
-                        <Label :text="formatSearchIndicator(this.search_stores.length)"></Label>
                         <v-template>
-                            <StackLayout @tap="storeClicked(store._id)">
-                                <label :text="store.name"></label>
-                            </StackLayout>
+                            <GridLayout class="list-group-item" rows="*,*,*,*" columns="150, 150"
+                                        @tap="storeClicked(store._id)">
+                                <Label row="0" col="0" :text="store.name | capitalize"></Label>
+                                <Image row="0" col="2"
+                                       src="https://www.nootica.fr/media/catalog/product/cache/1/small_image/9df78eab33525d08d6e5fb8d27136e95/placeholder/default/no-image_1.png"
+                                       class="thumb img-circle"></Image>
+                                <Label row="1" col="0" class="body" textWrap="true">
+                                    <FormattedString>
+                                        <Span class="fa color-gad" :text="'fa-map-marker' | fonticon"></Span>
+                                        <Span text=" "></Span>
+                                        <Span :text="store.city"/>
+                                    </FormattedString>
+                                </Label>
+                                <Label row="2" col="0" class="body"
+                                       :text="store.categories_store[0].name | capitalize"></Label>
+                                <Label row="3" col="0" class="body color-gad" textWrap="true">
+                                    <FormattedString>
+                                        <Span class="fa" :text="'fa-tags' | fonticon"></Span>
+                                        <Span text=" "></Span>
+                                        <Span :text="store.products.length + ' offres disponibles'"/>
+                                    </FormattedString>
+                                </Label>
+                            </GridLayout>
                         </v-template>
                     </ListView>
+
                 </StackLayout>
             </TabViewItem>
             <TabViewItem title="Reçues">
@@ -35,47 +57,62 @@
                         <SegmentedBarItem title="En cours"/>
                         <SegmentedBarItem title="Historique"/>
                     </SegmentedBar>
-                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"
-                                   style="align-items:center; flex-direction:column;">
-                        <StackLayout>
-                            <ListView for="command_c in this.prepare_commands" v-if="this.prepare_commands.length > 0">
-                                <v-template>
-                                    <StackLayout>
-                                        <label :text="command_c.identifier"></label>
-                                        <label :text="command_c.createdAt"></label>
-                                        <Label :text="command_c.status"></Label>
-                                        <label :text="command_c.amount_cart"></label>
-                                        <Button text="Voir comment y aller"></Button>
-                                    </StackLayout>
-                                </v-template>
-                            </ListView>
-                            <Label text="Aucune commandes en cours pour le moment" v-if="this.prepare_commands.length === 0">
+                    <ListView for="command_c in this.prepare_commands" v-if="this.prepare_commands.length > 0"
+                              :visibility="selectedItem === 0 ? 'visible' : 'collapsed'">
 
-                            </Label>
-                        </StackLayout>
+                        <v-template>
+                            <GridLayout class="list-group-item" rows="*,*,*,*" columns="200, 200">
+                                <Label row="0" col="0" :text="'n° ' + command_c.identifier"></Label>
+                                <Label row="3" col="0" class=""
+                                       :text="command_c.amount_cart | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"
+                                       textWrap="true">
+                                </Label>
+                                <Image row="0" col="2"
+                                       src="https://static.cuisineaz.com/400x320/i108058-kebab-sans-gluten.jpg"
+                                       class="thumb img-circle"></Image>
+                                <Label row="1" col="0" class="body" textWrap="true"
+                                       :text="command_c.createdAt  | moment('dddd, MMMM Do YYYY, h:mm:ss a')">
+                                </Label>
+                                <Label row="2" col="0" class="body"
+                                       :text="displayStatus(command_c.status)"></Label>
+                            </GridLayout>
+                        </v-template>
 
-                    </FlexboxLayout>
 
+                    </ListView>
+                    <Label text="Aucune commandes en cours pour le moment"
+                           v-if="this.prepare_commands.length === 0"></Label>
 
-                    <FlexboxLayout :visibility="selectedItem === 1 ? 'visible' : 'collapsed'"
-                                   style="align-items:center; flex-direction:column;">
-                        <StackLayout>
-                            <ListView for="command_h in this.historic_commands" v-if="this.historic_commands.length > 0">
-                                <v-template>
-                                    <StackLayout>
-                                        <label :text="command_h.identifier"></label>
-                                        <label :text="command_h.createdAt"></label>
-                                        <Label :text="command_h.status"></Label>
-                                        <label :text="command_h.amount_cart"></label>
-                                        <Button text="Soutenir le magasin" @tap="like(command_h.products[0].store)"></Button>
-                                    </StackLayout>
-                                </v-template>
-                            </ListView>
-                            <Label text="Aucune commande dans votre historique pour le moment" v-if="this.historic_commands.length === 0">
+                    <ListView for="command_h in this.historic_commands"
+                              v-if="this.historic_commands.length > 0"
+                              :visibility="selectedItem === 1 ? 'visible' : 'collapsed'">
+                        <v-template>
+                            <GridLayout class="list-group-item" rows="*,*,*,*,*" columns="200, 200">
+                                <Label row="0" col="0" :text="'n° ' + command_h.identifier"></Label>
+                                <Label row="3" col="0" class=""
+                                       :text="command_h.amount_cart | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"
+                                       textWrap="true">
+                                </Label>
+                                <Image row="0" col="2"
+                                       src="https://static.cuisineaz.com/400x320/i108058-kebab-sans-gluten.jpg"
+                                       class="thumb img-circle"></Image>
+                                <Label row="1" col="0" class="body" textWrap="true"
+                                       :text="command_h.createdAt  | moment('dddd, MMMM Do YYYY, h:mm:ss a')">
+                                </Label>
+                                <Label row="2" col="0" class="body"
+                                       :text="displayStatus(command_h.status)"></Label>
 
-                            </Label>
-                        </StackLayout>
-                    </FlexboxLayout>
+                                <Button row="3" col="2" @tap="like(command_h.products[0].store)" class="btn-primary m-5"
+                                        text="Encourager !"></Button>
+
+                            </GridLayout>
+                        </v-template>
+
+                    </ListView>
+                    <Label text="Aucune commande dans votre historique pour le moment"
+                           v-if="this.historic_commands.length === 0">
+
+                    </Label>
 
                 </StackLayout>
             </TabViewItem>
@@ -292,12 +329,12 @@
 
 
                 //search stores
-                search_stores : "",
+                search_stores: "",
             }
         },
         methods: {
             formatSearchIndicator(length) {
-                if(length > 1){
+                if (length > 1) {
                     return `Résultats pour ${this.searchVal} : ${length}`
                 } else {
                     return `Résultat pour ${this.searchVal} : ${length}`
@@ -323,8 +360,8 @@
                 };
 
                 axios
-                    .post(`${api_config.api_url}/api/v1/search`, body, {headers:headers})
-                    .then(function(response){
+                    .post(`${api_config.api_url}/api/v1/search`, body, {headers: headers})
+                    .then(function (response) {
                         let storesFilter = response.data.data;
                         console.log(response.data);
                         console.log("STORE FILTER ", storesFilter);
@@ -333,7 +370,7 @@
                             loader.hide();
                         }, 1000);
                     })
-                    .catch(function(err){
+                    .catch(function (err) {
                         setTimeout(function () {
                             console.log("error store filter : ", err)
                             loader.hide();
@@ -470,7 +507,7 @@
                     .catch(err => console.log("ERROR HIT", err));
                 console.log("item clicked", id_store)
             },
-            like(store_id){
+            like(store_id) {
 
                 loader.show(loaderOptions);
                 //on fait un command.products[O], car on part sur le principe que les products VIENNET d'un unique mangasin
@@ -487,11 +524,11 @@
                 console.log("LIKE : ", store_id);
 
                 axios
-                    .post(`${api_config.api_url}/api/v1/like`, body,{headers: headers})
-                    .then(function(response){
+                    .post(`${api_config.api_url}/api/v1/like`, body, {headers: headers})
+                    .then(function (response) {
                         console.log("resssss", response);
-                        if(response.data.status ===200){
-                            if(response.data.exist === true){
+                        if (response.data.status === 200) {
+                            if (response.data.exist === true) {
                                 loader.hide()
                                 feedback.warning({
                                     title: "Magasin déjà liké !",
@@ -512,7 +549,7 @@
                             });
                         }
                     })
-                    .catch(function(err){
+                    .catch(function (err) {
                         console.log("errrr", err)
                         loader.hide()
                         feedback.error({
@@ -526,6 +563,13 @@
                 console.log("GO TO CART LIST")
                 this.$navigateTo(Router.cart);
             },
+            displayStatus(cmd_status) {
+                if (cmd_status === 'prepare') {
+                    return "Commande en préparation"
+                } else {
+                    return "Commande prête !"
+                }
+            }
 
 
         },
@@ -541,6 +585,15 @@
     ActionBar {
         background-color: #53ba82;
         color: #ffffff;
+    }
+
+    .btn-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 15px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.42857;
     }
 
     .message {
