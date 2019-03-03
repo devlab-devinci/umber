@@ -16,52 +16,48 @@
                         <SegmentedBarItem title="Ajouter une offre"/>
                     </SegmentedBar>
 
-                    <FlexboxLayout :visibility="selectedItem === 0 ? 'visible' : 'collapsed'"
-                                   style="align-items:center; flex-direction:column;">
-                        <StackLayout>
-                            <ListView for="product in this.owner_products" v-if="this.owner_products.length > 0">
-                                <v-template>
-                                    <StackLayout @tap="onProductTap(product)">
-                                        <Label :text="product.name"/>
-                                    </StackLayout>
-                                </v-template>
-                            </ListView>
-                            <Label text="Pas de produits pour le moment" v-if="this.owner_products.length === 0">
 
-                            </Label>
-                        </StackLayout>
-                    </FlexboxLayout>
+                    <ListView for="product in this.owner_products" v-if="this.owner_products.length > 0"
+                              :visibility="selectedItem === 0 ? 'visible' : 'collapsed'">
+                        <v-template>
+                            <GridLayout class="list-group-item" rows="*,*,*,*,*" columns="200, 200"
+                                        @tap="onProductTap(product)">
+                                <Label row="0" col="0" class="body" textWrap="true"
+                                       :text="product.name | capitalize">
+                                </Label>
+                                <Image row="0" col="2"
+                                       src="https://static.cuisineaz.com/400x320/i108058-kebab-sans-gluten.jpg"
+                                       class="thumb img-circle"></Image>
+                            </GridLayout>
+                        </v-template>
+                    </ListView>
+                    <Label text="Pas de produits pour le moment" v-if="this.owner_products.length === 0"></Label>
 
 
                     <FlexboxLayout :visibility="selectedItem === 1 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
-                        <StackLayout class="form">
-                            <StackLayout class="input-field">
-                                <TextField class="input" hint="Nom ..." v-model="form_name"></TextField>
-                            </StackLayout>
+                        <ScrollView>
+                            <StackLayout class="form mt-5">
 
-                            <StackLayout class="input-field">
-                                <TextField class="input"
-                                           hint="3 Allée Autocomplete to do wiht google places ..."
+                                <TextField v-model="form_name" hint="Nom" class="input input-rounded m-t-10"/>
+
+                                <TextField hint="Ville" v-model="form_city"
+                                           class="input input-rounded m-t-10"></TextField>
+
+                                <TextField class="input input-rounded m-t-10"
+                                           hint="Adresse"
                                            v-model="form_address"></TextField>
-                            </StackLayout>
 
-                            <StackLayout class="input-field">
-                                <TextField class="input" hint="City's name" v-model="form_city"></TextField>
-                            </StackLayout>
+                                <TextField class="input input-rounded m-t-10" hint="Code postal"
+                                           v-model="form_zipcode"></TextField>
 
-                            <StackLayout class="input-field">
-                                <TextField class="input" hint="Zipcode ...." v-model="form_zipcode"></TextField>
-                            </StackLayout>
+                                <!-- <Button text="Catégories" @tap="showModal" class="btn btn-primary m-t-20"/> -->
 
-                            <StackLayout class="input-field">
                                 <ListPicker :items="this.categories_store_names" v-model="pickerIndex"></ListPicker>
-                            </StackLayout>
 
-                            <StackLayout>
-                                <Button text="Confirmer" class="btn btn-primary" @tap="submit"></Button>
+                                <Button text="Confirmer" class="btn btn-gd m-5" @tap="submit"></Button>
                             </StackLayout>
-                        </StackLayout>
+                        </ScrollView>
                     </FlexboxLayout>
 
 
@@ -70,41 +66,20 @@
                                    style="align-items:center; flex-direction:column;">
                         <ScrollView>
                             <StackLayout class="form">
+                                <TextField v-model="form_offer_name" hint="Nom" class="input input-rounded m-t-10"/>
+                                <TextField v-model="form_offer_price" hint="Prix" class="input input-rounded m-t-10"/>
+                                <TextField v-model="form_offer_description" hint="Description"
+                                           class="input input-rounded m-t-10"/>
+                                <TextField v-model="form_offer_stock" hint="Quantité"
+                                           class="input input-rounded m-t-10"/>
+                                <TextField v-model="form_offer_promotion" hint="Remise"
+                                           class="input input-rounded m-t-10"/>
                                 <StackLayout class="input-field">
-                                    <TextField class="input" hint="Nom du produit ..."
-                                               v-model="form_offer_name"></TextField>
-                                    <TextField class="input" hint="Prix ..." v-model="form_offer_price"></TextField>
-                                    <TextField class="input" hint="Description ..."
-                                               v-model="form_offer_description"></TextField>
-                                    <TextField class="input" hint="Quantité ..." v-model="form_offer_stock"></TextField>
-                                    <TextField class="input" hint="Remise ..."
-                                               v-model="form_offer_promotion"></TextField>
                                     <ListPicker :items="this.categories_product_names"
                                                 v-model="form_offer_category_picker_index"></ListPicker>
                                     <ListPicker :items="this.owner_stores_name"
                                                 v-model="owner_stores_index"></ListPicker>
-                                    <StackLayout>
-                                        <Button text="Confirmer" class="btn btn-primary" @tap="submitOffer"></Button>
-                                    </StackLayout>
-                                </StackLayout>
-                                <!-- TODO enlever ce bout de code mais si on le fait la liste n'aparait plus pour une raison inconnu -->
-                                <StackLayout class="input-field">
-                                    <TextField class="input"
-                                               hint="3 Allée Autocomplete to do wiht google places ..."
-                                               v-model="form_address"></TextField>
-                                </StackLayout>
-
-                                <StackLayout class="input-field">
-                                    <TextField class="input" hint="City's name" v-model="form_city"></TextField>
-                                </StackLayout>
-
-                                <StackLayout class="input-field">
-                                    <TextField class="input" hint="Zipcode ...." v-model="form_zipcode"></TextField>
-                                </StackLayout>
-                                <!-- TODO enlever ce bout de code mais si on le fait la liste n'aparait plus pour une raison inconnu -->
-
-                                <StackLayout>
-                                    <Button text="Confirmer" class="btn btn-primary" @tap="submit"></Button>
+                                    <Button text="Confirmer" class="btn btn-gd" @tap="submitOffer"></Button>
                                 </StackLayout>
                             </StackLayout>
                         </ScrollView>
@@ -122,55 +97,88 @@
 
                     <FlexboxLayout :visibility="selectedCommandItem === 0 ? 'visible' : 'collapsed'"
                                    style="align-items:center; flex-direction:column;">
-                        <StackLayout>
-                            <ListView for="command_c in this.prepare_commands" v-if="this.prepare_commands.length > 0">
-                                <v-template>
-                                    <StackLayout>
-                                        <label :text="command_c.identifier"></label>
-                                        <label :text="command_c.createdAt"></label>
-                                        <Label :text="command_c.status"></Label>
-                                        <label :text="command_c.amount_cart"></label>
-                                        <Button text="Prêt !" @tap="ready(command_c)"></Button>
-                                    </StackLayout>
-                                </v-template>
-                            </ListView>
-                            <Label text="Aucune commandes en cours pour le moment"
-                                   v-if="this.prepare_commands.length === 0">
+                        <ListView for="command_c in this.prepare_commands" v-if="this.prepare_commands.length > 0">
+                            <v-template>
+                                <GridLayout class="list-group-item" rows="*,*,*,*,*" columns="200, 200">
+                                    <Label row="0" col="0" :text="'n° ' + command_c.identifier"></Label>
+                                    <Label row="3" col="0" class=""
+                                           :text="command_c.amount_cart | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"
+                                           textWrap="true">
+                                    </Label>
+                                    <Image row="0" col="2"
+                                           src="https://static.cuisineaz.com/400x320/i108058-kebab-sans-gluten.jpg"
+                                           class="thumb img-circle"></Image>
+                                    <Label row="1" col="0" class="body" textWrap="true"
+                                           :text="command_c.createdAt  | moment('dddd, MMMM Do YYYY, h:mm:ss a')">
+                                    </Label>
+                                    <Label row="2" col="0" class="body"
+                                           :text="displayStatus(command_c.status)"></Label>
+                                    <Button row="3" col="2" @tap="ready(command_c)" class="btn-primary m-5 btn-gd"
+                                            text="Prêt !" width="40%"></Button>
+                                    <Image :src="'/Users/sylvainjoly/Workspace/umber/Payment_Server/bin/'+command_c.qr_code"
+                                           v-if="command_c.qr_code_b64">
+                                    </Image>
+                                </GridLayout>
+                            </v-template>
 
-                            </Label>
-                        </StackLayout>
+                        </ListView>
+                        <Label text="Aucune commandes en cours pour le moment"
+                               v-if="this.prepare_commands.length === 0">
+
+                        </Label>
                     </FlexboxLayout>
 
 
-                    <FlexboxLayout :visibility="selectedCommandItem === 1 ? 'visible' : 'collapsed'"
-                                   style="align-items:center; flex-direction:column;">
-                        <StackLayout>
-                            <ListView for="command_h in this.historic_commands"
-                                      v-if="this.historic_commands.length > 0">
-                                <v-template>
-                                    <StackLayout>
-                                        <label :text="command_h.identifier"></label>
-                                        <label :text="command_h.createdAt"></label>
-                                        <Label :text="command_h.status"></Label>
-                                        <label :text="command_h.amount_cart"></label>
-                                        <Button text="Donner une note"></Button>
-                                    </StackLayout>
-                                </v-template>
-                            </ListView>
-                            <Label text="Aucune commande dans votre historique pour le moment"
-                                   v-if="this.historic_commands.length === 0">
-                            </Label>
-                        </StackLayout>
-                    </FlexboxLayout>
+                    <ListView for="command_h in this.historic_commands"
+                              :visibility="selectedCommandItem === 1 ? 'visible' : 'collapsed'"
+                              v-if="this.historic_commands.length > 0">
+                        <v-template>
+                            <GridLayout class="list-group-item" rows="*,*,*,*,*" columns="200, 200">
+                                <Label row="0" col="0" :text="'n° ' + command_h.identifier"></Label>
+                                <Label row="3" col="0" class=""
+                                       :text="command_h.amount_cart | currency('€', 0, { spaceBetweenAmountAndSymbol: true, symbolOnLeft: false, decimalSeparator: ',', thousandsSeparator: '.'  })"
+                                       textWrap="true">
+                                </Label>
+                                <Image row="0" col="2"
+                                       src="https://static.cuisineaz.com/400x320/i108058-kebab-sans-gluten.jpg"
+                                       class="thumb img-circle"></Image>
+                                <Label row="1" col="0" class="body" textWrap="true"
+                                       :text="command_h.createdAt  | moment('dddd, MMMM Do YYYY, h:mm:ss a')">
+                                </Label>
+                                <Label row="2" col="0" class="body"
+                                       :text="displayStatus(command_h.status)"></Label>
+                                <Image :src="'/Users/sylvainjoly/Workspace/umber/Payment_Server/bin/'+command_h.qr_code"
+                                       v-if="command_h.qr_code_b64"></Image>
+                            </GridLayout>
+                        </v-template>
+                    </ListView>
+                    <Label text="Aucune commande dans votre historique pour le moment"
+                           v-if="this.historic_commands.length === 0">
+                    </Label>
+
 
                 </StackLayout>
             </TabViewItem>
             <TabViewItem title="Statistiques">
-                <FlexboxLayout style="align-items:center; flex-direction:column;">
+                <FlexboxLayout style="align-items:center; flex-direction:column;" justifyContent="space-around">
                     <StackLayout>
-                        <Label :text="'stats like : ' + this.stats_like.length"></Label>
-                        <Label :text="'stats commands honorés : ' + this.stats_command.length"></Label>
-                        <ListPicker :items="this.stats_items" @selectedIndexChange="selectedIndexStatsChanged" selectedIndex="0"></ListPicker>
+                        <Label textWrap="true" class="mt-4">
+                            <FormattedString>
+                                <Span text="Nombre de likes : "></Span>
+                                <Span class="fa" style="color: #78e08f;" :text="'fa-heart' | fonticon"></Span>
+                                <Span :text="' '+this.stats_like.length"></Span>
+                            </FormattedString>
+                        </Label>
+                        <Label textWrap="true" class="mt-4">
+                            <FormattedString>
+                                <Span text="Commande honorés : "></Span>
+                                <Span class="fa" style="color: #78e08f;" :text="'fa-boxes' | fonticon"></Span>
+                                <Span :text="this.stats_command.length"></Span>
+                            </FormattedString>
+                        </Label>
+
+                        <ListPicker :items="this.stats_items" @selectedIndexChange="selectedIndexStatsChanged"
+                                    selectedIndex="0"></ListPicker>
                     </StackLayout>
                 </FlexboxLayout>
             </TabViewItem>
@@ -250,7 +258,6 @@
     import axios from 'axios';
     import {api_config} from '../api_config';
     import Router from "./services/Router";
-
 
     export default {
         name: "CustomerHome",
@@ -372,6 +379,7 @@
                     self.stats = response.data.data;
                     self.stats_command = response.data.data.stats_command;
                     self.stats_like = response.data.data.stats_like;
+                    console.log("dataaaaa response for stats", self.state);
                     setTimeout(function () {
                         loader.hide();
                     }, 1000);
@@ -452,7 +460,7 @@
                 stats_command: "",
                 stats_like: "",
                 stats_test: "",
-                stats_items: ['Aujourd\'hui','Semaine','Mois', 'Année'],
+                stats_items: ['Aujourd\'hui', 'Semaine', 'Mois', 'Année'],
                 stats_item_picked: "",
 
                 welcomMessage: "Connecté : " + this.$store.getters.getFbUser.name + "",
@@ -479,8 +487,12 @@
             onTextChanged() {
                 console.log("change texted")
             },
-            selectedIndexStatsChanged(picker){
+            selectedIndexStatsChanged(picker) {
                 //TODO -> get index of picker list then refresh list en fonction de la value pick
+                loader.show(loaderOptions);
+                setTimeout(function () {
+                    loader.hide();
+                }, 500)
                 console.log("OK");
                 console.log("ITEM SELECTED");
             },
@@ -674,7 +686,15 @@
 
 
             },
+            displayStatus(cmd_status) {
+                if (cmd_status === 'prepare') {
+                    return "Commande en préparation"
+                } else {
+                    return "Commande prête !"
+                }
+            },
             ready(command) {
+                let self = this;
                 console.log(command._id);
                 loader.show(loaderOptions);
                 const headers = {
@@ -692,21 +712,21 @@
                 axios.put(`${api_config.api_url}/api/v1/commands/archived`, body, {headers: headers})
                     .then(function (response) {
                         console.log("repppp", response);
-                        console.log(response.status);
-                        if (response.status === 200) {
-                            loader.hide();
-                            feedback
-                                .success({
-                                    title: "Archivé",
-                                    titleColor: new Color("#222222"),
-                                    type: FeedbackType.Custom, // this is the default type, by the way
-                                    message: `Ajouté à votre historique.`,
-                                    messageColor: new Color("#333333"),
-                                    duration: 2000,
-                                    backgroundColor: new Color("yellowgreen")
-                                });
-
-                            //TODO refresh list des commandes
+                        console.log("STAAAATUS", response.data.status);
+                        if (response.data.status === 200) {
+                            setTimeout(function () {
+                                loader.hide();
+                                feedback
+                                    .success({
+                                        title: "Archivé",
+                                        titleColor: new Color("#222222"),
+                                        type: FeedbackType.Custom, // this is the default type, by the way
+                                        message: `Ajouté à votre historique.`,
+                                        messageColor: new Color("#333333"),
+                                        duration: 2000,
+                                        backgroundColor: new Color("yellowgreen")
+                                    });
+                            }, 1000);
                         } else {
                             loader.hide();
                             feedback
@@ -723,6 +743,11 @@
                     });
 
                 console.log("@TAP READY : ", command);
+            },
+            displayQrCode(command_c_data) {
+                //console.log('data:Image/png;base64'+ new Buffer(command_c_data).toString('base64'))
+                console.log('data:Image/png;base64' + new Buffer(command_c_data).toString('base64'))
+                return 'data:Image/png;base64' + new Buffer(command_c_data).toString('base64')
             }
 
         },
@@ -744,6 +769,12 @@
         text-align: center;
         font-size: 20;
         color: #333333;
+    }
+
+
+    .btn-gd {
+        background-color: #22a6b3;
+        color: white;
     }
 </style>
 

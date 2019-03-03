@@ -12,6 +12,8 @@ const qrGenerator = require('@sylvainneung/qr-code-generator');
 const uuidv4 = require('uuid/v4');
 
 const path = require('path');
+const fs = require('fs');
+const base64Img = require('base64-img');
 
 /* Payment */
 router.get('/umber/payment/:fb_access_token/:user_id', function (req, res, next) {
@@ -132,40 +134,52 @@ router.post('/umber/payment/charge/:user_id/:user_name_fb/:user_fb_access_token'
                 body.status = 'prepare';
                 body.identifier = Math.random().toString(36).substring(7);
                 body.buyer_quick_access = payload.user._id;
+                body.qr_code_b64 = {
+                    data: ""
+                };
 
+                console.log("WTF ?");
                 qrGenerator
                     .generateQrImageAsync(body.identifier, body.reference, "png")
                     .then(function (response) {
-                        console.log("response : ", response)
+                        console.log('STF',response);
                         if (response.error === null) {
                             let picFileName = path.parse(response.pic_path).base;
                             body.qr_code = picFileName;
-                            axios
-                                .post(`${api_config.api_url}/api/v1/commands`, body, {headers: headers})
-                                .then(function (response) {
-                                    console.log("DATA ---- ", response.data);
-                                    if (response.status !== 200) {
-                                        res.render('error', {message: response.error})
-                                    } else {
-                                        //TODO API route for update quantity
-                                        //TODO api route to list command with QR code for user
-                                        //TODO api route to list command for commercant (voir pour un refund)
-                                        axios
-                                            .post(`${api_config.api_url}/api/v1/products/ajusted`, body, {headers: headers})
-                                            .then(function (response) {
-                                                console.log("AJUSTED RESPONSE",response);
-                                                if(response.status !== 200){
-                                                    res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
-                                                } else {
 
-                                                    res.render('success', {message: 'Votre paiment à bien été pris en compte, vous pouvez vous rendre dans vos commandes / historiques pour suivre l\'état de votre commande'});
-                                                }
-                                            })
-                                            .catch(err => res.render('error', {message: err.message}));
-                                    }
+                            console.log("pICFILENAME", picFileName);
+                            base64Img.base64('./bin/'+picFileName, function(err, data) {
+                                console.log("ER", err);
+                                if(err){
+                                    res.render('error', {message: response.error})
+                                } else {
+                                    body.qr_code_b64.data = fs.readFileSync('./bin/'+picFileName);
+                                    axios
+                                        .post(`${api_config.api_url}/api/v1/commands`, body, {headers: headers})
+                                        .then(function (response) {
+                                            if (response.status !== 200) {
+                                                res.render('error', {message: response.error})
+                                            } else {
+                                                //TODO API route for update quantity
+                                                //TODO api route to list command with QR code for user
+                                                //TODO api route to list command for commercant (voir pour un refund)
+                                                axios
+                                                    .post(`${api_config.api_url}/api/v1/products/ajusted`, body, {headers: headers})
+                                                    .then(function (response) {
+                                                        if(response.status !== 200){
+                                                            res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
+                                                        } else {
 
-                                })
-                                .catch(err => res.render('error', {message: "Une erreur est survenue, veuillez rééessayer plus tard"}))
+                                                            res.render('success', {message: 'Votre paiment à bien été pris en compte, vous pouvez vous rendre dans vos commandes / historiques pour suivre l\'état de votre commande'});
+                                                        }
+                                                    })
+                                                    .catch(err => res.render('error', {message: err.message}));
+                                            }
+
+                                        })
+                                        .catch(err => res.render('error', {message: "Une erreur est survenue, veuillez rééessayer plus tard"}))
+                                }
+                            });
                         } else {
                             res.render('error', {message: "Une erreur interne est survenue veuillez réessayer plus tard"});
                         }

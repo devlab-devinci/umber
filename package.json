@@ -15,6 +15,7 @@
     "ejs": "~2.5.7",
     "lodash": "^4.17.11",
     "moment": "^2.23.0",
+    "nativescript-camera": "^4.2.0",
     "node-watch": "^0.5.9",
     "nodemon": "^1.18.9",
     "yargs": "^12.0.5"

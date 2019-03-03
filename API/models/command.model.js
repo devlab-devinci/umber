@@ -97,7 +97,11 @@ let CommandSchema = new Schema({
     },
     qr_code: {
         type: String
-    }
+    },
+    qr_code_b64: {
+        data: Buffer,
+        contentType: String}
+
 });
 
 

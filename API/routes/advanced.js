@@ -702,7 +702,9 @@ router.put('/commands/archived', Authentication.authChecker, function (req, res,
                 Command
                     .updateOne({_id: commandId}, {$set: {ready_at: date, status: 'ready'}})
                     .then(function (message) {
-                        let newCmdHist = new CmdHistorique(payload.command);
+                        let clr = payload.command;
+                        delete clr._id;
+                        let newCmdHist = new CmdHistorique(clr);
                         newCmdHist.ready_at = date;
                         newCmdHist.status = 'ready';
                         newCmdHist.vendor = payload.command.vendor;
@@ -712,8 +714,10 @@ router.put('/commands/archived', Authentication.authChecker, function (req, res,
                                 errorManager
                                     .handler(res, err, "error save cmdHist")
                             } else {
+                                console.log(commandId);
                                 Command
                                     .findOne({_id: commandId}, function (err, command) {
+                                        console.log("cmdf", command )
                                         if (err) {
                                             console.log("COMMAND find one", err)
                                             errorManager

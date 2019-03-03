@@ -75,6 +75,8 @@
                                 </Label>
                                 <Label row="2" col="0" class="body"
                                        :text="displayStatus(command_c.status)"></Label>
+                                <Image :src="'/Users/sylvainjoly/Workspace/umber/Payment_Server/bin/'+command_c.qr_code" v-if="command_c.qr_code_b64"></Image>
+
                             </GridLayout>
                         </v-template>
 
@@ -104,7 +106,7 @@
 
                                 <Button row="3" col="2" @tap="like(command_h.products[0].store)" class="btn-primary m-5"
                                         text="Encourager !"></Button>
-
+                                <Image :src="'/Users/sylvainjoly/Workspace/umber/Payment_Server/bin/'+command_h.qr_code" v-if="command_h.qr_code_b64"></Image>
                             </GridLayout>
                         </v-template>
 
