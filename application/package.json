@@ -24,6 +24,7 @@
     "i": "^0.3.6",
     "jsonwebtoken": "^8.5.0",
     "jwt-simple": "^0.5.5",
+    "nativescript-background-http": "^3.4.0",
     "nativescript-camera": "^4.1.1",
     "nativescript-cardview": "^3.1.1",
     "nativescript-facebook": "^2.2.4",

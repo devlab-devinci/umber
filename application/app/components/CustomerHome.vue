@@ -3,8 +3,9 @@
 
         <ActionBar title="Commerces">
             <ActionItem @tap="choiceLocationMenu"
-                        ios.systemIcon="res://markLocation" ios.position="left"
-                        android.systemIcon="ic_menu_mylocation" android.position="actionBar"/>
+                        ios.systemIcon="res://Android/src/main/res/drawable-hdpi/icon.png" ios.position="left"
+                        android.systemIcon="ic_menu_mylocation" android.position="actionBar">
+            </ActionItem>
             <ActionItem @tap="goToCartView" ios.systemIcon="9" ios.position="right"
                         android.position="popup"/>
         </ActionBar>

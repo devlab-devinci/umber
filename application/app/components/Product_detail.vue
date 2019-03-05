@@ -6,7 +6,7 @@
 
             <StackLayout>
                 <Image
-                        @tap="showModal"
+                        @tap="showModal(product._id)"
                         src="https://static.cuisineaz.com/400x320/i108058-kebab-sans-gluten.jpg"></Image>
             </StackLayout>
 
@@ -30,14 +30,10 @@
     import {api_config} from '../api_config';
 
     import ModalProductPicture from "./ModalProductPicture";
-    const camera = require('nativescript-camera');
-    const imagePicker = require('nativescript-imagepicker');
-    
+
+
     export default {
         name: "ProductDetail",
-        beforeCreate(){
-            camera.requestPermissions();
-        },
         component: {
             //my component here
         },
@@ -51,8 +47,8 @@
             displayTruePrice(product_price, product_promotion) {
                 return (product_price - product_promotion);
             },
-            showModal() {
-                this.$showModal(ModalProductPicture);
+            showModal(product_id) {
+                this.$showModal(ModalProductPicture, { props: { product_id: product_id }});
             }
         }
     }

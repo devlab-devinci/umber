@@ -31,6 +31,10 @@ let ProductSchema = new Schema({
         type:Number,
         required:true
     },
+    picture: {
+        data: Buffer,
+        contentType: String
+    },
     stock: {
         type: Number,
         required: true

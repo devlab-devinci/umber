@@ -22,6 +22,20 @@ let Moment = require('moment');
 
 const _ = require('lodash');
 
+const multer = require('multer')
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './upload/products_picture/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
+    }
+});
+const upload = multer({storage: storage});
+
+const base64Img = require('base64-img');
+const path = require('path');
+
 //API -> passer l'user id dans l'url
 // recuperer tous les stores, les populate avec owner et recuperer que ce de l'user
 // -> voir sur le pc fixe le truck avec after poplate (filter)
@@ -32,7 +46,7 @@ const _ = require('lodash');
 /**
  * Return data for checkout stripe
  */
-router.get('/payment/cart/:user_id/:user_name_fb', function (req, res, next) {
+router.get('/payment/cart/:user_id/:user_name_fb', Authentication.authChecker, function (req, res, next) {
     let owner_id = req.params.user_id;
     let username_fb = req.params.user_name_fb;
 
@@ -258,7 +272,7 @@ router.post('/offer', Authentication.authChecker, function (req, res, next) {
 
 
 //Return product from user _id given
-router.get('/offers/:user_id', function (req, res, next) {
+router.get('/offers/:user_id', Authentication.authChecker, function (req, res, next) {
     let user_id = req.params.user_id;
 
     errorManager
@@ -295,7 +309,7 @@ router.get('/offers/:user_id', function (req, res, next) {
 
 
 //add cart to DB
-router.post('/cart', function (req, res, next) {
+    router.post('/cart', Authentication.authChecker, function (req, res, next) {
     let payload = req.body;
     //to check validId -> then cast to mongoose id
     console.log("user_id", payload.user_id);
@@ -435,7 +449,7 @@ router.post('/commands', Authentication.authChecker, function (req, res, nest) {
 });
 
 // ajust quantity of products when command is confirmed and paid
-router.post('/products/ajusted', function (req, res, next) {
+router.post('/products/ajusted', Authentication.authChecker, function (req, res, next) {
     let data = req.body;
 
     let error = false;
@@ -717,7 +731,7 @@ router.put('/commands/archived', Authentication.authChecker, function (req, res,
                                 console.log(commandId);
                                 Command
                                     .findOne({_id: commandId}, function (err, command) {
-                                        console.log("cmdf", command )
+                                        console.log("cmdf", command)
                                         if (err) {
                                             console.log("COMMAND find one", err)
                                             errorManager
@@ -960,6 +974,12 @@ router.post('/like', Authentication.authChecker, function (req, res, next) {
 });
 
 
+router.post('/product/picture', Authentication.authChecker, upload.single('product_picture'), function (req, res, next) {
+    console.log('req.file', req.file);
+    res.json(req.file);
+});
+
+
 router.get('/stats/:time', Authentication.authChecker, function (req, res, next) {
     let time = req.params.time;
 
@@ -995,10 +1015,10 @@ router.get('/stats/:time', Authentication.authChecker, function (req, res, next)
                             $lt: endOfDay
                         }
                     })
-                    .then(function(cmdhistorics){
+                    .then(function (cmdhistorics) {
                         res.status(200).json({
                             "data": {
-                                stats_like :storelikes,
+                                stats_like: storelikes,
                                 stats_command: cmdhistorics
                             },
                             "status": 200
@@ -1028,10 +1048,10 @@ router.get('/stats/:time', Authentication.authChecker, function (req, res, next)
                             $lt: endOfWeek
                         }
                     })
-                    .then(function(cmdhistorics){
+                    .then(function (cmdhistorics) {
                         res.status(200).json({
                             "data": {
-                                stats_like :storelikes,
+                                stats_like: storelikes,
                                 stats_command: cmdhistorics
                             },
                             "status": 200
@@ -1061,10 +1081,10 @@ router.get('/stats/:time', Authentication.authChecker, function (req, res, next)
                             $lt: endOfMonth
                         }
                     })
-                    .then(function(cmdhistorics){
+                    .then(function (cmdhistorics) {
                         res.status(200).json({
                             "data": {
-                                stats_like :storelikes,
+                                stats_like: storelikes,
                                 stats_command: cmdhistorics
                             },
                             "status": 200
@@ -1094,10 +1114,10 @@ router.get('/stats/:time', Authentication.authChecker, function (req, res, next)
                             $lt: endOfYear
                         }
                     })
-                    .then(function(cmdhistorics){
+                    .then(function (cmdhistorics) {
                         res.status(200).json({
                             "data": {
-                                stats_like :storelikes,
+                                stats_like: storelikes,
                                 stats_command: cmdhistorics
                             },
                             "status": 200

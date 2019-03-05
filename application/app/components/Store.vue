@@ -51,6 +51,7 @@
     import {api_config} from '../api_config';
     import Router from "./services/Router"
 
+
     export default {
         name: "Store",
         mounted() {
